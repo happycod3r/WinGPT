@@ -1,5 +1,6 @@
 import openai
 import sys
+import os
     
 class WinGTP:
     
@@ -19,7 +20,19 @@ class WinGTP:
         self.user_defined_filename = None
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
-    
+
+    def writeResonseToFile(msg, f_path):
+        if os.path.exists(f_path):
+            mode = 'a'
+        else:
+            mode = 'w'
+        try:
+            with open(f_path, mode) as file:
+                file.write(msg + '\n')
+            print("Message appended to the file successfully!")
+        except IOError:
+            print("An error occurred while appending to the file.")
+        
     def setAPIBase(self, api_base):
         self.api_base = api_base
         openai.api_base = self.api_base
@@ -85,9 +98,9 @@ class WinGTP:
     def getEngine(self):
         return self.engine
     
-    def setDataFile(self, jsonl_file_path):
+    def setJSONLDataFile(self, jsonl_file_path):
         self.data_file = file_obj = openai.File.create(
-            file=open(f"{jsonl_file_path}", 'rb'),
+            file=open(f'{jsonl_file_path}', 'rb'),
             purpose='fine-tune',
             model=self.engine,
             api_key = self.api_key,
@@ -98,11 +111,11 @@ class WinGTP:
             user_provided_filename = self.user_defined_filename,     
         )
         
-    def getDataFile(self):
+    def getJSONLDataFile(self):
         return self.data_file 
     
-    def readDataFile(self):
-        return None
+    def readJSONLDataFile(self):
+        pass
     
     def setRequest(self, request):
         self.request = request
@@ -143,20 +156,77 @@ class WinGTP:
         return self.response.choices[0].text.strip()
 
     def converse(self):
+        PRINT_RESPONSES = False
+        PRINT_FULL = False
+        
+        cli_options = [
+            'exit', # exit the chat session. 
+            '-l',   # Set the response token limit.
+            '-e',   # Set the engine. 
+            '-r',   # Set the number of reponses
+            '-b',   # Set the API base.
+            '-t',   # Set the API type.
+            '-v',   # Set the api version.
+            '-o',   # Set the organization name.
+            '-f',   # Set the user defined file name.
+            '-j',   # Set the JSONL data file path. 
+        ]   
+        
         while True:
             user_prompt = input(':>>> ')
-            if user_prompt == 'exit':
+            if user_prompt == cli_options[0]:
                 print(f'Goodbye! ...')
                 sys.exit()
+            elif user_prompt == cli_options[1]:
+                token_limit = input('Set the max amount of reponse tokens: ')
+                self.setResponseTokenLimit(int(token_limit))
+                print(f'Token limit set to {self.getResponseTokenLimit()} tokens per response.')
+                continue
+            elif user_prompt == cli_options[2]:
+                engine = input("Set the engine: ")
+                self.setEngine(engine)
+                print(f'Engine set to {self.getEngine()}')
+                continue
+            elif user_prompt == cli_options[3]:
+                response_count = input("Set the number of reponses: ")
+                self.setResponseCount(int(response_count))
+                print(f'The number of reponses is set to {self.getResponseCount()}')
+                continue
+            elif user_prompt == cli_options[4]:
+                api_base = input("Set the API base: ")
+                self.setAPIBase(str(response_count))
+                print(f'The API base is set to {self.getAPIBase()}')
+                continue
+            elif user_prompt == cli_options[5]:
+                api_type = input("Set the API type: ")
+                self.setAPIType(str(api_type))
+                print(f'The API type is set to {self.getAPIType()}')
+                continue
+            elif user_prompt == cli_options[6]:
+                api_version = input("Set the API version: ")
+                self.setAPIVersion(str(api_version))
+                print(f'The API version is set to {self.getAPIVersion()}')
+                continue
+            elif user_prompt == cli_options[7]:
+                organization = input("Set the organization name: ")
+                self.setOrganization(str(organization))
+                print(f'The API base is set to {self.getOrganization()}')
+                continue
+            elif user_prompt == cli_options[8]:
+                user_defined_filename = input("Set a user defined file name: ")
+                self.setUserDefinedFileName(str(user_defined_filename))
+                print(f'The user defined file name is set to {self.getUserDefinedFileName()}')
+                continue
+            elif user_prompt == cli_options[9]:
+                jsonl_file_path = input("Set a JSONL file: ")
+                self.setJSONLDataFile(str(jsonl_file_path))
+                print(f'The JSONL file is set to {self.getJSONLDataFile()}')
+                continue
             else:
-                REQUEST = str(user_prompt)
-                RESPONSE_TOKEN_LIMIT = 200
-                RESPONSE_COUNT = 1
-                ENGINE = 'text-davinci-003'
-                self.setResponseTokenLimit(RESPONSE_TOKEN_LIMIT)
-                self.setEngine(ENGINE)
-                self.setResponseCount(RESPONSE_COUNT)
-                self.setRequest(REQUEST)
+                self.setResponseTokenLimit(self.response_token_limit)
+                self.setEngine(self.engine)
+                self.setResponseCount(self.response_count)
+                self.setRequest(str(user_prompt))
                 self.requestData()
                 print(self.getResponse())
                 
