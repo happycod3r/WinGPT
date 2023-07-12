@@ -7,13 +7,33 @@ class WinGTP:
     def __init__(self, api_key_path):
         self.response_token_limit = 200#/minute (default)
         self.response_count = 1 #(default)
-        self.engine = 'text-davinci-003'
+        self.engines = [
+            ['gtp-4', 8192, '9-2021'],
+            ['gtp-4-0613', 8912, '9-2021'],
+            ['gtp-4-32k', 32768, '9-2021'],
+            ['gtp-4-32k-0613', 32768, '9-2021'],
+            ['gpt-3.5-turbo', 4096, '9-2021'],
+            ['gpt-3.5-turbo-16k', 16384, '9-2021'],
+            ['gpt-3.5-turbo-0613', 4096, '9-2021'],
+            ['gpt-3.5-turbo-16k-0613', 16384, '9-2021'],
+            ['text-davinci-003', 4097, '06-2021'],
+            ['text-davinci-002', 4097, '06-2021'],
+            ['code-davinci-002', 8001, '06-2021'],
+            ['text-curie-001', 2049, '10-2019'], 
+            ['text-babbage-001', 2049, '10-2019'], 
+            ['text-ada-001', 2049, '10-2019'],
+            ['davinci', 2049, '10-2019'],
+            ['curie', 2049, '10-2019'],
+            ['babbage', 2049, '10-2019'],
+            ['ada', 2049, '10-2019']
+        ]
+        self.engine = f"{self.engines[8][0]}"
         self.api_key_path = api_key_path
         self.api_key = self.getAPIKey(self.api_key_path)
         self.api_base = openai.api_base
         self.api_type = openai.api_type
         self.api_version = openai.api_version
-        self.data_file = None
+        self.jsonl_data_file = None
         self.request = 'What\'s todays date?'
         self.response = None
         self.organization = openai.organization
@@ -99,20 +119,20 @@ class WinGTP:
         return self.engine
     
     def setJSONLDataFile(self, jsonl_file_path):
-        self.data_file = file_obj = openai.File.create(
+        self.jsonl_data_file = file_obj = openai.File.create(
             file=open(f'{jsonl_file_path}', 'rb'),
-            purpose='fine-tune',
-            model=self.engine,
-            api_key = self.api_key,
-            api_base = self.api_base,
-            api_type = self.api_type,
-            api_version = self.api_version,
-            organization = self.organization,
-            user_provided_filename = self.user_defined_filename,     
+            purpose='fine-tune'
+            # model=self.engine,
+            # api_key = self.api_key,
+            # api_base = self.api_base,
+            # api_type = self.api_type,
+            # api_version = self.api_version,
+            # organization = self.organization,
+            # user_provided_filename = self.user_defined_filename,     
         )
         
     def getJSONLDataFile(self):
-        return self.data_file 
+        return self.jsonl_data_file 
     
     def readJSONLDataFile(self):
         pass
@@ -136,7 +156,7 @@ class WinGTP:
         self.response_count = response_count
         
     def requestData(self):
-        if(self.data_file == None):
+        if(self.jsonl_data_file == None):
             self.response = openai.Completion.create(
                 engine=f"{self.engine}",                # The model being used.
                 prompt=f"{self.request}",               # The input.
@@ -149,7 +169,7 @@ class WinGTP:
                 prompt=f"{self.request}",               # The input.
                 max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
                 n=self.response_count,                  # Number of responses 
-                files=[self.data_file.id]
+                files=[self.jsonl_data_file.id]
             )
         
     def getResponse(self):
@@ -194,7 +214,7 @@ class WinGTP:
                 continue
             elif user_prompt == cli_options[4]:
                 api_base = input("Set the API base: ")
-                self.setAPIBase(str(response_count))
+                self.setAPIBase(str(api_base))
                 print(f'The API base is set to {self.getAPIBase()}')
                 continue
             elif user_prompt == cli_options[5]:
