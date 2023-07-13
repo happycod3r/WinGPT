@@ -1,4 +1,14 @@
 
 .api_key.conf
 _dev/
+_tmp/
+
+*.back
+*.backup
+*.test
+*.tmp
+*.log
+test.*
+!test.jsonl
+*key*
 

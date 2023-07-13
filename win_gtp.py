@@ -5,7 +5,7 @@ import os
 
 class WinGTP:
     
-    def __init__(self, api_key_path):
+    def __init__(self):
         self.response_token_limit = 200#/minute (default)
         self.response_count = 1 #(default)
         self.engines = [
@@ -29,8 +29,8 @@ class WinGTP:
             ['ada', 2049, '10-2019']
         ]
         self.engine = f"{self.engines[8][0]}"
-        self.api_key_path = api_key_path
-        self.api_key = self.getAPIKey(self.api_key_path)
+        self.api_key_path = None
+        self.api_key = None
         self.api_base = openai.api_base
         self.api_type = openai.api_type
         self.api_version = openai.api_version
@@ -47,7 +47,10 @@ class WinGTP:
         if self.api_version != None:
             self.prompt = f"[{self.engine}] [{self.api_version}] >>> "
         else:
-            self.prompt = f"[{self.engine}] >>>"
+            self.prompt = f"WinGTP v0.1.0@[{self.engine}] >>> "
+            
+    def getPrompt(self):
+        return self.prompt
          
     def writeResponseToFile(msg, f_path):
         if os.path.exists(f_path):
@@ -97,7 +100,7 @@ class WinGTP:
         
     def setAPIKeyPath(self, api_key_path):
         self.api_key_path = api_key_path
-        openai.api_key_path = self.api_key_path
+        openai.api_key_path = api_key_path
         
     def getAPIKeyPath(self):
         return openai.api_key_path
@@ -285,6 +288,8 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 self.requestData()
                 print(self.getResponse())
                 
-API_KEY_PATH = './.api_key.conf'
-newRequest = WinGTP(API_KEY_PATH)
-newRequest.converse()
+# API_KEY_PATH = './.api_key.conf'
+# newRequest = WinGTP()
+# newRequest.setAPIKeyPath(API_KEY_PATH)
+# newRequest.converse()
+
