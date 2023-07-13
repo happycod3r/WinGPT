@@ -1,34 +1,37 @@
 import tkinter as tk
-from tkinter import font
 import customtkinter as ctk 
 from win_gtp import WinGTP
 
-# label1 = tk.Label(window, text="Label 1")
-# label1.grid(row=0, column=0)
+USER = 'paul'
 
-# label2 = tk.Label(window, text="Label 2")
-# label2.grid(row=1, column=0)
-
-# button = tk.Button(window, text="Button")
-# button.grid(row=1, column=1)
-
-# myapp    - [] x
-# Label 1
-# Label 2  Button
-#////// EVENT HANDLERS //////
+def clearInput():
+    input_box.delete("1.0", tk.END)
+    #small_input_box.delete("1.0", tk.END)
+    
+def getUserInput():
+    user_input = input_box.get("1.0", tk.END).strip()
+    return user_input
 
 def process_input():
-    user_input = input_box.get("1.0", tk.END).strip()
     API_KEY_PATH = './.api_key.conf'
+    request = str(getUserInput())
     newRequest = WinGTP()
     newRequest.setAPIKeyPath(API_KEY_PATH)  
     newRequest.setResponseTokenLimit(newRequest.response_token_limit)
     newRequest.setEngine(newRequest.engine)
     newRequest.setResponseCount(newRequest.response_count)
-    newRequest.setRequest(str(user_input))
+    newRequest.setRequest(request)
     newRequest.requestData()
+    
+    clearInput()
+    
     response = newRequest.getResponse()
-    output_box.insert(tk.END, f"{response}\n")
+    setOutput(f"[{USER}]: {request}\n")
+
+    setOutput(f"[{newRequest.engine}]: {response}\n")
+    
+def setOutput(output):
+    output_box.insert(tk.END, f"{output}\n")
     
 #////// GUI //////
 wingtp = ctk.CTk()
@@ -41,22 +44,22 @@ title = ctk.CTkLabel(
     wingtp,
     height=40,
     corner_radius=0,
-    bg_color="#328387",
+    bg_color="#0077b6",
     text="WinGTP v0.1.0",
     font=title_font,
     #compound="center"
 )
 title.grid(row=0, column=0, sticky="nsew")
-#title.grid_rowconfigure(0, weight=1)
+title.grid_rowconfigure(0, weight=1)
 
 #////// OUTPUT BOX //////
 output_box_font = ctk.CTkFont(
     "Segoi UI", 
-    size=14
+    size=16
 )
 output_box = ctk.CTkTextbox(
     wingtp,
-    height=420,
+    height=380,
     corner_radius=0,
     border_width=0,
     text_color="#e2e2e2",
@@ -70,7 +73,7 @@ output_box.grid_columnconfigure(0, weight=1)
 #////// INPUT BOX //////
 input_box_font = ctk.CTkFont(
     "Segoi UI", 
-    size=12
+    size=16
 )
 input_box = ctk.CTkTextbox(
     wingtp,
@@ -81,8 +84,24 @@ input_box = ctk.CTkTextbox(
     text_color="#e2e2e2",
     font=input_box_font,
 )
-input_box.grid(row=2, column=0, sticky="nsew", padx=2, pady=2)
-#input_box.grid_rowconfigure(2, weight=1)
+input_box.grid(row=2, column=0, sticky="nsew")
+
+#////// SMALL INPUT BOX //////
+small_input_box_font = ctk.CTkFont(
+    "Segoi UI", 
+    size=16
+)
+small_input_box = ctk.CTkEntry(
+    wingtp,
+    height=40,
+    corner_radius=0,
+    border_width=1,
+    border_color="#6d6d6d",
+    text_color="#e2e2e2",
+    font=small_input_box_font,
+    placeholder_text="Start chatting..."
+)
+small_input_box.grid(row=3, column=0, sticky="nsew")
 
 #////// SEND BUTTON //////
 send_btn_font = ctk.CTkFont(
@@ -99,8 +118,7 @@ send_btn = ctk.CTkButton(
     text_color="#e2e2e2",
     command=(process_input)
 )
-send_btn.grid(row=3, column=0, sticky="nsew")
-#send_btn.grid_rowconfigure(3, weight=1)
+send_btn.grid(row=4, column=0, sticky="nsew")
 
 #////// SYSTEM SETTINGS //////
 ctk.set_appearance_mode("System")
@@ -112,5 +130,5 @@ wingtp.geometry('700x750')
 wingtp.grid_columnconfigure(0, weight=1)
 wingtp.grid_rowconfigure(0, weight=1)
 
-print(wingtp.grid_size())
+
 wingtp.mainloop()

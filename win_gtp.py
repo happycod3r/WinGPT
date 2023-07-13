@@ -208,6 +208,9 @@ class WinGTP:
 WinGTP v0.1.0 - OpenAI Command-line Interface
         """
         
+    def greetUser(self):
+        pass
+        
     def converse(self):
         PRINT_RESPONSES = False
         PRINT_FULL = False
