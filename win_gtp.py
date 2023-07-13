@@ -1,7 +1,8 @@
+from bin import run
 import openai
 import sys
 import os
-    
+
 class WinGTP:
     
     def __init__(self, api_key_path):
@@ -40,8 +41,15 @@ class WinGTP:
         self.user_defined_filename = None
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
-
-    def writeResonseToFile(msg, f_path):
+        self.setPrompt()
+        
+    def setPrompt(self):
+        if self.api_version != None:
+            self.prompt = f"[{self.engine}] [{self.api_version}] >>> "
+        else:
+            self.prompt = f"[{self.engine}] >>>"
+         
+    def writeResponseToFile(msg, f_path):
         if os.path.exists(f_path):
             mode = 'a'
         else:
@@ -123,12 +131,12 @@ class WinGTP:
             file=open(f'{jsonl_file_path}', 'rb'),
             purpose='fine-tune'
             # model=self.engine,
-            # api_key = self.api_key,
-            # api_base = self.api_base,
-            # api_type = self.api_type,
-            # api_version = self.api_version,
-            # organization = self.organization,
-            # user_provided_filename = self.user_defined_filename,     
+            # api_key=self.api_key,
+            # api_base=self.api_base,
+            # api_type=self.api_type,
+            # api_version=self.api_version,
+            # organization=self.organization,
+            # user_provided_filename=self.user_defined_filename,     
         )
         
     def getJSONLDataFile(self):
@@ -175,12 +183,34 @@ class WinGTP:
     def getResponse(self):
         return self.response.choices[0].text.strip()
 
+    def _help(self):
+        """
+            All available WinGTP Interface options:
+            
+            exit   - exit the chat session.
+            -l     - Set the response token limit.
+            -e     - Set the engine. 
+            -r     - Set the number of reponses
+            -b     - Set the API base.
+            -t     - Set the API type.
+            -v     - Set the api version.
+            -o     - Set the organization name.
+            -f     - Set the user defined file name.
+            -j     - Set the JSONL data file path.
+            help   - Prints this message. 
+        """
+    
+    def banner(self):
+        """
+WinGTP v0.1.0 - OpenAI Command-line Interface
+        """
+        
     def converse(self):
         PRINT_RESPONSES = False
         PRINT_FULL = False
         
         cli_options = [
-            'exit', # exit the chat session. 
+            'exit', # exit the chat session.
             '-l',   # Set the response token limit.
             '-e',   # Set the engine. 
             '-r',   # Set the number of reponses
@@ -189,13 +219,16 @@ class WinGTP:
             '-v',   # Set the api version.
             '-o',   # Set the organization name.
             '-f',   # Set the user defined file name.
-            '-j',   # Set the JSONL data file path. 
+            '-j',   # Set the JSONL data file path.
+            'help', # Prints this message. 
         ]   
         
-        while True:
-            user_prompt = input(':>>> ')
+        print(self.banner.__doc__)
+        
+        while True:   
+            user_prompt = input(f"{self.prompt}")
             if user_prompt == cli_options[0]:
-                print(f'Goodbye! ...')
+                print(f'\nGoodbye! ...\n')
                 sys.exit()
             elif user_prompt == cli_options[1]:
                 token_limit = input('Set the max amount of reponse tokens: ')
@@ -242,6 +275,8 @@ class WinGTP:
                 self.setJSONLDataFile(str(jsonl_file_path))
                 print(f'The JSONL file is set to {self.getJSONLDataFile()}')
                 continue
+            elif user_prompt == cli_options[10]:
+                print(self._help.__doc__)
             else:
                 self.setResponseTokenLimit(self.response_token_limit)
                 self.setEngine(self.engine)
