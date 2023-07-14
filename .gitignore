@@ -1,6 +1,7 @@
 
 .api_key.conf
 _dev/
+dev/
 _tmp/
 
 *.back
