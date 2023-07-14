@@ -1,12 +1,15 @@
-from win_gtp import WinGTP
+from bin import setup
 import subprocess
 
-USE_GUI = True
+class Initialize:
+    def __init__(self) -> None:
+        self._setup = setup.Setup()
+        
+    def runWinGTPGUI(self) -> None:
+        subprocess.run(["python", "wingtpgui.py"])
 
-if USE_GUI == True:
-    subprocess.run(["python", "gui.py"])
-else:
-    API_KEY_PATH = './.api_key.conf'
-    newRequest = WinGTP()
-    newRequest.setAPIKeyPath(API_KEY_PATH)
-    newRequest.converse()
+def wingtp_gui_init() -> None:
+    init = Initialize()
+    init.runWinGTPGUI()
+
+wingtp_gui_init()

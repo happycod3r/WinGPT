@@ -1,32 +1,33 @@
 import sys
-import datetime
+from bin import normaltime
 import tkinter as tk
 import customtkinter as ctk 
 from tkinter import simpledialog
-from win_gtp import WinGTP
+from wingtpcli import WinGTPCLI
 
-#////// GLOBAL VARIABLES //////
+#////// GLOBAL VARIABLES ///////////////////////////////////////////////////
 USER = 'paul'
 API_KEY_PATH = './.api_key.conf'
-wingtp_cli = WinGTP()
+wingtp_cli = WinGTPCLI()
 
-def clearInput():
+def clearInput() -> None:
     input_box.delete("1.0", tk.END)
     #small_input_box.delete("1.0", tk.END)
     
-def getUserInput():
+def getUserInput() -> str:
     user_input = input_box.get("1.0", tk.END).strip()
     return str(user_input)
 
-def setOutput(output, type):
+def setOutput(output: str, type) -> None:
+    nt = normaltime.NormalTime()
     if type == "chat":
-        output_box.insert(tk.END, f"\n[{wingtp_cli.engine}]: {output}\n")
+        output_box.insert(tk.END, f"\n{nt.time(False)} [{wingtp_cli.engine}]: {output}\n")
     elif type == "cli":
-        output_box.insert(tk.END, f"\n[wingtp]: {output}\n")
+        output_box.insert(tk.END, f"\n{nt.time(False)} [wingtp]: {output}\n")
     elif type == "user":
-        output_box.insert(tk.END, f"\n[{USER}]: {output}\n")
+        output_box.insert(tk.END, f"\n{nt.time(False)} [{USER}]: {output}\n")
     
-def process_input():
+def process_input() -> None:
     request = getUserInput()
 
     #////////////////////////////////
@@ -94,15 +95,23 @@ def process_input():
         setOutput(response, 'chat')
         #////////////////////////////////
 
-#////// GUI //////
-wingtp = ctk.CTk()
+def getUsername() -> str:
+    return USER
+
+def setUsername() -> None:
+    username = simpledialog.askstring('Enter a username that you would like to use: ')
+    USER = username
+    simpledialog.askstring('Input', 'hello')
+    
+#////////////////////////////////////////////////////////////////////////////
+wingtp_gui = ctk.CTk()
 
 title_font = ctk.CTkFont(
     'Segoi UI', 
     size=16
 )
 title = ctk.CTkLabel(
-    wingtp,
+    wingtp_gui,
     height=40,
     corner_radius=0,
     bg_color='#0077b6',
@@ -119,7 +128,7 @@ output_box_font = ctk.CTkFont(
     size=16
 )
 output_box = ctk.CTkTextbox(
-    wingtp,
+    wingtp_gui,
     height=380,
     corner_radius=0,
     border_width=0,
@@ -137,7 +146,7 @@ input_box_font = ctk.CTkFont(
     size=16
 )
 input_box = ctk.CTkTextbox(
-    wingtp,
+    wingtp_gui,
     height=240,
     corner_radius=0,
     border_width=1,
@@ -153,7 +162,7 @@ small_input_box_font = ctk.CTkFont(
     size=16
 )
 small_input_box = ctk.CTkEntry(
-    wingtp,
+    wingtp_gui,
     height=40,
     corner_radius=0,
     border_width=1,
@@ -170,7 +179,7 @@ send_btn_font = ctk.CTkFont(
     size=16
 )
 send_btn = ctk.CTkButton(
-    wingtp,
+    wingtp_gui,
     height=40,
     corner_radius=0,
     border_width=0,
@@ -186,9 +195,11 @@ ctk.set_appearance_mode('System')
 ctk.set_default_color_theme('blue')
 
 #////// WINDOW //////
-wingtp.title('WinGTP Powered by Python & OpenAI')
-wingtp.geometry('700x750')
-wingtp.grid_columnconfigure(0, weight=1)
-wingtp.grid_rowconfigure(0, weight=1)
+wingtp_gui.title('WinGTP Powered by Python & OpenAI')
+wingtp_gui.geometry('700x750')
+wingtp_gui.grid_columnconfigure(0, weight=1)
+wingtp_gui.grid_rowconfigure(0, weight=1)
 
-wingtp.mainloop()
+setOutput(wingtp_cli.greetUser(USER, API_KEY_PATH), 'chat')
+
+wingtp_gui.mainloop()

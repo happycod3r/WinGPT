@@ -3,9 +3,9 @@ import openai
 import sys
 import os
 
-class WinGTP:
+class WinGTPCLI:
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.cli_options = [
             'exit', # exit the chat session.
             '-l',   # Set the response token limit.
@@ -54,18 +54,17 @@ class WinGTP:
         self.user_defined_filename = None
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
-        self.setPrompt()
-        
-    def setPrompt(self):
+            
+    def getPrompt(self) -> str:
+        return self.prompt
+
+    def setPrompt(self) -> None:
         if self.api_version != None:
             self.prompt = f"[{self.engine}] [{self.api_version}] >>> "
         else:
             self.prompt = f"WinGTP@0.1.0 > [{self.engine}] >>> "
-            
-    def getPrompt(self):
-        return self.prompt
          
-    def writeResponseToFile(msg, f_path):
+    def writeResponseToFile(msg: str, f_path: str) -> None:
         if os.path.exists(f_path):
             mode = 'a'
         else:
@@ -77,52 +76,48 @@ class WinGTP:
         except IOError:
             print("An error occurred while appending to the file.")
         
-    def setAPIBase(self, api_base):
+    def getAPIBase(self) -> str:
+        return openai.api_base
+    
+    def setAPIBase(self, api_base: str) -> None:
         self.api_base = api_base
         openai.api_base = self.api_base
         
-    def getAPIBase(self):
-        return openai.api_base
+    def getAPIType(self) -> str:
+        return openai.api_type
     
-    def setAPIType(self, api_type):
+    def setAPIType(self, api_type: str) -> None:
         self.api_type = api_type
         openai.api_type = self.api_type
         
-    def getAPIType(self):
-        return openai.api_type
+    def getAPIVersion(self) -> str:
+        return openai.api_version
     
-    def setAPIVersion(self, api_version):
+    def setAPIVersion(self, api_version: str) -> None:
         self.api_version = api_version
         openai.api_version = self.api_version
         
-    def getAPIVersion(self):
-        return openai.api_version
+    def getOrganization(self) -> str:
+        return openai.organization
     
-    def setOrganization(self, organization):
+    def setOrganization(self, organization: str) -> None:
         self.organization = organization
         openai.organization = self.organization
         
-    def getOrganization(self):
-        return openai.organization
-    
-    def setUserDefinedFileName(self, file_name):
-        self.user_defined_filename = file_name
-        
-    def getUserDefinedFileName(self):
+    def getUserDefinedFileName(self) -> str:
         return self.user_defined_filename
-        
-    def setAPIKeyPath(self, api_key_path):
+    
+    def setUserDefinedFileName(self, file_name: str) -> None:
+        self.user_defined_filename = file_name
+
+    def getAPIKeyPath(self) -> str:
+        return openai.api_key_path
+
+    def setAPIKeyPath(self, api_key_path: str) -> None:
         self.api_key_path = api_key_path
         openai.api_key_path = api_key_path
         
-    def getAPIKeyPath(self):
-        return openai.api_key_path
-        
-    def setAPIKey(self, api_key):
-        self.api_key = api_key
-        openai.api_key = self.api_key
-        
-    def getAPIKey(self, api_key_path):
+    def getAPIKey(self, api_key_path: str) -> str:
         try:
             with open(api_key_path, 'r') as file:
                 key = file.read()
@@ -135,14 +130,21 @@ class WinGTP:
             print("An unexpected error occurred while trying to read the api key configuration file", str(e))
         
         return key
-        
-    def setEngine(self, engine):
+
+    def setAPIKey(self, api_key: str) -> None:
+        self.api_key = api_key
+        openai.api_key = self.api_key
+
+    def getEngine(self) -> str:
+        return self.engine
+
+    def setEngine(self, engine: str) -> None:
         self.engine = engine
         
-    def getEngine(self):
-        return self.engine
-    
-    def setJSONLDataFile(self, jsonl_file_path):
+    def getJSONLDataFile(self):
+        return self.jsonl_data_file 
+
+    def setJSONLDataFile(self, jsonl_file_path: str) -> None:
         self.jsonl_data_file = file_obj = openai.File.create(
             file=open(f'{jsonl_file_path}', 'rb'),
             purpose='fine-tune'
@@ -154,32 +156,29 @@ class WinGTP:
             # organization=self.organization,
             # user_provided_filename=self.user_defined_filename,     
         )
-        
-    def getJSONLDataFile(self):
-        return self.jsonl_data_file 
     
-    def readJSONLDataFile(self):
+    def readJSONLDataFile(self) -> None:
         pass
-    
-    def setRequest(self, request):
-        self.request = request
-        
-    def getRequest(self):
+
+    def getRequest(self) -> str:
         return self.request
-   
-    def setResponseTokenLimit(self, response_token_limit):
-        self.response_token_limit = response_token_limit
-        
-    def getResponseTokenLimit(self):
-        return self.response_token_limit
-     
-    def getResponseCount(self):
-         return self.response_count
+
+    def setRequest(self, request: str) -> None:
+        self.request = request
     
-    def setResponseCount(self, response_count):
+    def getResponseTokenLimit(self) -> int:
+        return self.response_token_limit
+    
+    def setResponseTokenLimit(self, response_token_limit: int) -> None: 
+        self.response_token_limit = response_token_limit
+     
+    def getResponseCount(self) -> int:
+        return self.response_count
+     
+    def setResponseCount(self, response_count: int) -> None: 
         self.response_count = response_count
         
-    def requestData(self):
+    def requestData(self) -> None: 
         if(self.jsonl_data_file == None):
             self.response = openai.Completion.create(
                 engine=f"{self.engine}",                # The model being used.
@@ -196,10 +195,10 @@ class WinGTP:
                 files=[self.jsonl_data_file.id]
             )
         
-    def getResponse(self):
+    def getResponse(self) -> str:
         return self.response.choices[0].text.strip()
 
-    def _help(self):
+    def _help(self) -> None:
         """
             All available WinGTP Interface options:
             
@@ -216,15 +215,21 @@ class WinGTP:
             help   - Prints this message. 
         """
     
-    def banner(self):
+    def banner(self) -> None:
         """
 WinGTP v0.1.0 - OpenAI Command-line Interface
         """
         
-    def greetUser(self):
-        pass
+    def greetUser(self, user: str, key_path: str) -> str:
+        self.setAPIKeyPath(key_path)
+        self.setResponseTokenLimit(self.response_token_limit)
+        self.setEngine(self.engine)
+        self.setResponseCount(self.response_count)
+        self.setRequest(f'Hello? I\'m {user}')
+        self.requestData()
+        return self.getResponse()
         
-    def converse(self):
+    def converse(self) -> None:
         
         print(self.banner.__doc__)
         
@@ -289,3 +294,10 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 print(self.getResponse())
                 
 
+def wingtp_cli_init():
+    API_KEY_PATH = './.api_key.conf'
+    wingtp_cli = WinGTPCLI()
+    wingtp_cli.setAPIKeyPath(API_KEY_PATH)
+    wingtp_cli.converse()
+    
+wingtp_cli_init
