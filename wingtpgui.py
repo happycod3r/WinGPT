@@ -3,6 +3,7 @@ from bin import normaltime
 import tkinter as tk
 import customtkinter as ctk 
 from tkinter import simpledialog
+from chatmemory import memory
 from wingtpcli import WinGTPCLI
 
 #////// GLOBAL VARIABLES ///////////////////////////////////////////////////
@@ -13,6 +14,10 @@ wingtp_cli = WinGTPCLI()
 def clearInput() -> None:
     input_box.delete("1.0", tk.END)
     #small_input_box.delete("1.0", tk.END)
+    
+def clearOutput():
+    output_box.delete("1.0", tk.END)
+    clearInput()
     
 def getUserInput() -> str:
     user_input = input_box.get("1.0", tk.END).strip()
@@ -26,6 +31,14 @@ def setOutput(output: str, type) -> None:
         output_box.insert(tk.END, f"\n{nt.time(False)} [wingtp]: {output}\n")
     elif type == "user":
         output_box.insert(tk.END, f"\n{nt.time(False)} [{USER}]: {output}\n")
+
+def getUsername() -> str:
+    return USER
+
+def setUsername() -> None:
+    username = simpledialog.askstring('Enter a username that you would like to use: ')
+    USER = username
+    simpledialog.askstring('Input', 'hello')
     
 def process_input() -> None:
     request = getUserInput()
@@ -82,6 +95,8 @@ def process_input() -> None:
     elif request == wingtp_cli.cli_options[10]:
         clearInput()
         setOutput(wingtp_cli._help.__doc__, 'cli')
+    elif request == wingtp_cli.cli_options[11]:
+        clearOutput()
     else:
         wingtp_cli.setAPIKeyPath(API_KEY_PATH)
         wingtp_cli.setEngine(wingtp_cli.engine)
@@ -93,15 +108,6 @@ def process_input() -> None:
         clearInput()
         setOutput(request, 'user')
         setOutput(response, 'chat')
-        #////////////////////////////////
-
-def getUsername() -> str:
-    return USER
-
-def setUsername() -> None:
-    username = simpledialog.askstring('Enter a username that you would like to use: ')
-    USER = username
-    simpledialog.askstring('Input', 'hello')
     
 #////////////////////////////////////////////////////////////////////////////
 wingtp_gui = ctk.CTk()

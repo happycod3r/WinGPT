@@ -1,10 +1,10 @@
-from bin import run
+from chatmemory import memory
 import openai
 import sys
 import os
 
 class WinGTPCLI:
-    
+     
     def __init__(self) -> None:
         self.cli_options = [
             'exit', # exit the chat session.
@@ -18,6 +18,7 @@ class WinGTPCLI:
             '-f',   # Set the user defined file name.
             '-j',   # Set the JSONL data file path.
             'help', # Prints this message. 
+            'clear', # Clear the output box.
         ]   
         self.response_token_limit = 200#/minute (default)
         self.response_count = 1 #(default)
@@ -54,7 +55,11 @@ class WinGTPCLI:
         self.user_defined_filename = None
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
-            
+        self.setPrompt()
+    
+    def _clear(self) -> None:
+        print('\033c', end='')
+    
     def getPrompt(self) -> str:
         return self.prompt
 
@@ -179,24 +184,27 @@ class WinGTPCLI:
         self.response_count = response_count
         
     def requestData(self) -> None: 
+        _respone = None
         if(self.jsonl_data_file == None):
-            self.response = openai.Completion.create(
+            _response = openai.Completion.create(
                 engine=f"{self.engine}",                # The model being used.
                 prompt=f"{self.request}",               # The input.
                 max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
                 n=self.response_count,                  # Number of responses 
             )
         else:
-            self.response = openai.Completion.create(
+            _response = openai.Completion.create(
                 engine=f"{self.engine}",                # The model being used.
-                prompt=f"{self.request}",               # The input.
+                prompt=f"{self.request}",                # The input.
                 max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
                 n=self.response_count,                  # Number of responses 
                 files=[self.jsonl_data_file.id]
             )
+        self.response = _response
         
     def getResponse(self) -> str:
-        return self.response.choices[0].text.strip()
+        response = self.response.choices[0].text.strip() 
+        return response
 
     def _help(self) -> None:
         """
@@ -227,7 +235,8 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
         self.setResponseCount(self.response_count)
         self.setRequest(f'Hello? I\'m {user}')
         self.requestData()
-        return self.getResponse()
+        greeting = self.getResponse()
+        return greeting
         
     def converse(self) -> None:
         
@@ -285,6 +294,8 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 continue
             elif user_prompt == self.cli_options[10]:
                 print(self._help.__doc__)
+            elif user_prompt == self.cli_options[11]:
+                self._clear()
             else:
                 self.setResponseTokenLimit(self.response_token_limit)
                 self.setEngine(self.engine)
@@ -292,12 +303,4 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 self.setRequest(str(user_prompt))
                 self.requestData()
                 print(self.getResponse())
-                
 
-def wingtp_cli_init():
-    API_KEY_PATH = './.api_key.conf'
-    wingtp_cli = WinGTPCLI()
-    wingtp_cli.setAPIKeyPath(API_KEY_PATH)
-    wingtp_cli.converse()
-    
-wingtp_cli_init
