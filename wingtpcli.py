@@ -20,8 +20,6 @@ class WinGTPCLI:
             'help', # Prints this message. 
             'clear', # Clear the output box.
         ]   
-        self.response_token_limit = 200#/minute (default)
-        self.response_count = 1 #(default)
         self.engines = [
             ['gtp-4', 8192, '9-2021'],
             ['gtp-4-0613', 8912, '9-2021'],
@@ -51,6 +49,8 @@ class WinGTPCLI:
         self.jsonl_data_file = None
         self.request = 'What\'s todays date?'
         self.response = None
+        self.response_token_limit = 200#/minute (default)
+        self.response_count = 1 #(default)
         self.organization = openai.organization
         self.user_defined_filename = None
         openai.api_key_path = self.api_key_path
@@ -60,6 +60,42 @@ class WinGTPCLI:
     def _clear(self) -> None:
         print('\033c', end='')
     
+    def createFile(self, file_path: str) -> bool:
+        if(os.path.exists(file_path)):
+            try:
+                with open(file_path, 'w') as file:
+                    return True
+            except IOError:
+                return False
+        return False
+                    
+    def writeTofile(self, file_path: str, content: str = None) -> bool:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'w') as file:
+                    if content != None:
+                        file.write(content)
+                        file.close()
+                print(f"File '{file_path}' created successfully.")
+                return True
+            except IOError:
+                print(f"An error occurred while creating the file '{file_path}'.")
+                return False
+        return False
+    
+    def readFromFile(self, file_path: str) -> str:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r') as file:
+                    contents = file.read()
+                    if contents is not None:
+                        return contents
+            except FileNotFoundError:
+                print(f"File '{file_path}' not found.")
+            except IOError:
+                print(f"Error reading file '{file_path}'.")
+        return False
+    
     def getPrompt(self) -> str:
         return self.prompt
 
@@ -68,18 +104,6 @@ class WinGTPCLI:
             self.prompt = f"[{self.engine}] [{self.api_version}] >>> "
         else:
             self.prompt = f"WinGTP@0.1.0 > [{self.engine}] >>> "
-         
-    def writeResponseToFile(msg: str, f_path: str) -> None:
-        if os.path.exists(f_path):
-            mode = 'a'
-        else:
-            mode = 'w'
-        try:
-            with open(f_path, mode) as file:
-                file.write(msg + '\n')
-            print("Message appended to the file successfully!")
-        except IOError:
-            print("An error occurred while appending to the file.")
         
     def getAPIBase(self) -> str:
         return openai.api_base
@@ -118,23 +142,26 @@ class WinGTPCLI:
     def getAPIKeyPath(self) -> str:
         return openai.api_key_path
 
-    def setAPIKeyPath(self, api_key_path: str) -> None:
-        self.api_key_path = api_key_path
-        openai.api_key_path = api_key_path
+    def setAPIKeyPath(self, api_key_path: str) -> bool:
+        if os.path.exists(api_key_path):
+            self.api_key_path = api_key_path
+            openai.api_key_path = api_key_path
+            return True
+        return False
         
     def getAPIKey(self, api_key_path: str) -> str:
-        try:
-            with open(api_key_path, 'r') as file:
-                key = file.read()
-                file.close()
-        except FileNotFoundError:
-            print("API key not found")
-        except IOError:
-            print("An error occurred while reading the api key configuration file.")
-        except Exception as e:
-            print("An unexpected error occurred while trying to read the api key configuration file", str(e))
-        
-        return key
+        if os.path.exists(api_key_path):
+            try:
+                with open(api_key_path, 'r') as file:
+                    key = file.read()
+                    file.close()
+                    return key
+            except FileNotFoundError:
+                print("API key not found")
+            except IOError:
+                print("An error occurred while reading the api key configuration file.")
+            except Exception as e:
+                print("An unexpected error occurred while trying to read the api key configuration file", str(e))
 
     def setAPIKey(self, api_key: str) -> None:
         self.api_key = api_key
@@ -149,18 +176,21 @@ class WinGTPCLI:
     def getJSONLDataFile(self):
         return self.jsonl_data_file 
 
-    def setJSONLDataFile(self, jsonl_file_path: str) -> None:
-        self.jsonl_data_file = file_obj = openai.File.create(
-            file=open(f'{jsonl_file_path}', 'rb'),
-            purpose='fine-tune'
-            # model=self.engine,
-            # api_key=self.api_key,
-            # api_base=self.api_base,
-            # api_type=self.api_type,
-            # api_version=self.api_version,
-            # organization=self.organization,
-            # user_provided_filename=self.user_defined_filename,     
-        )
+    def setJSONLDataFile(self, jsonl_file_path: str) -> bool:
+        if os.path.exists(jsonl_file_path):
+            self.jsonl_data_file = file_obj = openai.File.create(
+                file=open(f'{jsonl_file_path}', 'rb'),
+                purpose='fine-tune'
+                # model=self.engine,
+                # api_key=self.api_key,
+                # api_base=self.api_base,
+                # api_type=self.api_type,
+                # api_version=self.api_version,
+                # organization=self.organization,
+                # user_provided_filename=self.user_defined_filename,     
+            )
+            return True
+        return False
     
     def readJSONLDataFile(self) -> None:
         pass
@@ -185,22 +215,25 @@ class WinGTPCLI:
         
     def requestData(self) -> None: 
         _respone = None
-        if(self.jsonl_data_file == None):
-            _response = openai.Completion.create(
-                engine=f"{self.engine}",                # The model being used.
-                prompt=f"{self.request}",               # The input.
-                max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                n=self.response_count,                  # Number of responses 
-            )
-        else:
-            _response = openai.Completion.create(
-                engine=f"{self.engine}",                # The model being used.
-                prompt=f"{self.request}",                # The input.
-                max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                n=self.response_count,                  # Number of responses 
-                files=[self.jsonl_data_file.id]
-            )
-        self.response = _response
+        try:
+            if(self.jsonl_data_file == None):
+                _response = openai.Completion.create(
+                    engine=f"{self.engine}",                # The model being used.
+                    prompt=f"{self.request}",               # The input.
+                    max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                    n=self.response_count,                  # Number of responses 
+                )
+            else:
+                _response = openai.Completion.create(
+                    engine=f"{self.engine}",                # The model being used.
+                    prompt=f"{self.request}",                # The input.
+                    max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                    n=self.response_count,                  # Number of responses 
+                    files=[self.jsonl_data_file.id]
+                )
+            self.response = _response
+        except openai.OpenAIError:
+            print("OpenAI Error")
         
     def getResponse(self) -> str:
         response = self.response.choices[0].text.strip() 
@@ -229,14 +262,15 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
         """
         
     def greetUser(self, user: str, key_path: str) -> str:
-        self.setAPIKeyPath(key_path)
-        self.setResponseTokenLimit(self.response_token_limit)
-        self.setEngine(self.engine)
-        self.setResponseCount(self.response_count)
-        self.setRequest(f'Hello? I\'m {user}')
-        self.requestData()
-        greeting = self.getResponse()
-        return greeting
+        if os.path.exists(key_path):
+            self.setAPIKeyPath(key_path)
+            self.setResponseTokenLimit(self.response_token_limit)
+            self.setEngine(self.engine)
+            self.setResponseCount(self.response_count)
+            self.setRequest(f'Hello? I\'m {user}')
+            self.requestData()
+            greeting = self.getResponse()
+            return greeting
         
     def converse(self) -> None:
         

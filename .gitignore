@@ -1,5 +1,6 @@
 
 .api_key.conf
+config/.api_key.conf
 _dev/
 dev/
 _tmp/

@@ -1,21 +1,22 @@
 import sys
 from bin import normaltime
 import tkinter as tk
+from tkinter import *
 import customtkinter as ctk 
 from tkinter import simpledialog
 from chatmemory import memory
 from wingtpcli import WinGTPCLI
-
+from ctrls import ctktextbox 
 #////// GLOBAL VARIABLES ///////////////////////////////////////////////////
 USER = 'paul'
-API_KEY_PATH = './.api_key.conf'
+API_KEY_PATH = './config/.api_key.conf'
 wingtp_cli = WinGTPCLI()
 
 def clearInput() -> None:
     input_box.delete("1.0", tk.END)
     #small_input_box.delete("1.0", tk.END)
     
-def clearOutput():
+def clearOutput() -> None:
     output_box.delete("1.0", tk.END)
     clearInput()
     
@@ -33,12 +34,12 @@ def setOutput(output: str, type) -> None:
         output_box.insert(tk.END, f"\n{nt.time(False)} [{USER}]: {output}\n")
 
 def getUsername() -> str:
-    return USER
+    return wingtp_cli.readFile('./config/username.conf')
 
 def setUsername() -> None:
     username = simpledialog.askstring('Enter a username that you would like to use: ')
     USER = username
-    simpledialog.askstring('Input', 'hello')
+    
     
 def process_input() -> None:
     request = getUserInput()
@@ -114,7 +115,8 @@ wingtp_gui = ctk.CTk()
 
 title_font = ctk.CTkFont(
     'Segoi UI', 
-    size=16
+    size=20,
+    weight='bold'
 )
 title = ctk.CTkLabel(
     wingtp_gui,
@@ -122,8 +124,7 @@ title = ctk.CTkLabel(
     corner_radius=0,
     bg_color='#0077b6',
     text='WinGTP v0.1.0',
-    font=title_font,
-    #compound="center"
+    font=title_font
 )
 title.grid(row=0, column=0, sticky='nsew')
 title.grid_rowconfigure(0, weight=1)
@@ -133,14 +134,13 @@ output_box_font = ctk.CTkFont(
     'Segoi UI', 
     size=16
 )
-output_box = ctk.CTkTextbox(
+output_box = ctktextbox.CustomTkTextbox(
     wingtp_gui,
     height=380,
     corner_radius=0,
     border_width=0,
-    text_color='#e2e2e2',
+    text_color='#4895ef',
     font=output_box_font,
-    
 )
 output_box.grid(row=1, column=0, sticky='nsew')
 output_box.grid_rowconfigure(1)
@@ -151,16 +151,18 @@ input_box_font = ctk.CTkFont(
     'Segoi UI', 
     size=16
 )
-input_box = ctk.CTkTextbox(
+
+input_box = ctktextbox.CustomTkTextbox(
     wingtp_gui,
-    height=240,
-    corner_radius=0,
-    border_width=1,
-    border_color='#6d6d6d',
-    text_color='#e2e2e2',
-    font=input_box_font,
+    #height=240,
+    #corner_radius=0,
+    #border_width=1,
+    #border_color='#6d6d6d',
+    #text_color='#e2e2e2',
+    font=input_box_font
 )
 input_box.grid(row=2, column=0, sticky='nsew')
+
 
 #////// SMALL INPUT BOX //////
 small_input_box_font = ctk.CTkFont(
@@ -182,7 +184,8 @@ small_input_box.grid(row=3, column=0, sticky='nsew')
 #////// SEND BUTTON //////
 send_btn_font = ctk.CTkFont(
     'Segoi UI',
-    size=16
+    size=18,
+    weight='bold'
 )
 send_btn = ctk.CTkButton(
     wingtp_gui,
