@@ -3,13 +3,14 @@
 - 3) Theme
 4) Font color chooser
 5) output/input font size
-6) self.engine
-7) self.response_token_limit
-8) self.response_count
-9) self.api_base
+- 6) self.engine
+- 7) self.response_token_limit
+- 8) self.response_count
+- 9) self.api_base
 10) self.api_type
 11) self.api_version
 12) self.organization
 13) self.user_defined_filename
 14) self.jsonl_data_file
 - 15) Send query
+- 16) ui scaling

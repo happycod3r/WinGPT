@@ -28,17 +28,19 @@ class WinGTPGUI(ctk.CTk):
         self.title("WinGTP Powered by Python & OpenAI")
         self.geometry(f"{1100}x{580}")
 
-        #//////////// GRID LAYOUT (4x4)
+        #//////////// GRID LAYOUT (4x4) ////////////
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
+        
+        #//////////// IMAGES ////////////
 
-        #//////////// SIDEBAR
+        #//////////// SIDEBAR ////////////
         self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar.grid_rowconfigure(4, weight=1)
         
-        #//////////// SIDEBAR LOGO
+        #//////////// SIDEBAR LOGO ////////////
         self.sidebar_logo = ctk.CTkLabel(self.sidebar, text="WinGTP v0.1.0", font=ctk.CTkFont(size=20, weight="bold"))
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
@@ -73,34 +75,54 @@ class WinGTPGUI(ctk.CTk):
         self.output_box = ctk.CTkTextbox(self, width=250, font=ctk.CTkFont(size=14, weight='bold'))
         self.output_box.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
-        # create tabview
-        self.tabview = ctk.CTkTabview(self, width=250)
-        self.tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.tabview.add("CTkTabview")
-        # self.tabview.add("Tab 2")
-        # self.tabview.add("Tab 3")
-        self.tabview.tab("CTkTabview").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
-        # self.tabview.tab("Tab 2").grid_columnconfigure(0, weight=1)
-        
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #//////////// GTP OPTIONS TAB VIEW ////////////
+        self.gtp_options_tabview = ctk.CTkTabview(self, width=250)
+        self.gtp_options_tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.gtp_options_tabview.add("Response")
+        self.gtp_options_tabview.add("API")
+        self.gtp_options_tabview.add("Data")
+        self.gtp_options_tabview.tab("Response").grid_columnconfigure(0, weight=1)
+        self.gtp_options_tabview.tab("API").grid_columnconfigure(0, weight=1)
+        self.gtp_options_tabview.tab("Data").grid_columnconfigure(0, weight=1)
         #//////////// ENGINE OPTION MENU ////////////
-        _engine_values = []
+        _gtp_engines = []
         for _index in range(len(self.wingtp_cli.engines)):
-            _engine_values.append(self.wingtp_cli.engines[_index][0])
+            _gtp_engines.append(self.wingtp_cli.engines[_index][0])
             _index += 1
 
         self.engine_option_menu = ctk.CTkOptionMenu(
-            self.tabview.tab("CTkTabview"), 
+            self.gtp_options_tabview.tab("Response"), 
             dynamic_resizing=False, 
-            values=_engine_values           #["Value 1", "Value 2", "Value Long Long Long"]
+            values=_gtp_engines #["Value 1", "Value 2", "Value 3"]
         )
         self.engine_option_menu.grid(row=0, column=0, padx=20, pady=(20, 10))
         
-        self.response_token_limit_input = ctk.CTkButton(self.tabview.tab("CTkTabview"), text="Response Token Limit", command=self.open_response_token_limit_input_dialog_event)
+        #//////////// RESPONSE TOKEN LIMIT INPUT ////////////
+        self.response_token_limit_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text="Response Token Limit", command=self.open_response_token_limit_input_dialog_event)
         self.response_token_limit_input.grid(row=1, column=0, padx=20, pady=(10, 10))
         
-        self.response_count_input = ctk.CTkButton(self.tabview.tab("CTkTabview"), text="Response Count", command=self.open_response_count_input_dialog_event)
+        #//////////// RESPONSE COUNT INPUT ////////////
+        self.response_count_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text="Response Count", command=self.open_response_count_input_dialog_event)
         self.response_count_input.grid(row=2, column=0, padx=20, pady=(10, 10))
 
+        #//////////// API BASE INPUT ////////////
+        self.api_base_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Base", command=self.open_api_base_input_dialog_event)
+        self.api_base_input.grid(row=0, column=0, padx=20, pady=(10, 10))
+        
+        #//////////// API TYPE INPUT ////////////
+        self.api_type_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Type", command=self.open_api_type_input_dialog_event)
+        self.api_type_input.grid(row=1, column=0, padx=20, pady=(10, 10))
+        
+        #//////////// API VERSION INPUT ////////////
+        self.api_version_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Version", command=self.open_api_version_input_dialog_event)
+        self.api_version_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        
+        #//////////// ORGANIZATION INPUT ////////////
+        self.organization_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="Organization", command=self.open_organization_input_dialog_event)
+        self.organization_input.grid(row=3, column=0, padx=20, pady=(10, 10))
+        
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         # create radiobutton frame
         self.radiobutton_frame = ctk.CTkFrame(self)
         self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -114,13 +136,13 @@ class WinGTPGUI(ctk.CTk):
         self.radio_button_3 = ctk.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=2)
         self.radio_button_3.grid(row=3, column=2, pady=10, padx=20, sticky="n")
 
-        #//////////// LARGE INPUT BOX FRAME ////////////
+        #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.input_box_frame.grid(row=1, column=1, padx=(20, 0), pady=(0, 0), sticky="nsew")
         self.input_box_frame.grid_columnconfigure(0, weight=1)
         self.input_box_frame.grid_rowconfigure(0, weight=1)
         
-        #//////////// LARGE INPUT BOX ////////////
+        #//////////// INPUT BOX ////////////
         self.input_box = ctktextbox.CustomTkTextbox(
             self.input_box_frame, 
             font=ctk.CTkFont('Segoi UI', size=16)
@@ -148,7 +170,7 @@ class WinGTPGUI(ctk.CTk):
         self.checkbox_3 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
         self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
 
-        # set default values
+        #//////////// DEFAULT VALUES ////////////
         self.sidebar_button_3.configure(state="disabled", text="Disabled CTkButton")
         self.checkbox_3.configure(state="disabled")
         self.checkbox_1.select()
@@ -158,15 +180,36 @@ class WinGTPGUI(ctk.CTk):
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_option_menu.set("100%")
         self.engine_option_menu.set("Engine")
+        
+        #//////////// GUI METHODS ////////////
+
+    def open_organization_input_dialog_event(self):
+        pass
+
+    def open_api_version_input_dialog_event(self):
+        dialog = ctk.CTkInputDialog(text="Enter the API version: ", title="API Version Input")
+        self.wingtp_cli.setAPIVersion(str(dialog.get_input()))
+        self.setOutput(f"API version change to: [{self.wingtp_cli.getAPIVersion()}]", "cli")
+
+    def open_api_type_input_dialog_event(self):
+        dialog = ctk.CTkInputDialog(text="Enter the API type: ", title="API Type Input")
+        self.wingtp_cli.setAPIType(str(dialog.get_input()))
+        self.setOutput(f"API type change to: [{self.wingtp_cli.getAPIType()}]", "cli")
+
+    def open_api_base_input_dialog_event(self):
+        dialog = ctk.CTkInputDialog(text="Enter the API base: ", title="API Base Input")
+        self.wingtp_cli.setAPIBase(str(dialog.get_input()))
+        self.setOutput(f"API base change to: [{self.wingtp_cli.getAPIBase()}]", "cli")
 
     def open_response_token_limit_input_dialog_event(self):
-        dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit")
-        print("CTkInputDialog:", dialog.get_input())
-
+        dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
+        self.wingtp_cli.setResponseTokenLimit(int(dialog.get_input()))
+        self.setOutput(f"Response token limit changed to: [{self.wingtp_cli.getResponseTokenLimit()}]", "cli")
+        
     def open_response_count_input_dialog_event(self):
-        dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count")
-        self.wingtp_cli.setResponseCount(dialog.get_input())
-        self.setOutput(f"Response count changed!\nResponse count:  [{self.wingtp_cli.getResponseCount()}]", "cli")
+        dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count Input")
+        self.wingtp_cli.setResponseCount(int(dialog.get_input()))
+        self.setOutput(f"Response count changed to: [{self.wingtp_cli.getResponseCount()}]", "cli")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         ctk.set_appearance_mode(new_appearance_mode)
