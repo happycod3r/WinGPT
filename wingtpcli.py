@@ -6,6 +6,7 @@ import os
 class WinGTPCLI:
      
     def __init__(self) -> None:
+        
         self.cli_options = [
             'exit', # exit the chat session.
             '-l',   # Set the response token limit.

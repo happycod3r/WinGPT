@@ -7,5 +7,6 @@ class CustomTkTextbox(ctk.CTkTextbox):
         self.configure(
             padx=30, 
             pady=30,
-            relief=tk.FLAT
+            border_width=1,
+            corner_radius=4
         )  # Set the inner padding values

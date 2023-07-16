@@ -2,9 +2,9 @@
 .api_key.conf
 config/.api_key.conf
 _dev/
-dev/
 _tmp/
 
+*notes*
 *.back
 *.backup
 *.test
@@ -14,3 +14,4 @@ test.*
 !test.jsonl
 *key*
 
+_pycache_/
