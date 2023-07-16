@@ -20,6 +20,7 @@ class WinGTPCLI:
             '-j',   # Set the JSONL data file path.
             'help', # Prints this message. 
             'clear', # Clear the output box.
+            'theme', # Change the theme. Requires theme as 1st argument.
         ]   
         self.engines = [
             ['gtp-4', 8192, '9-2021'],
@@ -244,17 +245,19 @@ class WinGTPCLI:
         """
             All available WinGTP Interface options:
             
-            exit   - exit the chat session.
-            -l     - Set the response token limit.
-            -e     - Set the engine. 
-            -r     - Set the number of reponses
-            -b     - Set the API base.
-            -t     - Set the API type.
-            -v     - Set the api version.
-            -o     - Set the organization name.
-            -f     - Set the user defined file name.
-            -j     - Set the JSONL data file path.
-            help   - Prints this message. 
+            exit                      - exit the chat session.
+            -l                        - Set the response token limit.
+            -e                        - Set the engine. 
+            -r                        - Set the number of reponses
+            -b                        - Set the API base.
+            -t                        - Set the API type.
+            -v                        - Set the api version.
+            -o                        - Set the organization name.
+            -f                        - Set the user defined file name.
+            -j                        - Set the JSONL data file path.
+            help                      - Prints this message. 
+            clear                     - Clear the output box and command entry.
+            theme <Light|Dark|System> - Switch between themes.
         """
     
     def banner(self) -> None:

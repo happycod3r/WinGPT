@@ -7,34 +7,41 @@ from bin import normaltime
 from chatmemory import memory
 from wingtpcli import WinGTPCLI
 from ctrls import ctktextbox
+from PIL import Image
 import sys
 import os 
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-
 class WinGTPGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        #//////////// WINGTP GUI PROPERTIES
+        #//////////// WINGTP GUI PROPERTIES ////////////
         self.USER = 'paul'
         self.API_KEY_PATH = './config/.api_key.conf'
         self.wingtp_cli = WinGTPCLI()
         self.nt = normaltime.NormalTime()
+        self.width = 1300  # 1100
+        self.height = 580
         
-        #//////////// WINDOW
+        #//////////// WINDOW ////////////
         self.title("WinGTP Powered by Python & OpenAI")
-        self.geometry(f"{1100}x{580}")
+        self.geometry(f"{self.width}x{self.height}")
 
         #//////////// GRID LAYOUT (4x4) ////////////
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
         
-        #//////////// IMAGES ////////////
-
+        #//////////// BACKGROUND IMAGE ////////////
+        self.current_path = os.path.dirname(os.path.realpath(__file__))
+        self.bg_image = ctk.CTkImage(Image.open(
+            self.current_path + "./images/bg_gradient.jpg"), 
+            size=(self.width, self.height)
+        )
+        
         #//////////// SIDEBAR ////////////
         self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar.grid(row=0, column=0, rowspan=4, sticky="nsew")
@@ -44,8 +51,8 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_logo = ctk.CTkLabel(self.sidebar, text="WinGTP v0.1.0", font=ctk.CTkFont(size=20, weight="bold"))
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
-        self.sidebar_button_1 = ctk.CTkButton(self.sidebar, command=self.sidebar_button_event)
-        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
+        self.sidebar_logout_btn = ctk.CTkButton(self.sidebar)
+        self.sidebar_logout_btn.grid(row=1, column=0, padx=20, pady=10)
         
         self.sidebar_button_2 = ctk.CTkButton(self.sidebar, command=self.sidebar_button_event)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
@@ -53,11 +60,13 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_button_3 = ctk.CTkButton(self.sidebar, command=self.sidebar_button_event)
         self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
         
+        #//////////// THEME SELECT ////////////
         self.appearance_mode_label = ctk.CTkLabel(self.sidebar, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
         
+        #//////////// UI SIZE SCALING SELECT ////////////
         self.scaling_label = ctk.CTkLabel(self.sidebar, text="UI Scaling:", anchor="w")
         self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
         self.scaling_option_menu = ctk.CTkOptionMenu(self.sidebar, values=["80%", "90%", "100%", "110%", "120%"], command=self.change_scaling_event)
@@ -75,7 +84,6 @@ class WinGTPGUI(ctk.CTk):
         self.output_box = ctk.CTkTextbox(self, width=250, font=ctk.CTkFont(size=14, weight='bold'))
         self.output_box.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         #//////////// GTP OPTIONS TAB VIEW ////////////
         self.gtp_options_tabview = ctk.CTkTabview(self, width=250)
         self.gtp_options_tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
@@ -119,14 +127,22 @@ class WinGTPGUI(ctk.CTk):
         self.api_version_input.grid(row=2, column=0, padx=20, pady=(10, 10))
         
         #//////////// ORGANIZATION INPUT ////////////
-        self.organization_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="Organization", command=self.open_organization_input_dialog_event)
-        self.organization_input.grid(row=3, column=0, padx=20, pady=(10, 10))
+        self.organization_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="Organization", command=self.open_organization_input_dialog_event)
+        self.organization_input.grid(row=0, column=0, padx=20, pady=(10, 10))
         
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        #//////////// USER DEFINED DATA FILE INPUT ////////////
+        self.user_defined_datafile_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="User Defined Data-File", command=self.open_user_defined_datafile_input_dialog_event)
+        self.user_defined_datafile_input.grid(row=1, column=0, padx=20, pady=(10, 10))
+        
+        #//////////// JSONL DATA FILE INPUT ////////////
+        self.jsonl_data_file_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
+        self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        
         # create radiobutton frame
         self.radiobutton_frame = ctk.CTkFrame(self)
         self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.radio_var = tkinter.IntVar(value=0)
+        
         self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="CTkRadioButton Group:")
         self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
         self.radio_button_1 = ctk.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=0)
@@ -163,6 +179,7 @@ class WinGTPGUI(ctk.CTk):
         # create checkbox and switch frame
         self.checkbox_slider_frame = ctk.CTkFrame(self)
         self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+       
         self.checkbox_1 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
         self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
         self.checkbox_2 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
@@ -171,6 +188,8 @@ class WinGTPGUI(ctk.CTk):
         self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
 
         #//////////// DEFAULT VALUES ////////////
+        self.sidebar_logout_btn.configure(state="normal", text="Logout")
+        self.sidebar_button_2.configure(state="normal", text="Exit")
         self.sidebar_button_3.configure(state="disabled", text="Disabled CTkButton")
         self.checkbox_3.configure(state="disabled")
         self.checkbox_1.select()
@@ -182,34 +201,62 @@ class WinGTPGUI(ctk.CTk):
         self.engine_option_menu.set("Engine")
         
         #//////////// GUI METHODS ////////////
+    
+    def open_jsonl_datafile_input_dialog_event(self) -> None:
+        dialog = ctk.CTkInputDialog(text="Enter a .jsonl file path: ", title="JSONL Data File Input")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setJSONLDataFile(user_input)
+            self.setOutput(f"File set: [{self.wingtp_cli.getJSONLDataFile()}]", "cli")
+
+    def open_user_defined_datafile_input_dialog_event(self) -> None:
+        dialog = ctk.CTkInputDialog(text="Enter a file path: ", title="User Defined Data File Input")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setUserDefinedFileName(user_input)
+            self.setOutput(f"File set: [{self.wingtp_cli.getUserDefinedFileName()}]", "cli")
 
     def open_organization_input_dialog_event(self):
-        pass
+        dialog = ctk.CTkInputDialog(text="Enter organization: ", title="Organization Input")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setOrganization(user_input)
+            self.setOutput(f"Organization changed to: [{self.wingtp_cli.getOrganization()}]", "cli")
 
     def open_api_version_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Enter the API version: ", title="API Version Input")
-        self.wingtp_cli.setAPIVersion(str(dialog.get_input()))
-        self.setOutput(f"API version change to: [{self.wingtp_cli.getAPIVersion()}]", "cli")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setAPIVersion(user_input)
+            self.setOutput(f"API version changed to: [{self.wingtp_cli.getAPIVersion()}]", "cli")
 
     def open_api_type_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Enter the API type: ", title="API Type Input")
-        self.wingtp_cli.setAPIType(str(dialog.get_input()))
-        self.setOutput(f"API type change to: [{self.wingtp_cli.getAPIType()}]", "cli")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setAPIType(user_input)
+            self.setOutput(f"API type changed to: [{self.wingtp_cli.getAPIType()}]", "cli")
 
     def open_api_base_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Enter the API base: ", title="API Base Input")
-        self.wingtp_cli.setAPIBase(str(dialog.get_input()))
-        self.setOutput(f"API base change to: [{self.wingtp_cli.getAPIBase()}]", "cli")
+        user_input = str(dialog.get_input())
+        if len(user_input) != 0 and user_input != None:
+            self.wingtp_cli.setAPIBase(user_input)
+            self.setOutput(f"API base changed to: [{self.wingtp_cli.getAPIBase()}]", "cli")
 
-    def open_response_token_limit_input_dialog_event(self):
+    def open_response_token_limit_input_dialog_event(self): 
         dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
-        self.wingtp_cli.setResponseTokenLimit(int(dialog.get_input()))
-        self.setOutput(f"Response token limit changed to: [{self.wingtp_cli.getResponseTokenLimit()}]", "cli")
+        user_input = int(dialog.get_input())
+        if user_input != None:
+            self.wingtp_cli.setResponseTokenLimit(user_input)
+            self.setOutput(f"Response token limit changed to: [{self.wingtp_cli.getResponseTokenLimit()}]", "cli")
         
     def open_response_count_input_dialog_event(self):
         dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count Input")
-        self.wingtp_cli.setResponseCount(int(dialog.get_input()))
-        self.setOutput(f"Response count changed to: [{self.wingtp_cli.getResponseCount()}]", "cli")
+        user_input = int(dialog.get_input())
+        if user_input != None:
+            self.wingtp_cli.setResponseCount(user_input)
+            self.setOutput(f"Response count changed to: [{self.wingtp_cli.getResponseCount()}]", "cli")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         ctk.set_appearance_mode(new_appearance_mode)
@@ -229,8 +276,13 @@ class WinGTPGUI(ctk.CTk):
         self.clearInput()
     
     def getUserInput(self) -> str:
-        user_input = self.input_box.get("1.0", tk.END).strip()
-        return str(user_input)
+        user_query_input = self.input_box.get("1.0", tk.END).strip()
+        user_cmd_input = self.command_entry.get()
+        inputs = {
+            "query": user_query_input, 
+            "command": user_cmd_input      
+        }
+        return inputs
 
     def setOutput(self, output: str, type) -> None:
         if type == "chat":
@@ -247,74 +299,92 @@ class WinGTPGUI(ctk.CTk):
         username = simpledialog.askstring('Enter a username that you would like to use: ')
         self.USER = username
 
-    def process_input(self) -> None:
-        request = self.getUserInput()
-
+    def processQueryRequest(self, request: str) -> None:
+        self.wingtp_cli.setAPIKeyPath(self.API_KEY_PATH)
+        self.wingtp_cli.setEngine(self.wingtp_cli.engine)
+        self.wingtp_cli.setResponseTokenLimit(self.wingtp_cli.response_token_limit)
+        self.wingtp_cli.setResponseCount(self.wingtp_cli.response_count)
+        self.wingtp_cli.setRequest(request)
+        self.wingtp_cli.requestData()
+        response = self.wingtp_cli.getResponse()
+        self.clearInput()
+        self.setOutput(request, "user")
+        self.setOutput(response, "chat")
+    
+    def processCommandRequest(self, request: str) -> None:
         if request == self.wingtp_cli.cli_options[0]:
-            self.setOutput('Goodbye! ...', 'cli')
+            self.setOutput("Goodbye! ...", "cli")
             sys.exit()
         elif request == self.wingtp_cli.cli_options[1]:
-            token_limit = simpledialog.askinteger('Input', 'Set the max amount of reponse tokens: ')
-            self.wingtp_cli.setResponseTokenLimit(int(token_limit))
+            #token_limit = simpledialog.askinteger("Input", "Set the max amount of reponse tokens: ")
+            #self.wingtp_cli.setResponseTokenLimit(int(token_limit))
+            self.open_response_token_limit_input_dialog_event()
             self.clearInput()
-            self.setOutput(f'Token limit set to {self.wingtp_cli.getResponseTokenLimit()} tokens per response.', 'cli')
+            #self.setOutput(f"Token limit set to {self.wingtp_cli.getResponseTokenLimit()} tokens per response.", "cli")
         elif request == self.wingtp_cli.cli_options[2]:
-            engine = simpledialog.askstring('Input', 'Set the engine: ')
+            engine = simpledialog.askstring("Input", "Set the engine: ")
             self.wingtp_cli.setEngine(engine)
             self.clearInput()
-            self.setOutput(f'Engine set to {self.wingtp_cli.getEngine()}', 'cli')
+            self.setOutput(f"Engine set to {self.wingtp_cli.getEngine()}", "cli")
         elif request == self.wingtp_cli.cli_options[3]:
-            response_count = simpledialog.askinteger('Input', 'Set the number of reponses: ')
+            response_count = simpledialog.askinteger("Input", "Set the number of reponses: ")
             self.wingtp_cli.setResponseCount(int(response_count))
             self.clearInput()
-            self.setOutput(f'The number of reponses is set to {self.wingtp_cli.getResponseCount()}', 'cli')
+            self.setOutput(f"The number of reponses is set to {self.wingtp_cli.getResponseCount()}", "cli")
         elif request == self.wingtp_cli.cli_options[4]:
-            api_base = simpledialog.askstring('Input', 'Set the API base: ')
+            api_base = simpledialog.askstring("Input", "Set the API base: ")
             self.wingtp_cli.setAPIBase(str(api_base))
             self.clearInput()
-            self.setOutput(f'The API base is set to {self.wingtp_cli.getAPIBase()}', 'cli')
+            self.setOutput(f"The API base is set to {self.wingtp_cli.getAPIBase()}", "cli")
         elif request == self.wingtp_cli.cli_options[5]:
-            api_type = simpledialog.askstring('Input', 'Set the API type: ')
+            api_type = simpledialog.askstring("Input", "Set the API type: ")
             self.wingtp_cli.setAPIType(str(api_type))
             self.clearInput()
-            self.setOutput(f'The API type is set to {self.wingtp_cli.getAPIType()}', 'cli')
+            self.setOutput(f"The API type is set to {self.wingtp_cli.getAPIType()}", "cli")
         elif request == self.wingtp_cli.cli_options[6]:
-            api_version = simpledialog.askstring('Input', 'Set the API version: ')
+            api_version = simpledialog.askstring("Input", "Set the API version: ")
             self.wingtp_cli.setAPIVersion(str(api_version))
             self.clearInput()
-            self.setOutput(f'The API version is set to {self.wingtp_cli.getAPIVersion()}', 'cli')
+            self.setOutput(f"The API version is set to {self.wingtp_cli.getAPIVersion()}", "cli")
         elif request == self.wingtp_cli.cli_options[7]:
-            organization = simpledialog.askstring('Input', 'Set the organization name: ')
+            organization = simpledialog.askstring("Input", "Set the organization name: ")
             self.wingtp_cli.setOrganization(str(organization))
             self.clearInput()
-            self.setOutput(f'The API base is set to {self.wingtp_cli.getOrganization()}', 'cli')
+            self.setOutput(f"The API base is set to {self.wingtp_cli.getOrganization()}", "cli")
         elif request == self.wingtp_cli.cli_options[8]:
-            user_defined_filename = simpledialog.askstring('Input', 'Set a user defined file name: ')
+            user_defined_filename = simpledialog.askstring("Input", "Set a user defined file name: ")
             self.wingtp_cli.setUserDefinedFileName(str(user_defined_filename))
             self.clearInput()
-            self.setOutput(f'The user defined file name is set to {self.wingtp_cli.getUserDefinedFileName()}', 'cli')
+            self.setOutput(f"The user defined file name is set to {self.wingtp_cli.getUserDefinedFileName()}", "cli")
         elif request == self.wingtp_cli.cli_options[9]:
-            jsonl_file_path = simpledialog.askstring('Input', 'Set a JSONL file: ')
+            jsonl_file_path = simpledialog.askstring("Input", "Set a JSONL file: ")
             self.wingtp_cli.setJSONLDataFile(str(jsonl_file_path))
             self.clearInput()
-            self.setOutput(f'The JSONL file is set to {self.wingtp_cli.getJSONLDataFile()}', 'cli')
+            self.setOutput(f"The JSONL file is set to {self.wingtp_cli.getJSONLDataFile()}", "cli")
         elif request == self.wingtp_cli.cli_options[10]:
             self.clearInput()
-            self.setOutput(self.wingtp_cli._help.__doc__, 'cli')
+            self.setOutput(self.wingtp_cli._help.__doc__, "cli")
         elif request == self.wingtp_cli.cli_options[11]:
             self.clearOutput()
+        elif request.split(' ')[0] == self.wingtp_cli.cli_options[12]:
+            self.change_appearance_mode_event(request.split(' ')[1])
         else:
-            self.wingtp_cli.setAPIKeyPath(self.API_KEY_PATH)
-            self.wingtp_cli.setEngine(self.wingtp_cli.engine)
-            self.wingtp_cli.setResponseTokenLimit(self.wingtp_cli.response_token_limit)
-            self.wingtp_cli.setResponseCount(self.wingtp_cli.response_count)
-            self.wingtp_cli.setRequest(request)
-            self.wingtp_cli.requestData()
-            response = self.wingtp_cli.getResponse()
-            self.clearInput()
-            self.setOutput(request, 'user')
-            self.setOutput(response, 'chat')
-            
+            self.setOutput(self.wingtp_cli._help.__doc__, "cli")
+    
+    def process_input(self) -> None:
+        request = self.getUserInput()
+        query_request = request["query"]
+        command_request = request["command"]
+        if len(query_request) != 0:
+            self.processQueryRequest(query_request)
+        if len(command_request) != 0:
+            self.processCommandRequest(command_request)
+        if len(query_request) == 0 and len(command_request) == 0:
+            self.setOutput(f" \
+Try entering text into the chat window to receive a reponse.\n \
+Or you can use one of the following commands by entering one\n \
+into the command input under the chat window.\n \
+{self.wingtp_cli._help.__doc__}", "cli")
 #//////////// MAIN ENTRY POINT
 if __name__ == "__main__":
     wingtp = WinGTPGUI()
