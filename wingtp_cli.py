@@ -6,7 +6,9 @@ import os
 class WinGTPCLI:
      
     def __init__(self) -> None:
-        
+        API_KEY_PATH = './.api_key.conf'
+        self.setAPIKeyPath(API_KEY_PATH)
+        #self.converse()
         self.cli_options = [
             'exit', # exit the chat session.
             '-l',   # Set the response token limit.
@@ -63,28 +65,47 @@ class WinGTPCLI:
     def _clear(self) -> None:
         print('\033c', end='')
     
-    def createFile(self, file_path: str) -> bool:
-        if(os.path.exists(file_path)):
+    def createDir(self, path: str) -> bool:
+        if not os.path.exists(path):
             try:
-                with open(file_path, 'w') as file:
-                    return True
-            except IOError:
+                os.mkdir(path)
+                return True
+            except FileExistsError:
+                print(f"Folder '{path}' already exists.")
                 return False
-        return False
+            except Exception as e:
+                print(f"An error occurred: {str(e)}")
+                return False
+        return False        
+    
+    def createFile(self, file_path: str) -> bool:
+        try:
+            with open(file_path, 'w') as file:
+                return True
+        except IOError:
+            return False
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return False
                     
     def writeTofile(self, file_path: str, content: str = None) -> bool:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'w') as file:
-                    if content != None:
-                        file.write(content)
-                        file.close()
-                print(f"File '{file_path}' created successfully.")
-                return True
-            except IOError:
-                print(f"An error occurred while creating the file '{file_path}'.")
-                return False
-        return False
+        print(f"file_path: {file_path}")
+        print(f"content: {content}")
+        # if os.path.exists(file_path):
+        #     try:
+        #         with open(file_path, 'w') as file:
+        #             if content != None:
+        #                 file.write(content)
+        #                 file.close()
+        #         print(f"File '{file_path}' created successfully.")
+        #         return True
+        #     except IOError:
+        #         print(f"An error occurred while creating the file '{file_path}'.")
+        #         return False
+        #     except Exception as e:
+        #         print(f"An error occurred while creating the file '{file_path}'.")
+        #         return False
+        # return False
     
     def readFromFile(self, file_path: str) -> str:
         if os.path.exists(file_path):
@@ -167,8 +188,19 @@ class WinGTPCLI:
                 print("An unexpected error occurred while trying to read the api key configuration file", str(e))
 
     def setAPIKey(self, api_key: str) -> None:
-        self.api_key = api_key
-        openai.api_key = self.api_key
+        if os.path.exists(self.api_key_path):
+            try:
+                with open(self.api_key_path, 'w') as file:
+                    file.write(api_key)
+                    file.close()
+                    self.api_key = api_key
+                    openai.api_key = self.api_key
+            except FileNotFoundError:
+                print("API key file not found")
+            except IOError:
+                print("An error occurred while setting the api key configuration file.")
+            except Exception as e:
+                print("An unexpected error occurred while trying to set the api key configuration file", str(e))
 
     def getEngine(self) -> str:
         return self.engine
@@ -277,69 +309,69 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
             greeting = self.getResponse()
             return greeting
         
-    def converse(self) -> None:
+    # def converse(self) -> None:
         
-        print(self.banner.__doc__)
+    #     print(self.banner.__doc__)
         
-        while True:   
-            user_prompt = input(f"{self.prompt}")
-            if user_prompt == self.cli_options[0]:
-                print(f'\nGoodbye! ...\n')
-                sys.exit()
-            elif user_prompt == self.cli_options[1]:
-                token_limit = input('Set the max amount of reponse tokens: ')
-                self.setResponseTokenLimit(int(token_limit))
-                print(f'Token limit set to {self.getResponseTokenLimit()} tokens per response.')
-                continue
-            elif user_prompt == self.cli_options[2]:
-                engine = input("Set the engine: ")
-                self.setEngine(engine)
-                print(f'Engine set to {self.getEngine()}')
-                continue
-            elif user_prompt == self.cli_options[3]:
-                response_count = input("Set the number of reponses: ")
-                self.setResponseCount(int(response_count))
-                print(f'The number of reponses is set to {self.getResponseCount()}')
-                continue
-            elif user_prompt == self.cli_options[4]:
-                api_base = input("Set the API base: ")
-                self.setAPIBase(str(api_base))
-                print(f'The API base is set to {self.getAPIBase()}')
-                continue
-            elif user_prompt == self.cli_options[5]:
-                api_type = input("Set the API type: ")
-                self.setAPIType(str(api_type))
-                print(f'The API type is set to {self.getAPIType()}')
-                continue
-            elif user_prompt == self.cli_options[6]:
-                api_version = input("Set the API version: ")
-                self.setAPIVersion(str(api_version))
-                print(f'The API version is set to {self.getAPIVersion()}')
-                continue
-            elif user_prompt == self.cli_options[7]:
-                organization = input("Set the organization name: ")
-                self.setOrganization(str(organization))
-                print(f'The API base is set to {self.getOrganization()}')
-                continue
-            elif user_prompt == self.cli_options[8]:
-                user_defined_filename = input("Set a user defined file name: ")
-                self.setUserDefinedFileName(str(user_defined_filename))
-                print(f'The user defined file name is set to {self.getUserDefinedFileName()}')
-                continue
-            elif user_prompt == self.cli_options[9]:
-                jsonl_file_path = input("Set a JSONL file: ")
-                self.setJSONLDataFile(str(jsonl_file_path))
-                print(f'The JSONL file is set to {self.getJSONLDataFile()}')
-                continue
-            elif user_prompt == self.cli_options[10]:
-                print(self._help.__doc__)
-            elif user_prompt == self.cli_options[11]:
-                self._clear()
-            else:
-                self.setResponseTokenLimit(self.response_token_limit)
-                self.setEngine(self.engine)
-                self.setResponseCount(self.response_count)
-                self.setRequest(str(user_prompt))
-                self.requestData()
-                print(self.getResponse())
+    #     while True:   
+    #         user_prompt = input(f"{self.prompt}")
+    #         if user_prompt == self.cli_options[0]:
+    #             print(f'\nGoodbye! ...\n')
+    #             sys.exit()
+    #         elif user_prompt == self.cli_options[1]:
+    #             token_limit = input('Set the max amount of reponse tokens: ')
+    #             self.setResponseTokenLimit(int(token_limit))
+    #             print(f'Token limit set to {self.getResponseTokenLimit()} tokens per response.')
+    #             continue
+    #         elif user_prompt == self.cli_options[2]:
+    #             engine = input("Set the engine: ")
+    #             self.setEngine(engine)
+    #             print(f'Engine set to {self.getEngine()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[3]:
+    #             response_count = input("Set the number of reponses: ")
+    #             self.setResponseCount(int(response_count))
+    #             print(f'The number of reponses is set to {self.getResponseCount()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[4]:
+    #             api_base = input("Set the API base: ")
+    #             self.setAPIBase(str(api_base))
+    #             print(f'The API base is set to {self.getAPIBase()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[5]:
+    #             api_type = input("Set the API type: ")
+    #             self.setAPIType(str(api_type))
+    #             print(f'The API type is set to {self.getAPIType()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[6]:
+    #             api_version = input("Set the API version: ")
+    #             self.setAPIVersion(str(api_version))
+    #             print(f'The API version is set to {self.getAPIVersion()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[7]:
+    #             organization = input("Set the organization name: ")
+    #             self.setOrganization(str(organization))
+    #             print(f'The API base is set to {self.getOrganization()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[8]:
+    #             user_defined_filename = input("Set a user defined file name: ")
+    #             self.setUserDefinedFileName(str(user_defined_filename))
+    #             print(f'The user defined file name is set to {self.getUserDefinedFileName()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[9]:
+    #             jsonl_file_path = input("Set a JSONL file: ")
+    #             self.setJSONLDataFile(str(jsonl_file_path))
+    #             print(f'The JSONL file is set to {self.getJSONLDataFile()}')
+    #             continue
+    #         elif user_prompt == self.cli_options[10]:
+    #             print(self._help.__doc__)
+    #         elif user_prompt == self.cli_options[11]:
+    #             self._clear()
+    #         else:
+    #             self.setResponseTokenLimit(self.response_token_limit)
+    #             self.setEngine(self.engine)
+    #             self.setResponseCount(self.response_count)
+    #             self.setRequest(str(user_prompt))
+    #             self.requestData()
+    #             print(self.getResponse())
 

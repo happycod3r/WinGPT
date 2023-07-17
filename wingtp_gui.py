@@ -6,7 +6,7 @@ import tkinter.messagebox
 from tkinter import *
 from bin import normaltime
 from chatmemory import memory
-from wingtpcli import WinGTPCLI
+from wingtp_cli import WinGTPCLI
 from ctrls import ctktextbox
 from PIL import Image
 import sys
@@ -58,6 +58,9 @@ class WinGTPGUI(ctk.CTk):
         
         self.sidebar_exit_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_exit_btn_event)
         self.sidebar_exit_btn.grid(row=2, column=0, padx=20, pady=10)
+        
+        self.sidebar_set_key_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_set_key_btn_event)
+        self.sidebar_set_key_btn.grid(row=3, column=0, padx=20, pady=10)
         
         self.sidebar_change_color_btn = ctk.CTkButton(self.sidebar, command=self.change_output_color_event)
         self.sidebar_change_color_btn.grid(row=4, column=0, padx=20, pady=10, sticky="sw")
@@ -196,6 +199,7 @@ class WinGTPGUI(ctk.CTk):
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_logout_btn.configure(state="normal", text="Logout")
         self.sidebar_exit_btn.configure(state="normal", text="Exit")
+        self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
         self.checkbox_3.configure(state="disabled")
         self.checkbox_1.select()
@@ -321,8 +325,7 @@ class WinGTPGUI(ctk.CTk):
         color = colorchooser.askcolor(title="Select Color")
         self._OUTPUT_COLOR = f"{color[1]}"
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
-        
-        
+               
     def change_scaling_event(self, new_scaling: str) -> None:
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         ctk.set_widget_scaling(new_scaling_float)
@@ -333,6 +336,9 @@ class WinGTPGUI(ctk.CTk):
     def sidebar_exit_btn_event(self) -> None:
         sys.exit(0)
  
+    def sidebar_set_key_btn_event(self) -> None:
+        pass
+        
     def clearInput(self) -> None:
         self.input_box.delete("1.0", tk.END)
     

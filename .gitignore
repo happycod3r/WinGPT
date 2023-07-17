@@ -3,7 +3,7 @@
 config/.api_key.conf
 _dev/
 _tmp/
-
+config/
 notes
 *.back
 *.backup
