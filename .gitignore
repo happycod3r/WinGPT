@@ -13,5 +13,6 @@ notes
 test.*
 !test.jsonl
 *key*
+*.flag
 
 _pycache_/
