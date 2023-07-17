@@ -27,7 +27,7 @@ class WinGTPGUI(ctk.CTk):
         self.width = 1300  # 1100
         self.height = 580
         self._OUTPUT_COLOR = "#DCE4EE"
-        
+                
         #//////////// WINDOW ////////////
         self.title("WinGTP Powered by Python & OpenAI")
         self.geometry(f"{self.width}x{self.height}")
@@ -43,7 +43,6 @@ class WinGTPGUI(ctk.CTk):
             size=(self.width, self.height)
         )
         
-    
         #//////////// SIDEBAR ////////////
         self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar.grid(row=0, column=0, rowspan=4, sticky="nsew")
@@ -147,21 +146,41 @@ class WinGTPGUI(ctk.CTk):
         self.jsonl_data_file_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
         self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
         
-        # create radiobutton frame
-        self.radiobutton_frame = ctk.CTkFrame(self)
-        self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        #//////////// CHAT OUTPUT TEMPERATURE ///////////
+        self.output_temp_radiobutton_frame = ctk.CTkFrame(self)
+        self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.radio_var = tkinter.IntVar(value=0)
         
-        self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="GTP Output Temperature")
-        self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
+        self.output_temp_label_radio_group = ctk.CTkLabel(
+            master=self.output_temp_radiobutton_frame, 
+            text="Chat Output Temperature"
+        )
+        self.output_temp_label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
         
-        self.temp_high_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text="high", variable=self.radio_var, value=self.wingtp_cli.temps["high"])
+        self.temp_high_radio_button = ctk.CTkRadioButton(
+            master=self.output_temp_radiobutton_frame, 
+            text="high", 
+            variable=self.radio_var, 
+            value=self.wingtp_cli.temps["high"], 
+            command=self.output_temp_radio_btn_selected
+        )
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_medium_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text="medium", variable=self.radio_var, value=self.wingtp_cli.temps["medium"])
+        self.temp_medium_radio_button = ctk.CTkRadioButton(
+            master=self.output_temp_radiobutton_frame, 
+            text="medium", 
+            variable=self.radio_var, 
+            value=self.wingtp_cli.temps["medium"], 
+            command=self.output_temp_radio_btn_selected
+        )
         self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_low_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=self.wingtp_cli.temps["low"])
+        self.temp_low_radio_button = ctk.CTkRadioButton(
+            master=self.output_temp_radiobutton_frame, 
+            variable=self.radio_var, 
+            value=self.wingtp_cli.temps["low"], 
+            command=self.output_temp_radio_btn_selected
+        )
         self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
 
         #//////////// INPUT BOX FRAME ////////////
@@ -177,27 +196,27 @@ class WinGTPGUI(ctk.CTk):
         )
         self.input_box.grid(row=0, column=0, sticky='nsew')
 
-        # create scrollable frame
-        self.scrollable_frame = ctk.CTkScrollableFrame(self, label_text="CTkScrollableFrame")
-        self.scrollable_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+        #//////////// SETTINGS SWITCHES ////////////
+        self.settings_switches_frame = ctk.CTkScrollableFrame(self, label_text="Turn Settings on/off")
+        self.settings_switches_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.settings_switches_frame.grid_columnconfigure(0, weight=1)
         
-        self.scrollable_frame_switches = []
+        self.settings_switches = []
         for i in range(10):
-            switch = ctk.CTkSwitch(master=self.scrollable_frame, text=f"CTkSwitch {i}")
+            switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Setting {i}")
             switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches.append(switch)
+            self.settings_switches.append(switch)
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = ctk.CTkFrame(self)
         self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
        
-        self.checkbox_1 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
+        self.use_stop_list_checkbox = ctk.CTkCheckBox(master=self.checkbox_slider_frame, command=self.use_stop_list_checkbox_checked_changed_event)
+        self.use_stop_list_checkbox.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="nw")
         self.checkbox_2 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="n")
+        self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="nw")
         self.checkbox_3 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
+        self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="nw")
 
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_logout_btn.configure(state="normal", text="Logout")
@@ -205,9 +224,10 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
         self.checkbox_3.configure(state="disabled")
-        self.checkbox_1.select()
-        self.scrollable_frame_switches[0].select()
-        self.scrollable_frame_switches[4].select()
+        self.use_stop_list_checkbox.configure(text="Use stop list")
+        self.use_stop_list_checkbox.select()
+        self.settings_switches[0].select()
+        self.settings_switches[4].select()
         self.temp_high_radio_button.configure(text="High")
         self.temp_medium_radio_button.configure(text="Medium")
         self.temp_low_radio_button.configure(text="Low")
@@ -221,6 +241,22 @@ class WinGTPGUI(ctk.CTk):
         self.clearInput()
         self.clearOutput()
         self.command_entry.delete(0, tk.END)
+    
+    def use_stop_list_checkbox_checked_changed_event(self):
+        checked = self.use_stop_list_checkbox.get()
+        if checked == 0:
+            self.wingtp_cli.USE_STOPLIST = False
+            self.setOutput(f"Stop list (off)", "cli")
+        else:
+            self.wingtp_cli.USE_STOPLIST = True
+            dialog = ctk.CTkInputDialog(text="Enter a list of words you want the output to stop at if encountered\nWords should be quoted!: ", title="Chat Stop List")
+            _stoplist = str(dialog.get_input())
+            if len(_stoplist) != 0 and _stoplist != "None":
+                self.wingtp_cli.setStopList(_stoplist)
+                self.setOutput(f"Stop list (on): \n{self.wingtp_cli.getStopList()}", "cli")
+                return True
+            else:
+                return False
     
     def on_engine_option_chosen_event(self, engine) -> None:
         self.wingtp_cli.setEngine(f"{engine}")
@@ -320,6 +356,19 @@ class WinGTPGUI(ctk.CTk):
             return True
         else:
             return False
+        
+    def output_temp_radio_btn_selected(self):
+        selected_value = self.radio_var.get()
+
+        if selected_value == self.wingtp_cli.temps["high"]:
+            self.wingtp_cli.setTemperature(selected_value)
+            self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
+        elif selected_value == self.wingtp_cli.temps["medium"]:
+            self.wingtp_cli.setTemperature(selected_value)
+            self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
+        elif selected_value == self.wingtp_cli.temps["low"]:
+            self.wingtp_cli.setTemperature(selected_value)
+            self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
         
     def change_appearance_mode_event(self, _new_appearance_mode: str) -> bool:
         _theme = _new_appearance_mode

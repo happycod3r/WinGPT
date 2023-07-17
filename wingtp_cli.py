@@ -60,6 +60,8 @@ class WinGTPCLI:
         self.user_defined_filename = None
         self.temps = {"low":0, "medium":1, "high":2}
         self.temperature = self.temps["medium"]
+        self.stop_list = []
+        self.USE_STOPLIST = False
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
         self.setPrompt()
@@ -263,25 +265,54 @@ class WinGTPCLI:
     def getTemperature(self) -> int:
         return self.temperature
         
+    def setStopList(self, _stoplist: str) -> None:
+        self.stop_list = _stoplist.split()
+    
+    def getStopList(self) -> list:
+        return self.stop_list
+        
     def requestData(self) -> None: 
         _respone = None
         try:
-            if(self.jsonl_data_file == None):
-                _response = openai.Completion.create(
-                    engine=f"{self.engine}",                # The model being used.
-                    prompt=f"{self.request}",               # The input.
-                    max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                    n=self.response_count,                  # Number of responses
-                    temperature=int(self.temperature)
-                )
+            if self.jsonl_data_file == None:
+                if self.USE_STOPLIST == False:                
+                    _response = openai.Completion.create(
+                        engine=f"{self.engine}",                # The model being used.
+                        prompt=f"{self.request}",               # The input.
+                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                        n=self.response_count,                  # Number of responses
+                        temperature=int(self.temperature)
+                    )
+                else:
+                    _response = openai.Completion.create(
+                        engine=f"{self.engine}",                # The model being used.
+                        prompt=f"{self.request}",               # The input.
+                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                        n=self.response_count,                  # Number of responses
+                        temperature=int(self.temperature),
+                        stop=f"{self.stop_list}"
+                    )
             else:
-                _response = openai.Completion.create(
-                    engine=f"{self.engine}",                # The model being used.
-                    prompt=f"{self.request}",                # The input.
-                    max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                    n=self.response_count,                  # Number of responses 
-                    files=[self.jsonl_data_file.id]
-                )
+                if self.USE_STOPLIST == False:
+                    _response = openai.Completion.create(
+                        engine=f"{self.engine}",                # The model being used.
+                        prompt=f"{self.request}",                # The input.
+                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                        n=self.response_count,                 # Number of responses 
+                        temperature=int(self.temperature),
+                        files=[self.jsonl_data_file.id]
+                    )
+                else:
+                    _response = openai.Completion.create(
+                        engine=f"{self.engine}",                # The model being used.
+                        prompt=f"{self.request}",                # The input.
+                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
+                        n=self.response_count,                  # Number of responses
+                        temperature=int(self.temperature), 
+                        files=[self.jsonl_data_file.id],
+                        stop=f"{self.stop_list}"
+                    )
+                    pass
             self.response = _response
         except openai.OpenAIError:
             print("OpenAI Error")
