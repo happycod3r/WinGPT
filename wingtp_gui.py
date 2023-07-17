@@ -20,7 +20,7 @@ class WinGTPGUI(ctk.CTk):
         super().__init__()
 
         #//////////// WINGTP GUI PROPERTIES ////////////
-        self.USER = sys.argv[1]
+        self.USER = f"{sys.argv[2]}"
         self.API_KEY_PATH = './config/.api_key.conf'
         self.wingtp_cli = WinGTPCLI()
         self.nt = normaltime.NormalTime()

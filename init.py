@@ -10,6 +10,7 @@ class Initialize:
         self.WGTP_GUI_V010 = "wingtp_gui.py"
         self.cli = WinGTPCLI()
         self.NEW_USER = True
+        self.USERNAME = None
             
         self.key_file_path = f"{self._setup.KEY_CONFIG_FILE}"     
         if os.path.exists(self.key_file_path):
@@ -28,25 +29,23 @@ class Initialize:
                     print("Setup failed!")
                     exit(1)
             else:
-                # !!! FOR THE MORNING !!!
+                # !!! FOR THE MORNING YOU LEFT OFF HERE !!!
                 # - All calls to runWinGTPGUI(True) or runWinGTPGUI(False) needs to make a call to 
                 # a getUsername() function as the second parameter so that both new_user and username 
                 # get passed to the gui. I didn't look but I think cli still has one I can just 
                 # modify as it's not being used yet anywhere.
                 #
-                # - Also importantly, look up the correct synta for pasing in multiple 
-                # arguments to a pythn script so that when I run runWinGTPGUI() I can pass it both
-                # arguments
-                self.runWinGTPGUI(False)
+                _username = self.cli.readFromFile(self._setup.USERNAME_CONFIG_FILE)
+                self.runWinGTPGUI(False, _username)
         else:
             if self._setup.setup() == True:
-                self.runWinGTPGUI(True)    
+                self.runWinGTPGUI(True, str(self._setup.USERNAME))    
             else:
                 print("Setup failed!")
                 exit(1)
                 
     def runWinGTPGUI(self, new_user: bool, username: str = "new guy") -> None:
-        subprocess.run(["python", f"{self.WGTP_GUI_V010}", f"{username}"])
+        subprocess.run(["python", self.WGTP_GUI_V010, str(new_user), username])
     
 def wingtp_gui_init() -> None:
     init = Initialize()

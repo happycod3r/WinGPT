@@ -81,18 +81,18 @@ class Setup:
                     try:
                         with open(f"{self.KEY_CONFIG_FILE}", "w") as api_key_file:
                             if api_key_file.writable():
-                                api_key_file.write(_API_KEY) # 5) Hard set the api key.
+                                api_key_file.write(_API_KEY) # 5) Hard set the api key...
                                 api_key_file.close()
-                                if self.createUsernameConfigFile(): # 6) Create the username config file
+                                if self.createUsernameConfigFile(): # 6) Create the username config file...
                                     #/////////////////////////////// 
                                     dialog2 = CTkInputDialog(text=f"{self.USERNAME_DIALOG_MESSAGE}", title=f"{self.USERNAME_DIALOG_TITLE}")
-                                    _USERNAME = str(dialog2.get_input()) 
+                                    _USERNAME = str(dialog2.get_input()) # 7) Get the username from the user...
                                     if len(_USERNAME) != 0 and _USERNAME != "None":
                                         self.USERNAME = _USERNAME 
                                         try:
                                             with open(f"{self.USERNAME_CONFIG_FILE}", "w") as username_file:
                                                 if username_file.writable():
-                                                    username_file.write(f"{self.USERNAME}") 
+                                                    username_file.write(f"{self.USERNAME}") # 8) Hard set the username...
                                                     username_file.close()
                                                 else:
                                                     return False
@@ -101,10 +101,10 @@ class Setup:
                                         except Exception as e:
                                             print(f"{e.__context__}")
                                             return False
-                                        if self.createSetupFinishedFlag(): # 7) Create a flag to indicate that setup finished.
+                                        if self.createSetupFinishedFlag(): # 9) Create a flag to indicate that setup finished.
                                             return True
                                         else:
-                                            self.rollBackSetup() # 8) Roll back step 6 - 1, Hopefully noone reaces this point.
+                                            self.rollBackSetup() # 10) Roll back step 9 - 1, Hopefully noone reaces this point.
                                             return False
                                     else:
                                         return False
