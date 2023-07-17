@@ -6,9 +6,8 @@ import os
 class WinGTPCLI:
      
     def __init__(self) -> None:
-        API_KEY_PATH = './.api_key.conf'
+        API_KEY_PATH = "./.api_key.conf"
         self.setAPIKeyPath(API_KEY_PATH)
-        #self.converse()
         self.cli_options = [
             'exit', # exit the chat session.
             '-l',   # Set the response token limit.
@@ -24,6 +23,7 @@ class WinGTPCLI:
             'clear', # Clear the output box.
             'theme', # Change the theme. Requires theme as 1st argument.
             'color', # Change the output color
+            'temp',  # Set the output temperature.
         ]   
         self.engines = [
             ['gtp-4', 8192, '9-2021'],
@@ -52,12 +52,14 @@ class WinGTPCLI:
         self.api_type = openai.api_type
         self.api_version = openai.api_version
         self.jsonl_data_file = None
-        self.request = 'What\'s todays date?'
+        self.request = "What's todays date?"
         self.response = None
         self.response_token_limit = 200#/minute (default)
         self.response_count = 1 #(default)
         self.organization = openai.organization
         self.user_defined_filename = None
+        self.temps = {"low":0, "medium":1, "high":2}
+        self.temperature = self.temps["medium"]
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
         self.setPrompt()
@@ -254,6 +256,13 @@ class WinGTPCLI:
     def setResponseCount(self, response_count: int) -> None: 
         self.response_count = response_count
         
+    def setTemperature(self, _temperature: int) -> None:
+        if isinstance(_temperature, (int, float)):
+            self.temperature = _temperature
+        
+    def getTemperature(self) -> int:
+        return self.temperature
+        
     def requestData(self) -> None: 
         _respone = None
         try:
@@ -262,7 +271,8 @@ class WinGTPCLI:
                     engine=f"{self.engine}",                # The model being used.
                     prompt=f"{self.request}",               # The input.
                     max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                    n=self.response_count,                  # Number of responses 
+                    n=self.response_count,                  # Number of responses
+                    temperature=int(self.temperature)
                 )
             else:
                 _response = openai.Completion.create(
@@ -297,6 +307,7 @@ class WinGTPCLI:
             help                      - Prints this message. 
             clear                     - Clear the output box and command entry.
             theme <Light|Dark|System> - Switch between themes.
+            temp                      - Set the output temperature.
         """
     
     def banner(self) -> None:
@@ -305,6 +316,7 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
         """
         
     def greetUser(self, user: str, key_path: str) -> str:
+        
         if os.path.exists(key_path):
             self.setAPIKeyPath(key_path)
             self.setResponseTokenLimit(self.response_token_limit)

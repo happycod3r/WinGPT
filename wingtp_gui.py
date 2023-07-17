@@ -18,8 +18,8 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 class WinGTPGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
-
         #//////////// WINGTP GUI PROPERTIES ////////////
+        self.NEW_USER = bool(sys.argv[1])
         self.USER = f"{sys.argv[2]}"
         self.API_KEY_PATH = './config/.api_key.conf'
         self.wingtp_cli = WinGTPCLI()
@@ -152,14 +152,17 @@ class WinGTPGUI(ctk.CTk):
         self.radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.radio_var = tkinter.IntVar(value=0)
         
-        self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="Pinned GTP Engines:")
+        self.label_radio_group = ctk.CTkLabel(master=self.radiobutton_frame, text="GTP Output Temperature")
         self.label_radio_group.grid(row=0, column=2, columnspan=1, padx=10, pady=10, sticky="")
-        self.radio_button_1 = ctk.CTkRadioButton(master=self.radiobutton_frame, text=self.wingtp_cli.engines[0][0], variable=self.radio_var, value=0)
-        self.radio_button_1.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
-        self.radio_button_2 = ctk.CTkRadioButton(master=self.radiobutton_frame, text=self.wingtp_cli.engines[3][0], variable=self.radio_var, value=1)
-        self.radio_button_2.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
-        self.radio_button_3 = ctk.CTkRadioButton(master=self.radiobutton_frame, text=self.wingtp_cli.engine, variable=self.radio_var, value=2)
-        self.radio_button_3.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
+        
+        self.temp_high_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text="high", variable=self.radio_var, value=self.wingtp_cli.temps["high"])
+        self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
+        
+        self.temp_medium_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, text="medium", variable=self.radio_var, value=self.wingtp_cli.temps["medium"])
+        self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
+        
+        self.temp_low_radio_button = ctk.CTkRadioButton(master=self.radiobutton_frame, variable=self.radio_var, value=self.wingtp_cli.temps["low"])
+        self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
 
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -205,7 +208,9 @@ class WinGTPGUI(ctk.CTk):
         self.checkbox_1.select()
         self.scrollable_frame_switches[0].select()
         self.scrollable_frame_switches[4].select()
-        self.radio_button_3.configure(state="disabled")
+        self.temp_high_radio_button.configure(text="High")
+        self.temp_medium_radio_button.configure(text="Medium")
+        self.temp_low_radio_button.configure(text="Low")
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_option_menu.set("100%")
         self.engine_option_menu.set("Engine")
@@ -294,7 +299,12 @@ class WinGTPGUI(ctk.CTk):
     def open_response_token_limit_input_dialog_event(self) -> bool: 
         dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
         token_limit = str(dialog.get_input())
-        if token_limit.isdigit() and token_limit != "None": # Don't test for 0 because the user may want 0!
+        # Not testing for 0 because the user may want 0 as the
+        # limit for whatever reason!
+        # Also testing with 'isdigit()' instead of isinstance() in .case
+        # whatever is entered isn't the right value type. Maybe I'm wrong 
+        # on this, but it works.
+        if token_limit.isdigit() and token_limit != "None":
             self.wingtp_cli.setResponseTokenLimit(token_limit)
             self.setOutput(f"Response token limit changed to: [{self.wingtp_cli.getResponseTokenLimit()}]", "cli")
             return True
