@@ -21,6 +21,7 @@ class WinGTPCLI:
             'help', # Prints this message. 
             'clear', # Clear the output box.
             'theme', # Change the theme. Requires theme as 1st argument.
+            'color', # Change the output color
         ]   
         self.engines = [
             ['gtp-4', 8192, '9-2021'],
