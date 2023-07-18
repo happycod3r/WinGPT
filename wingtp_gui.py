@@ -6,7 +6,7 @@ import tkinter.messagebox
 from tkinter import *
 from bin import normaltime
 from chatmemory import memory
-from wingtp_cli import WinGTPCLI
+from cli import WinGTPCLI
 from ctrls import ctktextbox
 from PIL import Image
 import sys
@@ -22,7 +22,7 @@ class WinGTPGUI(ctk.CTk):
         self.NEW_USER = bool(sys.argv[1])
         self.USER = f"{sys.argv[2]}"
         self.API_KEY_PATH = './config/.api_key.conf'
-        self.wingtp_cli = WinGTPCLI()
+        self.cli = WinGTPCLI()
         self.nt = normaltime.NormalTime()
         self.width = 1300  # 1100
         self.height = 580
@@ -44,47 +44,55 @@ class WinGTPGUI(ctk.CTk):
         )
         
         #//////////// SIDEBAR ////////////
-        self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)
+        self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)                            
         self.sidebar.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar.grid_rowconfigure(4, weight=1)
+        self.sidebar.grid_rowconfigure(6, weight=1)
+        self.sidebar.configure(corner_radius=4)
         
         #//////////// SIDEBAR LOGO ////////////
         self.sidebar_logo = ctk.CTkLabel(self.sidebar, text="WinGTP v0.1.0", font=ctk.CTkFont(size=20, weight="bold"))
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
+        #//////////// LOGOUT BUTTON ////////////
         self.sidebar_logout_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_logout_btn_event)
         self.sidebar_logout_btn.grid(row=1, column=0, padx=20, pady=10)
         
+        #//////////// EXIT BUTTON ////////////
         self.sidebar_exit_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_exit_btn_event)
         self.sidebar_exit_btn.grid(row=2, column=0, padx=20, pady=10)
         
+        #//////////// SET API KEY BUTTON ////////////
         self.sidebar_set_key_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_set_key_btn_event)
         self.sidebar_set_key_btn.grid(row=3, column=0, padx=20, pady=10)
+        self.sidebar.configure()
         
+        #//////////// CHANGE OUTPUT COLOR BUTTON ////////////
+        self.change_color_btn_label = ctk.CTkLabel(self.sidebar, text="Output Color", anchor="s")
+        self.change_color_btn_label.grid(row=4, column=0, padx=20, pady=(10, 0))
         self.sidebar_change_color_btn = ctk.CTkButton(self.sidebar, command=self.change_output_color_event)
-        self.sidebar_change_color_btn.grid(row=4, column=0, padx=20, pady=10, sticky="sw")
+        self.sidebar_change_color_btn.grid(row=5, column=0, padx=20, pady=10)
         
         #//////////// THEME SELECT ////////////
-        self.appearance_mode_label = ctk.CTkLabel(self.sidebar, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_label = ctk.CTkLabel(self.sidebar, text="Appearance Mode:", anchor="sw")
+        self.appearance_mode_label.grid(row=6, column=0, padx=20, pady=(10, 10), sticky="s")
         self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
+        self.appearance_mode_optionemenu.grid(row=7, column=0, padx=20, pady=(0, 10))
         
         #//////////// UI SIZE SCALING SELECT ////////////
         self.scaling_label = ctk.CTkLabel(self.sidebar, text="UI Scaling:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        self.scaling_label.grid(row=8, column=0, padx=20, pady=(10, 0))
         self.scaling_option_menu = ctk.CTkOptionMenu(self.sidebar, values=["80%", "90%", "100%", "110%", "120%"], command=self.change_scaling_event)
-        self.scaling_option_menu.grid(row=8, column=0, padx=20, pady=(10, 20))
+        self.scaling_option_menu.grid(row=9, column=0, padx=20, pady=(10, 20))
 
         #//////////// COMMAND ENTRY ////////////
         self.command_entry = ctk.CTkEntry(self, placeholder_text="Enter a command. Try 'help' for a list of commands.")
         self.command_entry.grid(row=3, column=1, columnspan=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
         #//////////// CLEAR BUTTON ////////////
-        self.clear_btn = ctk.CTkButton(self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), command=(self.clearAll), text="Clear")
-        self.clear_btn.grid(row=3, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.send_btn = ctk.CTkButton(self, fg_color="transparent", border_width=2, text_color=(F"{self._OUTPUT_COLOR}"), command=(self.process_input), text="Send Query")
+        self.send_btn.grid(row=3, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
         #//////////// SEND BUTTON ////////////
-        self.send_btn = ctk.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("#DCE4EE"), command=(self.process_input), text="Send Query")
-        self.send_btn.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.clear_btn = ctk.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("#DCE4EE"), command=(self.clearAll), text="Clear")
+        self.clear_btn.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         #//////////// OUTPUT BOX ////////////
         self.output_box = ctk.CTkTextbox(self, width=250, font=ctk.CTkFont(size=14, weight='bold'))
@@ -102,8 +110,8 @@ class WinGTPGUI(ctk.CTk):
         
         #//////////// ENGINE OPTION MENU ////////////
         _gtp_engines = []
-        for _index in range(len(self.wingtp_cli.engines)):
-            _gtp_engines.append(self.wingtp_cli.engines[_index][0])
+        for _index in range(len(self.cli.engines)):
+            _gtp_engines.append(self.cli.engines[_index][0])
             _index += 1
 
         self.engine_option_menu = ctk.CTkOptionMenu(
@@ -151,6 +159,7 @@ class WinGTPGUI(ctk.CTk):
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.radio_var = tkinter.IntVar(value=0)
         
+        #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
         self.output_temp_label_radio_group = ctk.CTkLabel(
             master=self.output_temp_radiobutton_frame, 
             text="Chat Output Temperature"
@@ -161,7 +170,7 @@ class WinGTPGUI(ctk.CTk):
             master=self.output_temp_radiobutton_frame, 
             text="high", 
             variable=self.radio_var, 
-            value=self.wingtp_cli.temps["high"], 
+            value=self.cli.temps["high"], 
             command=self.output_temp_radio_btn_selected
         )
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
@@ -170,7 +179,7 @@ class WinGTPGUI(ctk.CTk):
             master=self.output_temp_radiobutton_frame, 
             text="medium", 
             variable=self.radio_var, 
-            value=self.wingtp_cli.temps["medium"], 
+            value=self.cli.temps["medium"], 
             command=self.output_temp_radio_btn_selected
         )
         self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
@@ -178,7 +187,7 @@ class WinGTPGUI(ctk.CTk):
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             variable=self.radio_var, 
-            value=self.wingtp_cli.temps["low"], 
+            value=self.cli.temps["low"], 
             command=self.output_temp_radio_btn_selected
         )
         self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
@@ -201,20 +210,28 @@ class WinGTPGUI(ctk.CTk):
         self.settings_switches_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.settings_switches_frame.grid_columnconfigure(0, weight=1)
         
+        #//////////// CHAT ECHO ////////////    
         self.chat_echo_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Echo", command=self.on_chat_echo_switch_changed_event)
         self.chat_echo_switch.grid(row=0, column=0, padx=10, pady=(0, 20))
         
+        #//////////// CHAT STREAM ////////////
         self.chat_stream_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Stream", command=self.on_chat_stream_switch_changed_event)
-        self.chat_stream_switch.grid(row=1 , column=0, padx=10, pady=(0, 20))
+        self.chat_stream_switch.grid(row=1, column=0, padx=10, pady=(0, 20))
         
+        #//////////// STOP LIST ////////////
+        self.chat_stop_list_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Stop List", command=self.on_chat_stop_list_switch_changed_event)
+        self.chat_stop_list_switch.grid(row=2, column=0, padx=10, pady=(0, 20))
         
+        #//////////// WRITE CHAT ////////////
+        self.save_chat_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Save Chat", command=self.on_save_chat_switch_changed_event)
+        self.save_chat_switch.grid(row=3, column=0, padx=10, pady=(0, 20))
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = ctk.CTkFrame(self)
         self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
        
-        self.use_stop_list_checkbox = ctk.CTkCheckBox(master=self.checkbox_slider_frame, command=self.use_stop_list_checkbox_checked_changed_event)
-        self.use_stop_list_checkbox.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.checkbox_1 = ctk.CTkCheckBox(master=self.checkbox_slider_frame, command=self.checkbox1_checked_changed_event)
+        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="nw")
         self.checkbox_2 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
         self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="nw")
         self.checkbox_3 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
@@ -226,7 +243,6 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
         self.checkbox_3.configure(state="disabled")
-        self.use_stop_list_checkbox.configure(text="Use stop list")
         self.temp_high_radio_button.configure(text="High")
         self.temp_medium_radio_button.configure(text="Medium")
         self.temp_low_radio_button.configure(text="Low")
@@ -241,37 +257,57 @@ class WinGTPGUI(ctk.CTk):
         self.clearOutput()
         self.command_entry.delete(0, tk.END)
     
-    def use_stop_list_checkbox_checked_changed_event(self):
-        checked = self.use_stop_list_checkbox.get()
-        if checked == 0:
-            self.wingtp_cli.USE_STOPLIST = False
-            self.setOutput(f"Stop list (off)", "cli")
+    #////
+    def checkbox1_checked_changed_event(self):
+        checked = self.checkbox_1.get()
+    #////         
+
+    def on_save_chat_switch_changed_event(self) -> None:
+        state = self.save_chat_switch.get()
+        if state == 0:
+            self.setOutput("[Save chat]: Off", "cli")
         else:
-            self.wingtp_cli.USE_STOPLIST = True
-            dialog = ctk.CTkInputDialog(text="Enter a list of words you want the output to stop at if encountered\nWords should be quoted!: ", title="Chat Stop List")
-            _stoplist = str(dialog.get_input())
-            if len(_stoplist) != 0 and _stoplist != "None":
-                self.wingtp_cli.setStopList(_stoplist)
-                self.setOutput(f"Stop list (on): \n{self.wingtp_cli.getStopList()}", "cli")
-                return True
+            self.setOutput("[Save chat]: On", "cli")
+            if self.cli.saveChat("./test.txt", "some test content"):
+                pass
             else:
-                return False
+                pass
+            
             
     def on_chat_echo_switch_changed_event(self) -> None:
         state = self.chat_echo_switch.get()
         if state == 0:
-            self.wingtp_cli.setChatEcho(False)
-            self.setOutput("[Chat echo]: On")
+            self.cli.setChatEcho(False)
+            self.setOutput("[Chat echo]: Off", "cli")
         else:
-            self.wingtp_cli.setChatEcho(True)
-            self.setOutput("[Chat echo]: Off")
+            self.cli.setChatEcho(True)
+            self.setOutput("[Chat echo]: On", "cli")
 
-    
     def on_chat_stream_switch_changed_event(self) -> None:
-        pass
+        state = self.chat_stream_switch.get()
+        if state == 0:
+            self.cli.setChatStream(False)
+            self.setOutput("[Chat stream]: Off", "cli")
+        else:
+            self.cli.setChatStream(True)
+            self.setOutput("[Chat stream]: On", "cli")
     
+    def on_chat_stop_list_switch_changed_event(self) -> None:
+        state = self.chat_stop_list_switch.get()
+        if state == 0:
+            self.setOutput("[Chat stop list]: Off", "cli")
+        else:
+            dialog = ctk.CTkInputDialog(text="Enter a list of words you want the output to stop at if encountered\nWords should be quoted!: ", title="Chat Stop List")
+            _stoplist = str(dialog.get_input())
+            if len(_stoplist) != 0 and _stoplist != "None":
+                self.cli.setStopList(_stoplist)
+                self.setOutput("[Chat stop list]: On", "cli")
+                return True
+            else:
+                return False
+            
     def on_engine_option_chosen_event(self, engine) -> None:
-        self.wingtp_cli.setEngine(f"{engine}")
+        self.cli.setEngine(f"{engine}")
         self.setOutput(f"Engine changed to: {engine}", "cli")
             
     def open_jsonl_datafile_input_dialog_event(self) -> bool:
@@ -281,8 +317,8 @@ class WinGTPGUI(ctk.CTk):
             return False
         if len(path) != 0:
             if os.path.exists(path):
-                self.wingtp_cli.setJSONLDataFile(path)
-                self.setOutput(f"File set: [{self.wingtp_cli.getJSONLDataFile()}]", "cli")
+                self.cli.setJSONLDataFile(path)
+                self.setOutput(f"File set: [{self.cli.getJSONLDataFile()}]", "cli")
                 return True
             else:
                 self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
@@ -296,8 +332,8 @@ class WinGTPGUI(ctk.CTk):
             return False
         if len(path) != 0:
             if os.path.exists(path):
-                self.wingtp_cli.setUserDefinedFileName(path)
-                self.setOutput(f"File set: [{self.wingtp_cli.getUserDefinedFileName()}]", "cli")
+                self.cli.setUserDefinedFileName(path)
+                self.setOutput(f"File set: [{self.cli.getUserDefinedFileName()}]", "cli")
                 return True
             else:
                 self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
@@ -308,8 +344,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter organization: ", title="Organization Input")
         organization = str(dialog.get_input())
         if len(organization) != 0 and organization != "None":
-            self.wingtp_cli.setOrganization(organization)
-            self.setOutput(f"Organization changed to: [{self.wingtp_cli.getOrganization()}]", "cli")
+            self.cli.setOrganization(organization)
+            self.setOutput(f"Organization changed to: [{self.cli.getOrganization()}]", "cli")
             return True
         else:
             return False
@@ -318,8 +354,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the API version: ", title="API Version Input")
         api_version = str(dialog.get_input())
         if len(api_version) != 0 and api_version != "None":
-            self.wingtp_cli.setAPIVersion(api_version)
-            self.setOutput(f"API version changed to: [{self.wingtp_cli.getAPIVersion()}]", "cli")
+            self.cli.setAPIVersion(api_version)
+            self.setOutput(f"API version changed to: [{self.cli.getAPIVersion()}]", "cli")
             return True
         else:
             return False
@@ -328,8 +364,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the API type: ", title="API Type Input")
         api_type = str(dialog.get_input())
         if len(api_type) != 0 and api_type != "None":
-            self.wingtp_cli.setAPIType(api_type)
-            self.setOutput(f"API type changed to: [{self.wingtp_cli.getAPIType()}]", "cli")
+            self.cli.setAPIType(api_type)
+            self.setOutput(f"API type changed to: [{self.cli.getAPIType()}]", "cli")
             return True
         else:
             return False
@@ -338,8 +374,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the API base: ", title="API Base Input")
         api_base = str(dialog.get_input())
         if len(api_base) != 0 and api_base != "None":
-            self.wingtp_cli.setAPIBase(api_base)
-            self.setOutput(f"API base changed to: [{self.wingtp_cli.getAPIBase()}]", "cli")
+            self.cli.setAPIBase(api_base)
+            self.setOutput(f"API base changed to: [{self.cli.getAPIBase()}]", "cli")
             return True
         else:
             return False
@@ -353,8 +389,8 @@ class WinGTPGUI(ctk.CTk):
         # whatever is entered isn't the right value type. Maybe I'm wrong 
         # on this, but it works.
         if token_limit.isdigit() and token_limit != "None":
-            self.wingtp_cli.setResponseTokenLimit(token_limit)
-            self.setOutput(f"Response token limit changed to: [{self.wingtp_cli.getResponseTokenLimit()}]", "cli")
+            self.cli.setResponseTokenLimit(token_limit)
+            self.setOutput(f"Response token limit changed to: [{self.cli.getResponseTokenLimit()}]", "cli")
             return True
         else:
             return False
@@ -363,8 +399,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count Input")
         response_count = str(dialog.get_input())
         if response_count.isdigit() and response_count != "None":
-            self.wingtp_cli.setResponseCount(response_count)
-            self.setOutput(f"Response count changed to: [{self.wingtp_cli.getResponseCount()}]", "cli")
+            self.cli.setResponseCount(response_count)
+            self.setOutput(f"Response count changed to: [{self.cli.getResponseCount()}]", "cli")
             return True
         else:
             return False
@@ -372,14 +408,14 @@ class WinGTPGUI(ctk.CTk):
     def output_temp_radio_btn_selected(self):
         selected_value = self.radio_var.get()
 
-        if selected_value == self.wingtp_cli.temps["high"]:
-            self.wingtp_cli.setTemperature(selected_value)
+        if selected_value == self.cli.temps["high"]:
+            self.cli.setTemperature(selected_value)
             self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
-        elif selected_value == self.wingtp_cli.temps["medium"]:
-            self.wingtp_cli.setTemperature(selected_value)
+        elif selected_value == self.cli.temps["medium"]:
+            self.cli.setTemperature(selected_value)
             self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
-        elif selected_value == self.wingtp_cli.temps["low"]:
-            self.wingtp_cli.setTemperature(selected_value)
+        elif selected_value == self.cli.temps["low"]:
+            self.cli.setTemperature(selected_value)
             self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
         
     def change_appearance_mode_event(self, _new_appearance_mode: str) -> bool:
@@ -396,6 +432,19 @@ class WinGTPGUI(ctk.CTk):
         color = colorchooser.askcolor(title="Select Color")
         self._OUTPUT_COLOR = f"{color[1]}"
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
+        self.send_btn.configure(border_color=self._OUTPUT_COLOR)
+        self.clear_btn.configure(border_color=self._OUTPUT_COLOR)
+        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        self.command_entry.configure(border_color=self._OUTPUT_COLOR)
+        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
+        self.sidebar_logo.configure(text_color=self._OUTPUT_COLOR)
+        self.appearance_mode_label.configure(text_color=self._OUTPUT_COLOR)
+        self.scaling_label.configure(text_color=self._OUTPUT_COLOR)
+        self.output_temp_label_radio_group.configure(text_color=self._OUTPUT_COLOR)
+        self.change_color_btn_label.configure(text_color=self._OUTPUT_COLOR)
+        self.settings_switches_frame.configure(label_text_color=self._OUTPUT_COLOR)
                
     def change_scaling_event(self, new_scaling: str) -> None:
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
@@ -428,75 +477,75 @@ class WinGTPGUI(ctk.CTk):
 
     def setOutput(self, output: str, type) -> None:
         if type == "chat":
-            self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [{self.wingtp_cli.engine}]: {output}\n")
+            self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [{self.cli.engine}]: {output}\n")
         elif type == "cli":
             self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [wingtp]: {output}\n")
         elif type == "user":
             self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [{self.USER}]: {output}\n")
 
     def getUsername(self) -> str:
-        return self.wingtp_cli.readFile('./config/username.conf')
+        return self.cli.readFile('./config/username.conf')
 
     def setUsername(self) -> None:
         username = simpledialog.askstring('Enter a username that you would like to use: ')
         self.USER = username
 
     def processQueryRequest(self, request: str) -> None:
-        self.wingtp_cli.setAPIKeyPath(self.API_KEY_PATH)
-        self.wingtp_cli.setEngine(self.wingtp_cli.engine)
-        self.wingtp_cli.setResponseTokenLimit(self.wingtp_cli.response_token_limit)
-        self.wingtp_cli.setResponseCount(self.wingtp_cli.response_count)
-        self.wingtp_cli.setRequest(request)
-        self.wingtp_cli.requestData()
-        response = self.wingtp_cli.getResponse()
+        self.cli.setAPIKeyPath(self.API_KEY_PATH)
+        self.cli.setEngine(self.cli.engine)
+        self.cli.setResponseTokenLimit(self.cli.response_token_limit)
+        self.cli.setResponseCount(self.cli.response_count)
+        self.cli.setRequest(request)
+        self.cli.requestData()
+        response = self.cli.getResponse()
         self.clearInput()
         self.setOutput(request, "user")
         self.setOutput(response, "chat")
     
     def processCommandRequest(self, request: str) -> None:
-        if request == self.wingtp_cli.cli_options[0]:
+        if request == self.cli.cli_options[0]:
             self.setOutput("Goodbye! ...", "cli")
             sys.exit()
-        elif request == self.wingtp_cli.cli_options[1]:
+        elif request == self.cli.cli_options[1]:
             self.open_response_token_limit_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[2]:
+        elif request == self.cli.cli_options[2]:
             engine = simpledialog.askstring("Input", "Set the engine: ")
-            self.wingtp_cli.setEngine(engine)
+            self.cli.setEngine(engine)
             self.clearInput()
-            self.setOutput(f"Engine set to {self.wingtp_cli.getEngine()}", "cli")
-        elif request == self.wingtp_cli.cli_options[3]:
+            self.setOutput(f"Engine set to {self.cli.getEngine()}", "cli")
+        elif request == self.cli.cli_options[3]:
             self.open_response_count_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[4]:
+        elif request == self.cli.cli_options[4]:
             self.open_api_base_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[5]:
+        elif request == self.cli.cli_options[5]:
             self.open_api_type_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[6]:
+        elif request == self.cli.cli_options[6]:
             self.open_api_version_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[7]:
+        elif request == self.cli.cli_options[7]:
             self.open_organization_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[8]:
+        elif request == self.cli.cli_options[8]:
             self.open_user_defined_datafile_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[9]:
+        elif request == self.cli.cli_options[9]:
             self.open_jsonl_datafile_input_dialog_event()
             self.clearInput()
-        elif request == self.wingtp_cli.cli_options[10]:
+        elif request == self.cli.cli_options[10]:
             self.clearInput()
-            self.setOutput(self.wingtp_cli._help.__doc__, "cli")
-        elif request == self.wingtp_cli.cli_options[11]:
+            self.setOutput(self.cli._help.__doc__, "cli")
+        elif request == self.cli.cli_options[11]:
             self.clearOutput()
-        elif request.split(' ')[0] == self.wingtp_cli.cli_options[12]:
+        elif request.split(' ')[0] == self.cli.cli_options[12]:
             self.change_appearance_mode_event(request.split(' ')[1])
-        elif request == self.wingtp_cli.cli_options[13]:
+        elif request == self.cli.cli_options[13]:
             self.change_output_color_event()
         else:
-            self.setOutput(self.wingtp_cli._help.__doc__, "cli")
+            self.setOutput(self.cli._help.__doc__, "cli")
     
     def process_input(self) -> None:
         request = self.getUserInput()
@@ -511,10 +560,10 @@ class WinGTPGUI(ctk.CTk):
 Try entering text into the chat window to receive a reponse.\n \
 Or you can use one of the following commands by entering one\n \
 into the command input under the chat window.\n \
-{self.wingtp_cli._help.__doc__}", "cli")
+{self.cli._help.__doc__}", "cli")
 
 #//////////// MAIN ENTRY POINT
 if __name__ == "__main__":
     wingtp = WinGTPGUI()
-    wingtp.setOutput(wingtp.wingtp_cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), 'chat')
+    wingtp.setOutput(wingtp.cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), 'chat')
     wingtp.mainloop()

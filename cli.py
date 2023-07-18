@@ -53,6 +53,7 @@ class WinGTPCLI:
         self.api_version = openai.api_version
         self.jsonl_data_file = None
         self.echo = False
+        self.stream = False
         self.request = "What's todays date?"
         self.response = None
         self.response_token_limit = 200#/minute (default)
@@ -61,7 +62,7 @@ class WinGTPCLI:
         self.user_defined_filename = None
         self.temps = {"low":0, "medium":1, "high":2}
         self.temperature = self.temps["medium"]
-        self.stop_list = []
+        self.stop_list = None
         self.USE_STOPLIST = False
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
@@ -277,6 +278,26 @@ class WinGTPCLI:
     def getChatEcho(self) -> bool:
         return self.echo
         
+    def setChatStream(self, stream: bool) -> None:
+        self.stream = stream
+        
+    def getChatStream(self) -> bool:
+        return self.stream
+        
+    def saveChat(self, file_path: str = None, content: str = None) -> bool:
+        if len(file_path) == 0 or os.path.exists(file_path) == False:
+            return False
+        if len(content) == 0:
+            return False
+        try:
+            with open(f"{file_path}", "a") as file:
+                file.write(content)
+                file.close()
+        except IOError:
+            pass
+        except Exception as e:
+            pass
+        
     def requestData(self) -> None: 
         # The following is an example of the message parameter:
         # messages=[
@@ -297,9 +318,9 @@ class WinGTPCLI:
                 temperature=int(self.temperature),
                 #top_p=1,
                 n=int(self.response_count),
-                stream=False,
+                stream=bool(self.stream),
                 echo=bool(self.echo),
-                stop=None,
+                stop=self.stop_list,
                 frequency_penalty=0,
                 presence_penalty=0,
                 best_of=1,

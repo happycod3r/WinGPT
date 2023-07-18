@@ -1,10 +1,10 @@
 from customtkinter import CTkInputDialog
-from wingtp_cli import WinGTPCLI
+from cli import WinGTPCLI
 import os
 
 class Setup:
     def __init__(self) -> None:
-        self.wingtp_cli = WinGTPCLI()
+        self.cli = WinGTPCLI()
         self.CONFIG_DIR = "./config"
         self.KEY_CONFIG_FILE = "./config/.api_key.conf"
         self.SETUP_DONE_FLAG_FILE = "./config/.setup.flag"
@@ -38,7 +38,7 @@ class Setup:
             
     def createSetupFinishedFlag(self):
         if not os.path.exists(self.SETUP_DONE_FLAG_FILE):
-            if self.wingtp_cli.createFile(f"{self.SETUP_DONE_FLAG_FILE}") == True:
+            if self.cli.createFile(f"{self.SETUP_DONE_FLAG_FILE}") == True:
                 return True
             else:
                 print("Setup failed or did not finish successfully!")
@@ -48,19 +48,19 @@ class Setup:
             return False
                     
     def createConfigDir(self) -> bool:
-        if self.wingtp_cli.createDir(self.CONFIG_DIR) == True:
+        if self.cli.createDir(self.CONFIG_DIR) == True:
             return True
         else:
             return False
         
     def createKeyConfigFile(self) -> bool:
-        if self.wingtp_cli.createFile(f"{self.KEY_CONFIG_FILE}") == True:
+        if self.cli.createFile(f"{self.KEY_CONFIG_FILE}") == True:
             return True
         else:
             return False
         
     def createUsernameConfigFile(self) -> bool:
-        if self.wingtp_cli.createFile(f"{self.USERNAME_CONFIG_FILE}"):
+        if self.cli.createFile(f"{self.USERNAME_CONFIG_FILE}"):
             return True
         else:
             return False

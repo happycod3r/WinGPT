@@ -1,4 +1,4 @@
-from wingtp_cli import WinGTPCLI
+from cli import WinGTPCLI
 from bin import setup
 import customtkinter as ctk
 import subprocess
