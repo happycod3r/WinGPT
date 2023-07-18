@@ -52,6 +52,7 @@ class WinGTPCLI:
         self.api_type = openai.api_type
         self.api_version = openai.api_version
         self.jsonl_data_file = None
+        self.echo = False
         self.request = "What's todays date?"
         self.response = None
         self.response_token_limit = 200#/minute (default)
@@ -64,7 +65,6 @@ class WinGTPCLI:
         self.USE_STOPLIST = False
         openai.api_key_path = self.api_key_path
         openai.api_key = self.api_key
-        self.setPrompt()
     
     def _clear(self) -> None:
         print('\033c', end='')
@@ -271,48 +271,43 @@ class WinGTPCLI:
     def getStopList(self) -> list:
         return self.stop_list
         
+    def setChatEcho(self, echo: bool) -> None:
+        self.echo = echo
+        
+    def getChatEcho(self) -> bool:
+        return self.echo
+        
     def requestData(self) -> None: 
+        # The following is an example of the message parameter:
+        # messages=[
+        #   {"role": "system", "content": "You are a helpful assistant."},
+        #   {"role": "user", "content": "Who won the world series in 2020?"},
+        #   {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+        #   {"role": "user", "content": "Where was it played?"}
+        # ],
         _respone = None
         try:
-            if self.jsonl_data_file == None:
-                if self.USE_STOPLIST == False:                
-                    _response = openai.Completion.create(
-                        engine=f"{self.engine}",                # The model being used.
-                        prompt=f"{self.request}",               # The input.
-                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                        n=self.response_count,                  # Number of responses
-                        temperature=int(self.temperature)
-                    )
-                else:
-                    _response = openai.Completion.create(
-                        engine=f"{self.engine}",                # The model being used.
-                        prompt=f"{self.request}",               # The input.
-                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                        n=self.response_count,                  # Number of responses
-                        temperature=int(self.temperature),
-                        stop=f"{self.stop_list}"
-                    )
-            else:
-                if self.USE_STOPLIST == False:
-                    _response = openai.Completion.create(
-                        engine=f"{self.engine}",                # The model being used.
-                        prompt=f"{self.request}",                # The input.
-                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                        n=self.response_count,                 # Number of responses 
-                        temperature=int(self.temperature),
-                        files=[self.jsonl_data_file.id]
-                    )
-                else:
-                    _response = openai.Completion.create(
-                        engine=f"{self.engine}",                # The model being used.
-                        prompt=f"{self.request}",                # The input.
-                        max_tokens=self.response_token_limit,   # Max tokens allowed in each response.
-                        n=self.response_count,                  # Number of responses
-                        temperature=int(self.temperature), 
-                        files=[self.jsonl_data_file.id],
-                        stop=f"{self.stop_list}"
-                    )
-                    pass
+            # UI OPTIONS THAT EFFECT THE RESPONSE OBJECT:
+            # - self.jsonl_data_file
+            # - self.USE_STOPLIST 
+            _response = openai.Completion.create(
+                engine=str(self.engine),
+                prompt=str(self.request),
+                max_tokens=int(self.response_token_limit),
+                temperature=int(self.temperature),
+                #top_p=1,
+                n=int(self.response_count),
+                stream=False,
+                echo=bool(self.echo),
+                stop=None,
+                frequency_penalty=0,
+                presence_penalty=0,
+                best_of=1,
+                #logit_bias=None,
+                #files="",
+                timeout=None
+            )
+            
             self.response = _response
         except openai.OpenAIError:
             print("OpenAI Error")

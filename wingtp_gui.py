@@ -201,11 +201,13 @@ class WinGTPGUI(ctk.CTk):
         self.settings_switches_frame.grid(row=1, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.settings_switches_frame.grid_columnconfigure(0, weight=1)
         
-        self.settings_switches = []
-        for i in range(10):
-            switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Setting {i}")
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-            self.settings_switches.append(switch)
+        self.chat_echo_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Echo", command=self.on_chat_echo_switch_changed_event)
+        self.chat_echo_switch.grid(row=0, column=0, padx=10, pady=(0, 20))
+        
+        self.chat_stream_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Stream", command=self.on_chat_stream_switch_changed_event)
+        self.chat_stream_switch.grid(row=1 , column=0, padx=10, pady=(0, 20))
+        
+        
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = ctk.CTkFrame(self)
@@ -225,9 +227,6 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
         self.checkbox_3.configure(state="disabled")
         self.use_stop_list_checkbox.configure(text="Use stop list")
-        self.use_stop_list_checkbox.select()
-        self.settings_switches[0].select()
-        self.settings_switches[4].select()
         self.temp_high_radio_button.configure(text="High")
         self.temp_medium_radio_button.configure(text="Medium")
         self.temp_low_radio_button.configure(text="Low")
@@ -257,6 +256,19 @@ class WinGTPGUI(ctk.CTk):
                 return True
             else:
                 return False
+            
+    def on_chat_echo_switch_changed_event(self) -> None:
+        state = self.chat_echo_switch.get()
+        if state == 0:
+            self.wingtp_cli.setChatEcho(False)
+            self.setOutput("[Chat echo]: On")
+        else:
+            self.wingtp_cli.setChatEcho(True)
+            self.setOutput("[Chat echo]: Off")
+
+    
+    def on_chat_stream_switch_changed_event(self) -> None:
+        pass
     
     def on_engine_option_chosen_event(self, engine) -> None:
         self.wingtp_cli.setEngine(f"{engine}")
