@@ -31,7 +31,7 @@ class WinGTPGUI(ctk.CTk):
         self._OUTPUT_COLOR = "#DCE4EE"
         self.SAVE_CHAT = False
         self.CHAT_LOG_PATH = None
-        self.persist = persistence.Persistence()
+        self._config = persistence.Persistence()
                         
         #//////////// WINDOW ////////////
         self.title("WinGTP Powered by Python & OpenAI")
@@ -442,6 +442,9 @@ class WinGTPGUI(ctk.CTk):
     def change_output_color_event(self) -> None:
         color = colorchooser.askcolor(title="Select Color")
         self._OUTPUT_COLOR = f"{color[1]}"
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
         self.send_btn.configure(border_color=self._OUTPUT_COLOR)
         self.clear_btn.configure(border_color=self._OUTPUT_COLOR)

@@ -1,4 +1,5 @@
 from chatmemory import memory
+from bin import persistence
 import openai
 import sys
 import os
@@ -6,6 +7,7 @@ import os
 class WinGTPCLI:
      
     def __init__(self) -> None:
+        self.config = persistence.Persistence()
         API_KEY_PATH = "./.api_key.ini"
         self.setAPIKeyPath(API_KEY_PATH)
         self.cli_options = [

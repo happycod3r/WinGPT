@@ -1,16 +1,17 @@
 from customtkinter import CTkInputDialog
 from cli import WinGTPCLI
 import os
-
+from bin import persistence
 class Setup:
     def __init__(self) -> None:
         self.cli = WinGTPCLI()
+        self.config = persistence.Persistence()
         
-        self.CONFIG_DIR = "./config"
+        self.CONFIG_DIR = self.config.CONFIG_DIR
         
-        self.USER_SETTINGS_FILE = "./config/.settings.ini"
-        self.KEY_CONFIG_FILE = "./config/.api_key.ini"
-        self.USERNAME_CONFIG_FILE = "./config/.username.ini"
+        self.USER_SETTINGS_FILE = self.config.USER_SETTINGS_FILE
+        self.KEY_CONFIG_FILE = self.config.KEY_CONFIG_FILE
+        self.USERNAME_CONFIG_FILE = self.config.USERNAME_CONFIG_FILE
         
         self.SETUP_DONE_FLAG_FILE = "./config/.setup.flag"
         
@@ -42,6 +43,12 @@ class Setup:
         except Exception as e:
             print(f"{e.__context__}")            
             
+    def createConfigDir(self) -> bool:
+        if self.cli.createDir(self.CONFIG_DIR) == True:
+            return True
+        else:
+            return False
+            
     def createSetupFinishedFlag(self):
         if not os.path.exists(self.SETUP_DONE_FLAG_FILE):
             if self.cli.createFile(f"{self.SETUP_DONE_FLAG_FILE}") == True:
@@ -51,12 +58,6 @@ class Setup:
                 return False
         else: 
             print("Setup failed or did not finish successfully!")
-            return False
-                    
-    def createConfigDir(self) -> bool:
-        if self.cli.createDir(self.CONFIG_DIR) == True:
-            return True
-        else:
             return False
         
     def createSettingsConfigFile(self) -> bool:
@@ -76,19 +77,38 @@ class Setup:
             return True
         else:
             return False
+        
+    def setupConfig(self) -> None:
+        self.config.openConfig()
+        self.config.setDefaultSection("DEFAULTS")
+        self.config.addSection("user")
+        self.config.addOption("user", "username", str(None))
+        self.config.addOption("user", "api_key", str(None))
+        self.config.addSection("ui")
+        self.config.addOption("ui", "color", "#DCE4EE")
+        self.config.addOption("ui", "ui_scaling", str(100))
+        self.config.addOption("ui", "theme", "System") 
+        self.config.addSection("chat")
+        self.config.addOption("chat", "chat_to_file", str(False))
+        self.config.addOption("chat", "chat_log_path", str(None))
+        self.config.addOption("chat", "echo_chat", str(False))
+        self.config.addOption("chat", "stream_chat", str(False))
+        self.config.addOption("chat", "use_stop_list", str(False))
+        self.config.addOption("chat", "chat_temperature", str(1))
+        self.config.addOption("chat", "chat_engine", "text-davinci-003")
+        self.config.addOption("chat", "response_token_limit", str(16))
+        self.config.addOption("chat", "response_count", str(1))
+        self.config.addOption("chat", "api_base", str(None))
+        self.config.addOption("chat", "api_type", str(None))
+        self.config.addOption("chat", "api_version", str(None))
+        self.config.addOption("chat", "organization", str(None))
+        if self.config.saveConfig():
+            return True
+        else: 
+            return False
             
-    def setup(self) -> bool:
-        # The following 5 steps are critical to the normal function of WinGTP. 
-        # If any of these steps fail then setup must fail otherwise the user 
-        # gets a broken program. Only after these steps succeed will the api key 
-        # be hard set and the gui be loaded for use. Aside from theme/color settings 
-        # all of wgtps functionality relies on the openai api being successfully 
-        # loaded with a valid api key so there is really no point in showing the 
-        # gui if setup fails. 
+    def setup(self) -> bool: 
         if self.createConfigDir(): # 1) Create the root config directory...
-            # Create the settings file...
-            #try:
-            #    with open(self.CONFIG_DIR, '')
             if self.createKeyConfigFile(): # 2) Create the file that will hold the api key... 
                 dialog = CTkInputDialog(text=f"{self.API_KEY_DIALOG_MESSAGE}", title=f"{self.API_KEY_DIALOG_TITLE}")
                 _API_KEY = str(dialog.get_input()) # 3) Get the api key from the user...
@@ -99,44 +119,66 @@ class Setup:
                                 api_key_file.write(_API_KEY) # 5) Hard set the api key...
                                 api_key_file.close()
                                 if self.createUsernameConfigFile(): # 6) Create the username config file...
-                                    #/////////////////////////////// 
                                     dialog2 = CTkInputDialog(text=f"{self.USERNAME_DIALOG_MESSAGE}", title=f"{self.USERNAME_DIALOG_TITLE}")
                                     _USERNAME = str(dialog2.get_input()) # 7) Get the username from the user...
-                                    if len(_USERNAME) != 0 and _USERNAME != "None":
+                                    if len(_USERNAME) != 0 and _USERNAME != "None": # 8) Validate the username...
                                         self.USERNAME = _USERNAME 
-                                        try:
+                                        try:                                    
                                             with open(f"{self.USERNAME_CONFIG_FILE}", "w") as username_file:
                                                 if username_file.writable():
-                                                    username_file.write(f"{self.USERNAME}") # 8) Hard set the username...
+                                                    username_file.write(f"{self.USERNAME}") # 9) Hard set the username...
                                                     username_file.close()
                                                 else:
+                                                    self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
                                                     return False
+                                        except FileNotFoundError:
+                                            self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
+                                            return False
                                         except IOError:
+                                            self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
                                             return False
                                         except Exception as e:
-                                            print(f"{e.__context__}")
+                                            print(repr(e))
+                                            self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
                                             return False
-                                        if self.createSettingsConfigFile():    
-                                            if self.createSetupFinishedFlag(): # 9) Create a flag to indicate that setup finished.
-                                                return True
+                                        if self.createSettingsConfigFile(): # 10) Create the main settings file.
+                                            if self.createSetupFinishedFlag(): # 11) Create a flag to indicate that setup finished successfuly.
+                                                if self.setupConfig(): # 12 ) Set default settings in settings.ini
+                                                    return True
+                                                else:
+                                                    self.rollBackSetup() # 1) Roll back steps 12 - 1 if setup failed.
+                                                    return False
                                             else:
-                                                self.rollBackSetup() # 10) Roll back step 9 - 1, Hopefully noone reaces this point.
+                                                self.rollBackSetup() # 1) Roll back steps 11 - 1 if setup failed.
                                                 return False
                                         else:
+                                            self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
                                             return False
                                     else:
+                                        self.rollBackSetup() # 1) Roll back steps 8 - 1 if setup failed.
                                         return False
                                 else:
+                                    self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
                                     return False
                             else:
+                                self.rollBackSetup() # 1) Roll back steps 6 - 1 if setup failed.
                                 return False
+                    except FileNotFoundError:
+                        self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
+                        return False
                     except IOError:
+                        self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
                         return False
                     except Exception as e:
+                        print(repr(e))
+                        self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
                         return False
                 else:
+                    self.rollBackSetup() # 1) Roll back steps 4 - 1 if setup failed.
                     return False
             else:
+                self.rollBackSetup() # 1) Roll back steps 2 - 1 if setup failed.
                 return False
         else:
+            self.rollBackSetup() # 1) Roll back steps 1 - 1 if setup failed.
             return False

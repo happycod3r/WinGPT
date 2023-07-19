@@ -4,9 +4,10 @@ import sys
 
 class Persistence:
     def __init__(self) -> None:
-        self.KEY_CONFIG_FILE = "./config/.api_key.ini"
-        self.USERNAME_CONFIG_FILE = "./config/.username.ini"
-        self.USER_SETTINGS_FILE = "./config/.settings.ini"
+        self.CONFIG_DIR = "./config"
+        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}/.api_key.ini"
+        self.USERNAME_CONFIG_FILE = f"{self.CONFIG_DIR}/.username.ini"
+        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}/settings.ini"
         
         self.config = configparser.ConfigParser()
         
@@ -32,9 +33,8 @@ class Persistence:
         self.config.set(f"{_section}", f"{_option}", f"{_new_value}")
 
     # Create a new config option.
-    def addOption(self, _new_section: str, _new_option: str, _new_value: str) -> bool:
-        self.config.add_section(f"{_new_section}")
-        self.config.set(f"{_new_section}", f"{_new_option}", f"{_new_value}")
+    def addOption(self, _section: str, _new_option: str, _value: str) -> bool:
+        self.config.set(f"{_section}", f"{_new_option}", f"{_value}")
 
     #Remove a config option
     def removeOption(self, _section: str, _option: str) -> None:
@@ -61,7 +61,7 @@ class Persistence:
             return False
 
     # Add a new config section.
-    def addSetion(self, _section: str) -> None:
+    def addSection(self, _section: str) -> None:
         self.config.add_section(f"{_section}")
 
     # Remove a config section.
@@ -91,6 +91,7 @@ class Persistence:
         try:
             with open(self.USER_SETTINGS_FILE, "w") as config_file:
                 self.config.write(config_file)
+                return True
         except FileNotFoundError:
             print(f"{self.USER_SETTINGS_FILE} not found! Can't save configuration")
             return False
@@ -99,6 +100,7 @@ class Persistence:
             return False
         except Exception as e:
             print(f"{e.__context__} : {e.__cause__} : {e.__annotations__}")
+            return False
 
     # Merge another config file with this one.
     def updateConfig(self, _parser: configparser.ConfigParser):
