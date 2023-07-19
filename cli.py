@@ -56,6 +56,17 @@ class WinGTPCLI:
         self.jsonl_data_file = None
         self.echo = False
         self.stream = False
+        self.request_types = {
+            "chat": 0, 
+             "images": 1, 
+            "audio" : 2, 
+            "embeddings": 3, 
+            "files": 4, 
+            "fine_tuning": 5, 
+            "moderations": 6, 
+            "build_requests": 7
+        }
+        self.request_type = self.request_types["chat"]
         self.request = "What's todays date?"
         self.response = None
         self.response_token_limit = 200#/minute (default)
@@ -276,6 +287,9 @@ class WinGTPCLI:
     def setRequest(self, request: str) -> None:
         self.request = request
     
+    def setRequestType(self, request_type: int) -> None:
+        self.request_type = request_type
+    
     def getResponseTokenLimit(self) -> int:
         return self.response_token_limit
     
@@ -330,6 +344,12 @@ class WinGTPCLI:
         except Exception as e:
             return False
         
+    def validateAPIKey(self, api_key: str) -> bool:
+        if not (api_key.startswith('sk-') and len(api_key) == 51):
+            return False
+        else:    
+            return True
+        
     def requestData(self) -> None: 
         # The following is an example of the message parameter:
         # messages=[
@@ -340,15 +360,12 @@ class WinGTPCLI:
         # ],
         _respone = None
         try:
-            # UI OPTIONS THAT EFFECT THE RESPONSE OBJECT:
-            # - self.jsonl_data_file
-            # - self.USE_STOPLIST 
+            
             _response = openai.Completion.create(
                 engine=str(self.engine),
                 prompt=str(self.request),
                 max_tokens=int(self.response_token_limit),
                 temperature=int(self.temperature),
-                #top_p=1,
                 n=int(self.response_count),
                 stream=bool(self.stream),
                 echo=bool(self.echo),
@@ -356,8 +373,6 @@ class WinGTPCLI:
                 frequency_penalty=0,
                 presence_penalty=0,
                 best_of=1,
-                #logit_bias=None,
-                #files="",
                 timeout=None
             )
             

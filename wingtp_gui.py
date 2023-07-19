@@ -20,18 +20,38 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 class WinGTPGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
-        #//////////// WINGTP GUI PROPERTIES ////////////
+        
+        self._config = persistence.Persistence()
+        self._config.openConfig()
+        
         self.NEW_USER = bool(sys.argv[1])
-        self.USER = f"{sys.argv[2]}"
-        self.API_KEY_PATH = './config/.api_key.ini'
+        self.USER = self._config.getOption("user", "username")
+        self.API_KEY = self._config.getOption("user", "api_key")
+        self.API_KEY_PATH = self._config.getOption("user", "api_key_path")
+        
+        self._OUTPUT_COLOR = f"{self._config.getOption('ui', 'color')}"
+        self.UI_SCALING = self._config.getOption('ui', "ui_scaling")
+        self.THEME = self._config.getOption('ui', "theme")
+        
+        self.SAVE_CHAT = self._config.getOption("chat", "chat_to_file")
+        self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_log_path")
+        self.ECHO_CHAT = self.CHAT_LOG_PATH = self._config.getOption("chat", "echo_chat")
+        self.STREAM_CHAT = self.CHAT_LOG_PATH = self._config.getOption("chat", "stream_chat")
+        self.USE_STOP_LIST = self.CHAT_LOG_PATH = self._config.getOption("chat", "use_stop_list")
+        self.CHAT_TEMP = self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_temperature")
+        self.CHAT_ENGINE = self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_engine")
+        self.RESPONSE_TOKEN_LIMIT = self.CHAT_LOG_PATH = self._config.getOption("chat", "response_token_limit")
+        self.RESPONSE_COUNT = self.CHAT_LOG_PATH = self._config.getOption("chat", "response_count")
+        self.API_BASE = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_base")
+        self.API_VERSION = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_version")
+        self.API_TYPE = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_type")
+        self.ORGANIZATION = self.CHAT_LOG_PATH = self._config.getOption("chat", "organization")
+        self.REQUEST_TYPE = self._config.getOption("chat", "request_type")
+        
         self.cli = WinGTPCLI()
         self.nt = normaltime.NormalTime()
         self.width = 1300  # 1100
         self.height = 580
-        self._OUTPUT_COLOR = "#DCE4EE"
-        self.SAVE_CHAT = False
-        self.CHAT_LOG_PATH = None
-        self._config = persistence.Persistence()
                         
         #//////////// WINDOW ////////////
         self.title("WinGTP Powered by Python & OpenAI")
@@ -59,7 +79,7 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         #//////////// LOGOUT BUTTON ////////////
-        self.sidebar_logout_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_logout_btn_event)
+        self.sidebar_logout_btn = ctk.CTkButton(self.sidebar, state=ctk.DISABLED, command=self.sidebar_logout_btn_event)
         self.sidebar_logout_btn.grid(row=1, column=0, padx=20, pady=10)
         
         #//////////// EXIT BUTTON ////////////
@@ -80,8 +100,8 @@ class WinGTPGUI(ctk.CTk):
         #//////////// THEME SELECT ////////////
         self.appearance_mode_label = ctk.CTkLabel(self.sidebar, text="Appearance Mode:", anchor="sw")
         self.appearance_mode_label.grid(row=6, column=0, padx=20, pady=(10, 10), sticky="s")
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(self.sidebar, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=7, column=0, padx=20, pady=(0, 10))
+        self.appearance_mode_option_menu = ctk.CTkOptionMenu(self.sidebar, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
+        self.appearance_mode_option_menu.grid(row=7, column=0, padx=20, pady=(0, 10))
         
         #//////////// UI SIZE SCALING SELECT ////////////
         self.scaling_label = ctk.CTkLabel(self.sidebar, text="UI Scaling:", anchor="w")
@@ -93,10 +113,10 @@ class WinGTPGUI(ctk.CTk):
         self.command_entry = ctk.CTkEntry(self, placeholder_text="Enter a command. Try 'help' for a list of commands.")
         self.command_entry.grid(row=3, column=1, columnspan=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
         #//////////// CLEAR BUTTON ////////////
-        self.send_btn = ctk.CTkButton(self, fg_color="transparent", border_width=2, text_color=(F"{self._OUTPUT_COLOR}"), command=(self.process_input), text="Send Query")
+        self.send_btn = ctk.CTkButton(self, fg_color="transparent", border_width=2, command=(self.process_input), text="Send Query")
         self.send_btn.grid(row=3, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
         #//////////// SEND BUTTON ////////////
-        self.clear_btn = ctk.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("#DCE4EE"), command=(self.clearAll), text="Clear")
+        self.clear_btn = ctk.CTkButton(master=self, fg_color="transparent", border_width=2, command=(self.clearAll), text="Clear")
         self.clear_btn.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         #//////////// OUTPUT BOX ////////////
@@ -123,11 +143,11 @@ class WinGTPGUI(ctk.CTk):
         self.engine_option_menu.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         #//////////// RESPONSE TOKEN LIMIT INPUT ////////////
-        self.response_token_limit_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text="Response Token Limit", command=self.open_response_token_limit_input_dialog_event)
+        self.response_token_limit_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text=f"Response Token Limit ({self.RESPONSE_TOKEN_LIMIT})", command=self.open_response_token_limit_input_dialog_event)
         self.response_token_limit_input.grid(row=1, column=0, padx=20, pady=(10, 10))
         
         #//////////// RESPONSE COUNT INPUT ////////////
-        self.response_count_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text="Response Count", command=self.open_response_count_input_dialog_event)
+        self.response_count_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text=f"Response Count ({self.RESPONSE_COUNT})", command=self.open_response_count_input_dialog_event)
         self.response_count_input.grid(row=2, column=0, padx=20, pady=(10, 10))
 
         #//////////// API BASE INPUT ////////////
@@ -153,13 +173,13 @@ class WinGTPGUI(ctk.CTk):
         #//////////// JSONL DATA FILE INPUT ////////////
         self.jsonl_data_file_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
         self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
-        
-        #//////////// CHAT OUTPUT TEMPERATURE ///////////
+    
+        #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    
         self.output_temp_radiobutton_frame = ctk.CTkFrame(self)
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.radio_var = tkinter.IntVar(value=0)
-        
-        #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
+        self.output_temp_radio_var = tkinter.IntVar(value=0)
+    
         self.output_temp_label_radio_group = ctk.CTkLabel(
             master=self.output_temp_radiobutton_frame, 
             text="Chat Output Temperature"
@@ -169,7 +189,7 @@ class WinGTPGUI(ctk.CTk):
         self.temp_high_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             text="high", 
-            variable=self.radio_var, 
+            variable=self.output_temp_radio_var, 
             value=self.cli.temps["high"], 
             command=self.output_temp_radio_btn_selected
         )
@@ -178,7 +198,7 @@ class WinGTPGUI(ctk.CTk):
         self.temp_medium_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             text="medium", 
-            variable=self.radio_var, 
+            variable=self.output_temp_radio_var, 
             value=self.cli.temps["medium"], 
             command=self.output_temp_radio_btn_selected
         )
@@ -186,12 +206,13 @@ class WinGTPGUI(ctk.CTk):
         
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
-            variable=self.radio_var, 
+            variable=self.output_temp_radio_var, 
             value=self.cli.temps["low"], 
             command=self.output_temp_radio_btn_selected
         )
         self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
-
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.input_box_frame.grid(row=1, column=1, padx=(20, 0), pady=(0, 0), sticky="nsew")
@@ -226,47 +247,187 @@ class WinGTPGUI(ctk.CTk):
         self.save_chat_switch = ctk.CTkSwitch(master=self.settings_switches_frame, text=f"Save Chat", command=self.on_save_chat_switch_changed_event)
         self.save_chat_switch.grid(row=3, column=0, padx=10, pady=(0, 20))
 
-        # create checkbox and switch frame
-        self.checkbox_slider_frame = ctk.CTkFrame(self)
-        self.checkbox_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-       
-        self.checkbox_1 = ctk.CTkCheckBox(master=self.checkbox_slider_frame, command=self.checkbox1_checked_changed_event)
-        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="nw")
-        self.checkbox_2 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="nw")
-        self.checkbox_3 = ctk.CTkCheckBox(master=self.checkbox_slider_frame)
-        self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="nw")
+        #//////////// REQUEST TYPE RADIO GROUP ////////////
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        self.request_type_slider_frame = ctk.CTkScrollableFrame(self)
+        self.request_type_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.request_type_slider_frame.grid_columnconfigure(0, weight=1)
+        self.request_type_radio_var = tkinter.IntVar(value=0)
+        
+        self.output_request_type_radio_group = ctk.CTkLabel(
+            master=self.request_type_slider_frame, 
+            text="Request Types"
+        )
+        self.output_request_type_radio_group.grid(row=0, column=0, columnspan=1, sticky="nsew")
+        
+        self.chat_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Chat",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["chat"],
+            command=self.request_type_radio_btn_selected
+        )
+        self.chat_radio_btn.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.images_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Images",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["images"],
+            command=self.request_type_radio_btn_selected
+            
+        )
+        self.images_radio_btn.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.audio_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Audio",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["audio"],
+            command=self.request_type_radio_btn_selected
+            
+        )
+        self.audio_radio_btn.grid(row=3, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.embeddings_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Embeddings",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["embeddings"],
+            command=self.request_type_radio_btn_selected
+        )
+        self.embeddings_radio_btn.grid(row=4, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.files_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Files",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["files"],
+            command=self.request_type_radio_btn_selected
+        )
+        self.files_radio_btn.grid(row=5, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.fine_tuning_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Fine Tuning",
+            variable=self.request_type_radio_var,   
+            value=self.cli.request_types["fine_tuning"], 
+            command=self.request_type_radio_btn_selected
+        )
+        self.fine_tuning_radio_btn.grid(row=6, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.moderations_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Moderations",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["moderations"],
+            command=self.request_type_radio_btn_selected
+        )
+        self.moderations_radio_btn.grid(row=7, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.build_request_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Build Requests",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["build_requests"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.build_request_radio_btn.grid(row=8, column=0, pady=(20, 0), padx=20, sticky="nw")
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_logout_btn.configure(state="normal", text="Logout")
         self.sidebar_exit_btn.configure(state="normal", text="Exit")
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
-        self.checkbox_3.configure(state="disabled")
+        
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        # self.chat_radio_btn.configure(state="normal", text="Chat")
+        # self.images_radio_btn.configure(state="normal", text="Images")
+        # self.audio_radio_btn.configure(state="normal", text="Audio")
+        # self.embeddings_radio_btn.configure(state="normal", text="Embeddings")
+        # self.files_radio_btn.configure(state="normal", text="Files")
+        # self.fine_tuning_radio_btn.configure(state="normal", text="Fine Tuning")
+        # self.moderations_radio_btn.configure(state="normal", text="Moderations")
+        # self.build_request_radio_btn.configure(state="normal", text="Build Request")
+        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        
         self.temp_high_radio_button.configure(text="High")
         self.temp_medium_radio_button.configure(text="Medium")
         self.temp_low_radio_button.configure(text="Low")
-        self.appearance_mode_optionemenu.set("Dark")
-        self.scaling_option_menu.set("100%")
-        self.engine_option_menu.set("Engine")
+        
+        self.loadOptions()
+        self._config.saveConfig()
         
         #//////////// GUI METHODS ////////////
-    
+
+    def loadOptions(self):
+        ######################################################################
+        self.output_box.configure(text_color=self._OUTPUT_COLOR)
+        self.send_btn.configure(border_color=self._OUTPUT_COLOR)
+        self.clear_btn.configure(border_color=self._OUTPUT_COLOR)
+        self.command_entry.configure(border_color=self._OUTPUT_COLOR)
+        self.sidebar_logo.configure(text_color=self._OUTPUT_COLOR)
+        self.appearance_mode_label.configure(text_color=self._OUTPUT_COLOR)
+        self.scaling_label.configure(text_color=self._OUTPUT_COLOR)
+        self.output_temp_label_radio_group.configure(text_color=self._OUTPUT_COLOR)
+        self.change_color_btn_label.configure(text_color=self._OUTPUT_COLOR)
+        self.settings_switches_frame.configure(label_text_color=self._OUTPUT_COLOR)
+        self.output_request_type_radio_group.configure(text_color=self._OUTPUT_COLOR)
+        
+        if self._config.getOption("chat", "echo_chat") == "True":
+            self.chat_echo_switch.select()
+            self.ECHO_CHAT = True
+            
+        if self._config.getOption("chat", "stream_chat") == "True":
+            self.chat_stream_switch.select()
+            self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_log_path")
+
+        if self._config.getOption("chat", "use_stop_list") == "True":
+            self.chat_stop_list_switch.select()
+            self.USE_STOP_LIST = True
+            
+        if self._config.getOption("chat", "chat_to_file") == "True":
+            self.save_chat_switch.select()
+            self.SAVE_CHAT = True         
+            
+        if self._config.getOption("chat", "stream_chat") == "True":
+            self.chat_stream_switch.select()
+            self.STREAM_CHAT = True
+            
+        #////// OUTPUT TEMP RADIO GROUP
+        self.output_temp_radio_var = int(self._config.getOption("chat", "chat_temperature"))
+        if self.output_temp_radio_var == 0:
+            self.temp_low_radio_button.select()
+        elif self.output_temp_radio_var == 1:
+            self.temp_medium_radio_button.select()
+        else:
+            self.temp_high_radio_button.select()
+            
+        self.engine_option_menu.set(self._config.getOption("chat", "chat_engine"))
+        self.appearance_mode_option_menu.set(self._config.getOption("ui", "theme"))
+        self.scaling_option_menu.set(self._config.getOption("ui", "ui_scaling"))
+        
+            
+        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
+        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        ######################################################################
+        
     def clearAll(self):
         self.clearInput()
         self.clearOutput()
-        self.command_entry.delete(0, tk.END)
+        self.command_entry.delete(0, tk.END)     
     
-    #////
-    def checkbox1_checked_changed_event(self):
-        checked = self.checkbox_1.get()
-    #////         
-
     def on_save_chat_switch_changed_event(self) -> None:
         state = self.save_chat_switch.get()
         if state == 0:
             self.SAVE_CHAT = False
             self.setOutput("[Save chat]: Off", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "chat_to_file", False)
+            self._config.saveConfig()
         else:
             if self.CHAT_LOG_PATH == None:
                 self.CHAT_LOG_PATH = self.openFileDialog()
@@ -275,7 +436,11 @@ class WinGTPGUI(ctk.CTk):
             else:
                 self.SAVE_CHAT = True
                 self.setOutput("[Save chat]: On", "cli")
-                
+            self._config.openConfig()
+            self._config.setOption("chat", "chat_to_file", True)
+            self._config.setOption("chat", "chat_log_path", self.CHAT_LOG_PATH)
+            self._config.saveConfig()
+            
     def openFileDialog(self) -> (str | bool):
         file_path = filedialog.askopenfilename()
         if file_path:
@@ -290,36 +455,61 @@ class WinGTPGUI(ctk.CTk):
         if state == 0:
             self.cli.setChatEcho(False)
             self.setOutput("[Chat echo]: Off", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "echo_chat", False)
+            self._config.saveConfig()
         else:
             self.cli.setChatEcho(True)
             self.setOutput("[Chat echo]: On", "cli")
+            self._config.openConfig(    )
+            self._config.setOption("chat", "echo_chat", True)
+            self._config.saveConfig()
 
     def on_chat_stream_switch_changed_event(self) -> None:
         state = self.chat_stream_switch.get()
         if state == 0:
             self.cli.setChatStream(False)
             self.setOutput("[Chat stream]: Off", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "stream_chat", False)
+            self._config.saveConfig()
         else:
             self.cli.setChatStream(True)
             self.setOutput("[Chat stream]: On", "cli")
-    
+            self._config.openConfig()
+            self._config.setOption("chat", "stream_chat", True)
+            self._config.saveConfig()
+            
     def on_chat_stop_list_switch_changed_event(self) -> None:
         state = self.chat_stop_list_switch.get()
         if state == 0:
             self.setOutput("[Chat stop list]: Off", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "use_stop_list", False)
+            self._config.saveConfig()
         else:
             dialog = ctk.CTkInputDialog(text="Enter a list of words you want the output to stop at if encountered\nWords should be quoted!: ", title="Chat Stop List")
             _stoplist = str(dialog.get_input())
             if len(_stoplist) != 0 and _stoplist != "None":
                 self.cli.setStopList(_stoplist)
                 self.setOutput("[Chat stop list]: On", "cli")
+                self._config.openConfig()
+                self._config.setOption("chat", "use_stop_list", True)
+                self._config.saveConfig()
                 return True
             else:
+                self._config.openConfig()
+                self._config.setOption("chat", "use_stop_list", False)
+                self._config.saveConfig()
                 return False
             
     def on_engine_option_chosen_event(self, engine) -> None:
         self.cli.setEngine(f"{engine}")
+        self.CHAT_ENGINE = engine
         self.setOutput(f"Engine changed to: {engine}", "cli")
+        self._config.openConfig()
+        self._config.setOption("chat", "chat_engine", f"{self.CHAT_ENGINE}")
+        self._config.saveConfig()
             
     def open_jsonl_datafile_input_dialog_event(self) -> bool:
         dialog = ctk.CTkInputDialog(text="Enter a .jsonl file path: ", title="JSONL Data File Input")
@@ -356,7 +546,11 @@ class WinGTPGUI(ctk.CTk):
         organization = str(dialog.get_input())
         if len(organization) != 0 and organization != "None":
             self.cli.setOrganization(organization)
+            self.ORGANIZATION = organization
             self.setOutput(f"Organization changed to: [{self.cli.getOrganization()}]", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "organization", self.ORGANIZATION)
+            self._config.saveConfig()
             return True
         else:
             return False
@@ -366,7 +560,11 @@ class WinGTPGUI(ctk.CTk):
         api_version = str(dialog.get_input())
         if len(api_version) != 0 and api_version != "None":
             self.cli.setAPIVersion(api_version)
+            self.API_VERSION = api_version
             self.setOutput(f"API version changed to: [{self.cli.getAPIVersion()}]", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "api_version", self.API_VERSION)
+            self._config.saveConfig()
             return True
         else:
             return False
@@ -376,7 +574,11 @@ class WinGTPGUI(ctk.CTk):
         api_type = str(dialog.get_input())
         if len(api_type) != 0 and api_type != "None":
             self.cli.setAPIType(api_type)
+            self.API_TYPE = api_type
             self.setOutput(f"API type changed to: [{self.cli.getAPIType()}]", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "api_type", self.API_TYPE)
+            self._config.saveConfig()
             return True
         else:
             return False
@@ -386,7 +588,11 @@ class WinGTPGUI(ctk.CTk):
         api_base = str(dialog.get_input())
         if len(api_base) != 0 and api_base != "None":
             self.cli.setAPIBase(api_base)
+            self.API_BASE = api_base
             self.setOutput(f"API base changed to: [{self.cli.getAPIBase()}]", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "api_base", self.API_BASE)
+            self._config.saveConfig()
             return True
         else:
             return False
@@ -401,7 +607,12 @@ class WinGTPGUI(ctk.CTk):
         # on this, but it works.
         if token_limit.isdigit() and token_limit != "None":
             self.cli.setResponseTokenLimit(token_limit)
+            self.RESPONSE_TOKEN_LIMIT = token_limit
             self.setOutput(f"Response token limit changed to: [{self.cli.getResponseTokenLimit()}]", "cli")
+            self.response_token_limit_input.configure(text=f"Response Token Limit ({self.RESPONSE_TOKEN_LIMIT})")
+            self._config.openConfig()
+            self._config.setOption("chat", "response_token_limit", self.RESPONSE_TOKEN_LIMIT)
+            self._config.saveConfig()
             return True
         else:
             return False
@@ -411,29 +622,108 @@ class WinGTPGUI(ctk.CTk):
         response_count = str(dialog.get_input())
         if response_count.isdigit() and response_count != "None":
             self.cli.setResponseCount(response_count)
+            self.RESPONSE_COUNT = response_count
             self.setOutput(f"Response count changed to: [{self.cli.getResponseCount()}]", "cli")
+            self.response_count_input.configure(text=f"Response Count ({self.RESPONSE_COUNT})")
+            self._config.openConfig()
+            self._config.setOption("chat", "response_count", self.RESPONSE_COUNT)
+            self._config.saveConfig()
             return True
         else:
             return False
-        
-    def output_temp_radio_btn_selected(self):
-        selected_value = self.radio_var.get()
-
-        if selected_value == self.cli.temps["high"]:
+    
+    def request_type_radio_btn_selected(self):
+        selected_value = self.request_type_radio_var.get()
+        if selected_value == self.cli.request_types["chat"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["images"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["audio"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["embeddings"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["files"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["fine_tuning"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["moderations"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+        if selected_value == self.cli.request_types["build_requests"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            self._config.saveConfig()
+    
+    def output_temp_radio_btn_selected(self) -> bool:
+        selected_value = self.output_temp_radio_var.get()
+        if selected_value == self.cli.temps["high"]: #2
             self.cli.setTemperature(selected_value)
+            self.CHAT_TEMP = selected_value
             self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
-        elif selected_value == self.cli.temps["medium"]:
+            self._config.openConfig()
+            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
+            self._config.saveConfig()
+        elif selected_value == self.cli.temps["medium"]: # 1
             self.cli.setTemperature(selected_value)
+            self.CHAT_TEMP = selected_value
             self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
-        elif selected_value == self.cli.temps["low"]:
+            self._config.openConfig()
+            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
+            self._config.saveConfig()
+        elif selected_value == self.cli.temps["low"]: # 0
             self.cli.setTemperature(selected_value)
+            self.CHAT_TEMP = selected_value
             self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
+            self._config.openConfig()
+            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
+            self._config.saveConfig()   
         
     def change_appearance_mode_event(self, _new_appearance_mode: str) -> bool:
         _theme = _new_appearance_mode
         if len(_theme) != 0 and _theme != "None":
             ctk.set_appearance_mode(_theme)
-            self.setOutput(f"Appearance mode changed to: {_theme}", "cli")
+            self.THEME = _theme
+            self.setOutput(f"Appearance mode changed to: {self.THEME}", "cli")
+            self._config.openConfig()
+            self._config.setOption("ui", "theme", self.THEME)
+            self._config.saveConfig()
             return True
         else:
             self.setOutput(f"Appearance mode: {_theme} doesn\'t exist!\nOptions are [Light|Dark|System]", "cli")
@@ -442,27 +732,33 @@ class WinGTPGUI(ctk.CTk):
     def change_output_color_event(self) -> None:
         color = colorchooser.askcolor(title="Select Color")
         self._OUTPUT_COLOR = f"{color[1]}"
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
         self.send_btn.configure(border_color=self._OUTPUT_COLOR)
         self.clear_btn.configure(border_color=self._OUTPUT_COLOR)
-        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
         self.command_entry.configure(border_color=self._OUTPUT_COLOR)
-        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
         self.sidebar_logo.configure(text_color=self._OUTPUT_COLOR)
         self.appearance_mode_label.configure(text_color=self._OUTPUT_COLOR)
         self.scaling_label.configure(text_color=self._OUTPUT_COLOR)
         self.output_temp_label_radio_group.configure(text_color=self._OUTPUT_COLOR)
         self.change_color_btn_label.configure(text_color=self._OUTPUT_COLOR)
         self.settings_switches_frame.configure(label_text_color=self._OUTPUT_COLOR)
+        self.output_request_type_radio_group.configure(text_color=self._OUTPUT_COLOR)
+        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
+        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
+        
+        self._config.openConfig()
+        self._config.setOption("ui", "color", f"{self._OUTPUT_COLOR}")
+        self._config.saveConfig()
                
     def change_scaling_event(self, new_scaling: str) -> None:
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
+        self.UI_SCALING = new_scaling_float
         ctk.set_widget_scaling(new_scaling_float)
+        self._config.openConfig()
+        self._config.setOption("ui", "chat_temperature", f"{self.UI_SCALING}%%")
+        self._config.saveConfig()
 
     def sidebar_logout_btn_event(event) -> None:
         pass
@@ -475,9 +771,16 @@ class WinGTPGUI(ctk.CTk):
         api_key = str(dialog.get_input())
         self.cli.setAPIKey(api_key)
         if self.cli.setAPIKey(api_key):
-            self.setOutput("Api key has been set successfully!", "cli")
+            if self.cli.validateAPIKey(api_key):
+                self.API_KEY = api_key
+                self.setOutput("Api key has been set successfully!", "cli")
+                self._config.openConfig()
+                self._config.setOption("user", "api_key", f"{self.API_KEY}")
+                self._config.saveConfig()
+            else:
+                self.setOutput("API key is not valid!", "cli")
         else:
-            self.setOutput("Api key was not set successfully!", "cli")
+            self.setOutput("Api key was not set!", "cli")
                  
     def clearInput(self) -> None:
         self.input_box.delete("1.0", tk.END)
@@ -495,7 +798,7 @@ class WinGTPGUI(ctk.CTk):
         }
         return inputs
 
-    def setOutput(self, output: str, type) -> None:
+    def setOutput(self, output: str, type: str = "cli") -> None:
         if type == "chat":
             self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [{self.cli.engine}]: {output}\n")
         elif type == "cli":

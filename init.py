@@ -1,8 +1,8 @@
 from cli import WinGTPCLI
 from bin import setup
-import customtkinter as ctk
 import subprocess
 import os
+from bin import persistence 
 
 class Initialize:
     def __init__(self) -> None:
