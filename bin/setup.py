@@ -5,29 +5,35 @@ import os
 class Setup:
     def __init__(self) -> None:
         self.cli = WinGTPCLI()
+        
         self.CONFIG_DIR = "./config"
-        self.KEY_CONFIG_FILE = "./config/.api_key.conf"
+        
+        self.USER_SETTINGS_FILE = "./config/.settings.ini"
+        self.KEY_CONFIG_FILE = "./config/.api_key.ini"
+        self.USERNAME_CONFIG_FILE = "./config/.username.ini"
+        
         self.SETUP_DONE_FLAG_FILE = "./config/.setup.flag"
-        self.USER_SETTINGS_FILE = "./config/settings.conf"
+        
+        self.USERNAME = "New user"
         self.API_KEY_DIALOG_MESSAGE = "Enter your API Key\nYou can get one if needed at:\nhttps://platform.openai.com/apps"
         self.API_KEY_DIALOG_TITLE = "Enter your API key to connect & continue"
-        self.USERNAME_CONFIG_FILE = "./config/.user.conf"
-        self.USERNAME = "New user"
         self.USERNAME_DIALOG_MESSAGE = "Enter a user name that you want to use for authentication and display"
         self.USERNAME_DIALOG_TITLE = "Enter a username"
         
     def rollBackSetup(self) -> None:
         print("Setup failed. Rolling back changes")
         try:
-            
-            if os.path.exists(self.USER_SETTINGS_FILE):
-                os.remove(self.USER_SETTINGS_FILE)
-        
             if os.path.exists(self.SETUP_DONE_FLAG_FILE):
                 os.remove(self.SETUP_DONE_FLAG_FILE)
+                
+            if os.path.exists(self.USER_SETTINGS_FILE):
+                os.remove(self.USER_SETTINGS_FILE)
             
             if os.path.exists(self.KEY_CONFIG_FILE):
                 os.remove(self.KEY_CONFIG_FILE)
+            
+            if os.path.exists(self.USERNAME_CONFIG_FILE):
+                os.remove(self.USERNAME_CONFIG_FILE)
             
             if os.path.exists(self.CONFIG_DIR):
                 os.rmdir(self.CONFIG_DIR)
@@ -53,6 +59,12 @@ class Setup:
         else:
             return False
         
+    def createSettingsConfigFile(self) -> bool:
+        if self.cli.createFile(f"{self.USER_SETTINGS_FILE}"):
+            return True
+        else:
+            return False
+        
     def createKeyConfigFile(self) -> bool:
         if self.cli.createFile(f"{self.KEY_CONFIG_FILE}") == True:
             return True
@@ -74,6 +86,9 @@ class Setup:
         # loaded with a valid api key so there is really no point in showing the 
         # gui if setup fails. 
         if self.createConfigDir(): # 1) Create the root config directory...
+            # Create the settings file...
+            #try:
+            #    with open(self.CONFIG_DIR, '')
             if self.createKeyConfigFile(): # 2) Create the file that will hold the api key... 
                 dialog = CTkInputDialog(text=f"{self.API_KEY_DIALOG_MESSAGE}", title=f"{self.API_KEY_DIALOG_TITLE}")
                 _API_KEY = str(dialog.get_input()) # 3) Get the api key from the user...
@@ -101,14 +116,18 @@ class Setup:
                                         except Exception as e:
                                             print(f"{e.__context__}")
                                             return False
-                                        if self.createSetupFinishedFlag(): # 9) Create a flag to indicate that setup finished.
-                                            return True
+                                        if self.createSettingsConfigFile():    
+                                            if self.createSetupFinishedFlag(): # 9) Create a flag to indicate that setup finished.
+                                                return True
+                                            else:
+                                                self.rollBackSetup() # 10) Roll back step 9 - 1, Hopefully noone reaces this point.
+                                                return False
                                         else:
-                                            self.rollBackSetup() # 10) Roll back step 9 - 1, Hopefully noone reaces this point.
                                             return False
                                     else:
                                         return False
-                                    #////////////////////////////////
+                                else:
+                                    return False
                             else:
                                 return False
                     except IOError:

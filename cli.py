@@ -6,7 +6,7 @@ import os
 class WinGTPCLI:
      
     def __init__(self) -> None:
-        API_KEY_PATH = "./.api_key.conf"
+        API_KEY_PATH = "./.api_key.ini"
         self.setAPIKeyPath(API_KEY_PATH)
         self.cli_options = [
             'exit', # exit the chat session.
@@ -87,6 +87,9 @@ class WinGTPCLI:
         try:
             with open(file_path, 'w') as file:
                 return True
+        except FileNotFoundError:
+            print(f"File '{file_path}' already exists!")
+            return False
         except IOError:
             return False
         except Exception as e:
@@ -107,6 +110,9 @@ class WinGTPCLI:
                             return False
                 print(f"File '{file_path}' created successfully.")
                 return True
+            except FileNotFoundError:
+                print(f"File '{file_path}' not found!")
+                return False
             except IOError:
                 print(f"An error occurred while creating the file '{file_path}'.")
                 return False
@@ -128,6 +134,8 @@ class WinGTPCLI:
                 print(f"File '{file_path}' not found.")
             except IOError:
                 print(f"Error reading file '{file_path}'.")
+            except Exception as e:
+                print(f"Error reading file '{file_path}")
         else: 
             print(self.readFromFile.__name__, " File doesn't exist to read from!")
     
@@ -198,7 +206,7 @@ class WinGTPCLI:
             except Exception as e:
                 print("An unexpected error occurred while trying to read the api key configuration file", str(e))
 
-    def setAPIKey(self, api_key: str) -> None:
+    def setAPIKey(self, api_key: str) -> bool:
         if os.path.exists(self.api_key_path):
             try:
                 with open(self.api_key_path, 'w') as file:
@@ -206,16 +214,27 @@ class WinGTPCLI:
                     file.close()
                     self.api_key = api_key
                     openai.api_key = self.api_key
+                    return True
             except FileNotFoundError:
                 print("API key file not found")
+                return False
             except IOError:
                 print("An error occurred while setting the api key configuration file.")
+                return False
             except Exception as e:
                 print("An unexpected error occurred while trying to set the api key configuration file", str(e))
+                return False
 
     def getEngine(self) -> str:
         return self.engine
 
+    def getEngines(self) -> list:
+        model_lst = openai.Model.list()
+        engines = []
+        for i in model_lst["data"]:
+            engines.append(i["id"])
+        return engines
+    
     def setEngine(self, engine: str) -> None:
         self.engine = engine
         
@@ -223,7 +242,15 @@ class WinGTPCLI:
         return self.jsonl_data_file 
 
     def setJSONLDataFile(self, jsonl_file_path: str) -> bool:
+        """ Sets a jsonl data file. Need to look into this more before fully implementing anything.            
+        Args:
+            jsonl_file_path (str): _description_
+
+        Returns:
+            bool: Returns True if operation was successful otherwise False
+        """
         if os.path.exists(jsonl_file_path):
+            
             self.jsonl_data_file = file_obj = openai.File.create(
                 file=open(f'{jsonl_file_path}', 'rb'),
                 purpose='fine-tune'
@@ -285,18 +312,21 @@ class WinGTPCLI:
         return self.stream
         
     def saveChat(self, file_path: str = None, content: str = None) -> bool:
-        if len(file_path) == 0 or os.path.exists(file_path) == False:
-            return False
-        if len(content) == 0:
-            return False
         try:
-            with open(f"{file_path}", "a") as file:
-                file.write(content)
-                file.close()
+            if os.path.exists(file_path):
+                with open(f"{file_path}", "a") as file:
+                    file.write(content)
+                    file.close()
+                return True
+            else:
+                with open(f"{file_path}", "x") as file:
+                    file.write(content)
+                    file.close()
+                    return True
         except IOError:
-            pass
+            return False
         except Exception as e:
-            pass
+            return False
         
     def requestData(self) -> None: 
         # The following is an example of the message parameter:
@@ -330,6 +360,8 @@ class WinGTPCLI:
             )
             
             self.response = _response
+        except openai.APIError:
+            print("OpenAI API Error")
         except openai.OpenAIError:
             print("OpenAI Error")
         
@@ -365,15 +397,20 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
     def greetUser(self, user: str, key_path: str) -> str:
         
         if os.path.exists(key_path):
-            self.setAPIKeyPath(key_path)
-            self.setResponseTokenLimit(self.response_token_limit)
-            self.setEngine(self.engine)
-            self.setResponseCount(self.response_count)
-            self.setRequest(f'Hello? I\'m {user}')
-            self.requestData()
-            greeting = self.getResponse()
+            try:
+                self.setAPIKeyPath(key_path)
+                self.setResponseTokenLimit(self.response_token_limit)
+                self.setEngine(self.engine)
+                self.setResponseCount(self.response_count)
+                self.setRequest(f'Hello? I\'m {user}')
+                self.requestData()
+                greeting = self.getResponse()
+            except openai.APIError:
+                print("OpenAI API Error!")
+            except openai.OpenAIError:
+                print("OpenAI Error!")
             return greeting
-        
+                
     def converse(self) -> None:
         
         print(self.banner.__doc__)

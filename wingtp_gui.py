@@ -2,9 +2,11 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import simpledialog
 from tkinter import colorchooser
+from tkinter import filedialog
 import tkinter.messagebox
 from tkinter import *
 from bin import normaltime
+from bin import persistence
 from chatmemory import memory
 from cli import WinGTPCLI
 from ctrls import ctktextbox
@@ -21,13 +23,16 @@ class WinGTPGUI(ctk.CTk):
         #//////////// WINGTP GUI PROPERTIES ////////////
         self.NEW_USER = bool(sys.argv[1])
         self.USER = f"{sys.argv[2]}"
-        self.API_KEY_PATH = './config/.api_key.conf'
+        self.API_KEY_PATH = './config/.api_key.ini'
         self.cli = WinGTPCLI()
         self.nt = normaltime.NormalTime()
         self.width = 1300  # 1100
         self.height = 580
         self._OUTPUT_COLOR = "#DCE4EE"
-                
+        self.SAVE_CHAT = False
+        self.CHAT_LOG_PATH = None
+        self.persist = persistence.Persistence()
+                        
         #//////////// WINDOW ////////////
         self.title("WinGTP Powered by Python & OpenAI")
         self.geometry(f"{self.width}x{self.height}")
@@ -108,16 +113,11 @@ class WinGTPGUI(ctk.CTk):
         self.gtp_options_tabview.tab("API").grid_columnconfigure(0, weight=1)
         self.gtp_options_tabview.tab("Data").grid_columnconfigure(0, weight=1)
         
-        #//////////// ENGINE OPTION MENU ////////////
-        _gtp_engines = []
-        for _index in range(len(self.cli.engines)):
-            _gtp_engines.append(self.cli.engines[_index][0])
-            _index += 1
-
+        self.cli.setAPIKeyPath(self.API_KEY_PATH)
         self.engine_option_menu = ctk.CTkOptionMenu(
             self.gtp_options_tabview.tab("Response"), 
             dynamic_resizing=False, 
-            values=_gtp_engines, #["Value 1", "Value 2", "Value 3"]
+            values=self.cli.getEngines(), #["Value 1", "Value 2", "Value 3"]
             command=self.on_engine_option_chosen_event
         )
         self.engine_option_menu.grid(row=0, column=0, padx=20, pady=(20, 10))
@@ -265,14 +265,25 @@ class WinGTPGUI(ctk.CTk):
     def on_save_chat_switch_changed_event(self) -> None:
         state = self.save_chat_switch.get()
         if state == 0:
+            self.SAVE_CHAT = False
             self.setOutput("[Save chat]: Off", "cli")
         else:
-            self.setOutput("[Save chat]: On", "cli")
-            if self.cli.saveChat("./test.txt", "some test content"):
-                pass
+            if self.CHAT_LOG_PATH == None:
+                self.CHAT_LOG_PATH = self.openFileDialog()
+                self.SAVE_CHAT = True
+                self.setOutput("[Save chat]: On", "cli")
             else:
-                pass
-            
+                self.SAVE_CHAT = True
+                self.setOutput("[Save chat]: On", "cli")
+                
+    def openFileDialog(self) -> (str | bool):
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            self.setOutput(f"Selected file: {file_path}", "cli")
+            return file_path
+        else:
+            self.setOutput(f"No file selected", "cli")
+            return False
             
     def on_chat_echo_switch_changed_event(self) -> None:
         state = self.chat_echo_switch.get()
@@ -457,8 +468,14 @@ class WinGTPGUI(ctk.CTk):
         sys.exit(0)
  
     def sidebar_set_key_btn_event(self) -> None:
-        pass
-        
+        dialog = ctk.CTkInputDialog(text=f"{self.USER} enter your OpenAI API key: ", title="API Key")
+        api_key = str(dialog.get_input())
+        self.cli.setAPIKey(api_key)
+        if self.cli.setAPIKey(api_key):
+            self.setOutput("Api key has been set successfully!", "cli")
+        else:
+            self.setOutput("Api key was not set successfully!", "cli")
+                 
     def clearInput(self) -> None:
         self.input_box.delete("1.0", tk.END)
     
@@ -490,7 +507,7 @@ class WinGTPGUI(ctk.CTk):
         username = simpledialog.askstring('Enter a username that you would like to use: ')
         self.USER = username
 
-    def processQueryRequest(self, request: str) -> None:
+    def processQueryRequest(self, request: str) -> bool:
         self.cli.setAPIKeyPath(self.API_KEY_PATH)
         self.cli.setEngine(self.cli.engine)
         self.cli.setResponseTokenLimit(self.cli.response_token_limit)
@@ -501,8 +518,15 @@ class WinGTPGUI(ctk.CTk):
         self.clearInput()
         self.setOutput(request, "user")
         self.setOutput(response, "chat")
+        if self.SAVE_CHAT:
+            if self.cli.saveChat(self.CHAT_LOG_PATH, f"{request}\n{response}\n") != False:
+                return True
+            else:
+                return False
     
     def processCommandRequest(self, request: str) -> None:
+        if self.SAVE_CHAT:
+            self.cli.saveChat(self.CHAT_LOG_PATH, f"{request}")
         if request == self.cli.cli_options[0]:
             self.setOutput("Goodbye! ...", "cli")
             sys.exit()
