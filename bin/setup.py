@@ -43,8 +43,6 @@ class Setup:
             
             if os.path.exists(self.LOGS_DIR):
                 os.rmdir(self.LOGS_DIR) 
-            
-            
         except IOError as ioe:
             print(f"{ioe.__context__}")
         except Exception as e:

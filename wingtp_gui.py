@@ -900,7 +900,4 @@ into the command input under the chat window.\n \
 if __name__ == "__main__":
     wingtp = WinGTPGUI()
     wingtp.setOutput(wingtp.cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), "chat")
-    if wingtp.NEW_USER:
-        pass
-    else:
-        wingtp.mainloop()
+    wingtp.mainloop()
