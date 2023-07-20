@@ -24,7 +24,7 @@ class WinGTPGUI(ctk.CTk):
         self._config = persistence.Persistence()
         self._config.openConfig()
         
-        self.NEW_USER = bool(sys.argv[1])
+        self.NEW_USER = self._config.getOption("system", "new_user")
         self.USER = self._config.getOption("user", "username")
         self.API_KEY = self._config.getOption("user", "api_key")
         self.API_KEY_PATH = self._config.getOption("user", "api_key_path")
@@ -641,49 +641,49 @@ class WinGTPGUI(ctk.CTk):
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["images"]:
+        elif selected_value == self.cli.request_types["images"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["audio"]:
+        elif selected_value == self.cli.request_types["audio"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["embeddings"]:
+        elif selected_value == self.cli.request_types["embeddings"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["files"]:
+        elif selected_value == self.cli.request_types["files"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["fine_tuning"]:
+        elif selected_value == self.cli.request_types["fine_tuning"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["moderations"]:
+        elif selected_value == self.cli.request_types["moderations"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
             self._config.saveConfig()
-        if selected_value == self.cli.request_types["build_requests"]:
+        elif selected_value == self.cli.request_types["build_requests"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value})", "cli")
@@ -807,11 +807,15 @@ class WinGTPGUI(ctk.CTk):
             self.output_box.insert(tk.END, f"\n{self.nt.time(False)} [{self.USER}]: {output}\n")
 
     def getUsername(self) -> str:
-        return self.cli.readFile('./config/username.conf')
+        self._config.openConfig()
+        self.USER = self._config.getOption("user", "username")
+        self._config.saveConfig()
 
     def setUsername(self) -> None:
         username = simpledialog.askstring('Enter a username that you would like to use: ')
         self.USER = username
+        self._config.openConfig()
+        self._config.setOption("user", "username", username)
 
     def processQueryRequest(self, request: str) -> bool:
         self.cli.setAPIKeyPath(self.API_KEY_PATH)
@@ -895,5 +899,8 @@ into the command input under the chat window.\n \
 #//////////// MAIN ENTRY POINT
 if __name__ == "__main__":
     wingtp = WinGTPGUI()
-    wingtp.setOutput(wingtp.cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), 'chat')
-    wingtp.mainloop()
+    wingtp.setOutput(wingtp.cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), "chat")
+    if wingtp.NEW_USER:
+        pass
+    else:
+        wingtp.mainloop()

@@ -8,7 +8,7 @@ class WinGTPCLI:
      
     def __init__(self) -> None:
         self.config = persistence.Persistence()
-        API_KEY_PATH = "./.api_key.ini"
+        API_KEY_PATH = "./config/.api_key.ini"
         self.setAPIKeyPath(API_KEY_PATH)
         self.cli_options = [
             'exit', # exit the chat session.
@@ -69,7 +69,7 @@ class WinGTPCLI:
         self.request_type = self.request_types["chat"]
         self.request = "What's todays date?"
         self.response = None
-        self.response_token_limit = 200#/minute (default)
+        self.response_token_limit = 16 #/minute (default)
         self.response_count = 1 #(default)
         self.organization = openai.organization
         self.user_defined_filename = None
@@ -289,7 +289,30 @@ class WinGTPCLI:
     
     def setRequestType(self, request_type: int) -> None:
         self.request_type = request_type
-    
+        if request_type == 0:
+            pass
+        elif request_type == 1:
+            pass
+        elif request_type == 2:
+            pass
+        elif request_type == 3:
+            pass
+        elif request_type == 4:
+            pass
+        elif request_type == 5:
+            pass
+        elif request_type == 6:
+            pass
+        elif request_type == 7:
+            pass
+        elif request_type == 8:
+            pass
+        elif request_type == 9:
+            pass
+        else:
+            # default
+            pass
+        
     def getResponseTokenLimit(self) -> int:
         return self.response_token_limit
     
@@ -351,30 +374,23 @@ class WinGTPCLI:
             return True
         
     def requestData(self) -> None: 
-        # The following is an example of the message parameter:
-        # messages=[
-        #   {"role": "system", "content": "You are a helpful assistant."},
-        #   {"role": "user", "content": "Who won the world series in 2020?"},
-        #   {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-        #   {"role": "user", "content": "Where was it played?"}
-        # ],
         _respone = None
         try:
-            
-            _response = openai.Completion.create(
-                engine=str(self.engine),
-                prompt=str(self.request),
-                max_tokens=int(self.response_token_limit),
-                temperature=int(self.temperature),
-                n=int(self.response_count),
-                stream=bool(self.stream),
-                echo=bool(self.echo),
-                stop=self.stop_list,
-                frequency_penalty=0,
-                presence_penalty=0,
-                best_of=1,
-                timeout=None
-            )
+            if self.request_type == 0:
+                _response = openai.Completion.create(
+                    engine=str(self.engine),
+                    prompt=str(self.request),
+                    max_tokens=int(self.response_token_limit),
+                    temperature=int(self.temperature),
+                    n=int(self.response_count),
+                    stream=bool(self.stream),
+                    echo=bool(self.echo),
+                    stop=self.stop_list,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                    best_of=1,
+                    timeout=None
+                )
             
             self.response = _response
         except openai.APIError:
@@ -412,7 +428,6 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
         """
         
     def greetUser(self, user: str, key_path: str) -> str:
-        
         if os.path.exists(key_path):
             try:
                 self.setAPIKeyPath(key_path)

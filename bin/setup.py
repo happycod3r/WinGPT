@@ -42,7 +42,7 @@ class Setup:
                 os.rmdir(self.CONFIG_DIR)
             
             if os.path.exists(self.LOGS_DIR):
-                os.rmdir(self.LOGS_DIR)
+                os.rmdir(self.LOGS_DIR) 
             
             
         except IOError as ioe:
@@ -94,6 +94,8 @@ class Setup:
     def setupConfig(self) -> None:
         self.config.openConfig()
         self.config.setDefaultSection("DEFAULTS")
+        self.config.addSection("system")
+        self.config.addOption("system", "new_user", True)
         self.config.addSection("user")
         self.config.addOption("user", "username", f"{self.USERNAME}")
         self.config.addOption("user", "api_key", f"{self.API_KEY}")
@@ -138,47 +140,25 @@ class Setup:
                                     api_key_file.write(_API_KEY) # 5) Hard set the api key...
                                     api_key_file.close()
                                     self.API_KEY = _API_KEY
-                                    if self.createUsernameConfigFile(): # 6) Create the username config file...
-                                        dialog2 = CTkInputDialog(text=f"{self.USERNAME_DIALOG_MESSAGE}", title=f"{self.USERNAME_DIALOG_TITLE}")
-                                        _USERNAME = str(dialog2.get_input()) # 7) Get the username from the user...
-                                        if len(_USERNAME) != 0 and _USERNAME != "None": # 8) Validate the username...
-                                            self.USERNAME = _USERNAME 
-                                            try:                                    
-                                                with open(f"{self.USERNAME_CONFIG_FILE}", "w") as username_file:
-                                                    if username_file.writable():
-                                                        username_file.write(f"{self.USERNAME}") # 9) Hard set the username...
-                                                        username_file.close()
-                                                    else:
-                                                        self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
-                                                        return False
-                                            except FileNotFoundError:
-                                                self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
-                                                return False
-                                            except IOError:
-                                                self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
-                                                return False
-                                            except Exception as e:
-                                                print(repr(e))
-                                                self.rollBackSetup() # 1) Roll back steps 9 - 1 if setup failed.
-                                                return False
-                                            if self.createSettingsConfigFile(): # 10) Create the main settings file.
-                                                if self.createSetupFinishedFlag(): # 11) Create a flag to indicate that setup finished successfuly.
-                                                    if self.setupConfig(): # 12 ) Set default settings in settings.ini
-                                                        return True
-                                                    else:
-                                                        self.rollBackSetup() # 1) Roll back steps 12 - 1 if setup failed.
-                                                        return False
+                                    dialog2 = CTkInputDialog(text=f"{self.USERNAME_DIALOG_MESSAGE}", title=f"{self.USERNAME_DIALOG_TITLE}")
+                                    _USERNAME = str(dialog2.get_input()) # 7) Get the username from the user...
+                                    if len(_USERNAME) != 0 and _USERNAME != "None": # 8) Validate the username...
+                                        self.USERNAME = _USERNAME 
+                                        if self.createSettingsConfigFile(): # 10) Create the main settings file.
+                                            if self.createSetupFinishedFlag(): # 11) Create a flag to indicate that setup finished successfuly.
+                                                if self.setupConfig(): # 12 ) Set default settings in settings.ini
+                                                    return True
                                                 else:
-                                                    self.rollBackSetup() # 1) Roll back steps 11 - 1 if setup failed.
+                                                    self.rollBackSetup() # 1) Roll back steps 12 - 1 if setup failed.
                                                     return False
                                             else:
-                                                self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
+                                                self.rollBackSetup() # 1) Roll back steps 11 - 1 if setup failed.
                                                 return False
                                         else:
-                                            self.rollBackSetup() # 1) Roll back steps 8 - 1 if setup failed.
+                                            self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
                                             return False
                                     else:
-                                        self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
+                                        self.rollBackSetup() # 1) Roll back steps 8 - 1 if setup failed.
                                         return False
                                 else:
                                     self.rollBackSetup() # 1) Roll back steps 6 - 1 if setup failed.
