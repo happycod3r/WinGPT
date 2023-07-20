@@ -1,4 +1,4 @@
-import chatmemory
+from chatmemory import memory
 import persistence
 import openai
 import sys
