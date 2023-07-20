@@ -5,8 +5,8 @@ from tkinter import colorchooser
 from tkinter import filedialog
 import tkinter.messagebox
 from tkinter import *
-from bin import normaltime
-from bin import persistence
+from . import normaltime
+from . import persistence
 from chatmemory import memory
 from cli import WinGTPCLI
 from ctrls import ctktextbox

@@ -1,5 +1,5 @@
-from chatmemory import memory
-from bin import persistence
+import chatmemory
+import persistence
 import openai
 import sys
 import os

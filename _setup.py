@@ -1,7 +1,7 @@
 from customtkinter import CTkInputDialog
 from cli import WinGTPCLI
 import os
-from bin import persistence
+import persistence
 class Setup:
     def __init__(self) -> None:
         self.cli = WinGTPCLI()
