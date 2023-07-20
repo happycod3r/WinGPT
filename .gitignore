@@ -16,3 +16,4 @@ test.*
 *.flag
 
 _pycache_/
+.vscode/
