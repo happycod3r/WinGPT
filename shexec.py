@@ -7,5 +7,3 @@ def execSH(script_path):
 def execPS1(script_path):
     subprocess.run(['powershell', '-File', script_path], shell=True)
 
-def sayhi():
-    print("hello")

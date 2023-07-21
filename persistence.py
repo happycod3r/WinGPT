@@ -1,12 +1,12 @@
 import configparser
 import os
-import sys
 
-class Persistence:
+class Persistence():
     def __init__(self) -> None:
-        self.CONFIG_DIR = "./config"
+        
+        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}/config"
         self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}/.api_key.ini"
-        self.USERNAME_CONFIG_FILE = f"{self.CONFIG_DIR}/.username.ini"
         self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}/settings.ini"
         
         self.config = configparser.ConfigParser()
@@ -34,7 +34,8 @@ class Persistence:
 
     # Create a new config option.
     def addOption(self, _section: str, _new_option: str, _value: str) -> bool:
-        self.config.set(f"{_section}", f"{_new_option}", f"{_value}")
+        if not self.optionExists(f"{_section}", f"{_new_option}"):
+            self.config.set(f"{_section}", f"{_new_option}", f"{_value}")
 
     #Remove a config option
     def removeOption(self, _section: str, _option: str) -> None:
@@ -45,24 +46,22 @@ class Persistence:
         if self.config.has_section(f"{_section}"):
             return True
         else:
-            print(f"Section '{_section}' doesn't exist.")
             return False
 
     # Check if a config option exists
     def optionExists(self, _section: str, _option: str) -> bool:
         if self.config.has_section(f"{_section}"):
-            if self.config.has_option(f"{_option}"):
+            if self.config.has_option(f"{_section}", f"{_option}"):
                 return True
             else:
-                print(f"Option '{_option}' doesn't exist.")
                 return False
         else:
-            print(f"Section '{_section}' doesn't exist.")
             return False
 
     # Add a new config section.
     def addSection(self, _section: str) -> None:
-        self.config.add_section(f"{_section}")
+        if not self.sectionExists((f"{_section}")):
+            self.config.add_section(f"{_section}")
 
     # Remove a config section.
     def removeSection(self, _section: str) -> bool:
@@ -99,7 +98,7 @@ class Persistence:
             print("IO error")
             return False
         except Exception as e:
-            print(f"{e.__context__} : {e.__cause__} : {e.__annotations__}")
+            print(repr(e))
             return False
 
     # Merge another config file with this one.

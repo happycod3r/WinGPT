@@ -1,6 +1,6 @@
 
-.api_key.conf
-config/.api_key.conf
+.api_key.ini
+config/.api_key.ini
 _dev/
 _tmp/
 config/
@@ -14,6 +14,7 @@ test.*
 !test.jsonl
 *key*
 *.flag
+tempCodeRunnerFile.*
 
 _pycache_/
 .vscode/

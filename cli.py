@@ -8,8 +8,14 @@ class WinGTPCLI:
      
     def __init__(self) -> None:
         self.config = persistence.Persistence()
-        API_KEY_PATH = "./config/.api_key.ini"
-        self.setAPIKeyPath(API_KEY_PATH)
+        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}/config"
+        self.LOGS_DIR = f"{self.CURRENT_PATH}/logs"
+        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}/settings.ini"
+        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}/.api_key.ini"
+        
+        self.setAPIKeyPath(self.KEY_CONFIG_FILE)
+                
         self.cli_options = [
             'exit', # exit the chat session.
             '-l',   # Set the response token limit.
@@ -92,22 +98,23 @@ class WinGTPCLI:
                 print(f"Folder '{path}' already exists.")
                 return False
             except Exception as e:
-                print(f"An error occurred: {str(e)}")
+                print(repr(e))
                 return False
         return False        
     
     def createFile(self, file_path: str) -> bool:
-        try:
-            with open(file_path, 'w') as file:
-                return True
-        except FileNotFoundError:
-            print(f"File '{file_path}' already exists!")
-            return False
-        except IOError:
-            return False
-        except Exception as e:
-            print(f"An error occurred: {str(e)}")
-            return False
+        if not os.path.exists(file_path):
+            try:
+                with open(file_path, 'w') as file:
+                    return True
+            except FileNotFoundError:
+                print(f"File '{file_path}' already exists!")
+                return False
+            except IOError:
+                return False
+            except Exception as e:
+                print(repr(e))
+                return False
                     
     def writeTofile(self, file_path: str, content: str = None) -> bool:
         print(f"file_path: {file_path}")
@@ -217,7 +224,7 @@ class WinGTPCLI:
             except IOError:
                 print("An error occurred while reading the api key configuration file.")
             except Exception as e:
-                print("An unexpected error occurred while trying to read the api key configuration file", str(e))
+                print("An unexpected error occurred while trying to read the api key configuration file", repr(e))
 
     def setAPIKey(self, api_key: str) -> bool:
         if os.path.exists(self.api_key_path):

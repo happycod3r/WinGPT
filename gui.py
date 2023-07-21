@@ -24,15 +24,18 @@ class WinGTPGUI(ctk.CTk):
         self._config = persistence.Persistence()
         self._config.openConfig()
         
+        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}/config"
+        self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}/.gui.flag"
         self.NEW_USER = self._config.getOption("system", "new_user")
         self.USER = self._config.getOption("user", "username")
         self.API_KEY = self._config.getOption("user", "api_key")
         self.API_KEY_PATH = self._config.getOption("user", "api_key_path")
-        
+
+        #//////////// SETTINGS ////////////
         self._OUTPUT_COLOR = f"{self._config.getOption('ui', 'color')}"
         self.UI_SCALING = self._config.getOption('ui', "ui_scaling")
         self.THEME = self._config.getOption('ui', "theme")
-        
         self.SAVE_CHAT = self._config.getOption("chat", "chat_to_file")
         self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_log_path")
         self.ECHO_CHAT = self.CHAT_LOG_PATH = self._config.getOption("chat", "echo_chat")
@@ -358,9 +361,13 @@ class WinGTPGUI(ctk.CTk):
         
         self.loadOptions()
         self._config.saveConfig()
-        
+        self.setGUIShownFlag()
+        self.setOutput(self.cli.greetUser(self.USER, self.API_KEY_PATH), "chat")
         #//////////// GUI METHODS ////////////
 
+    def setGUIShownFlag(self):
+        self.cli.createFile(self.GUI_SHOWN_FLAG_FILE)
+    
     def loadOptions(self):
         ######################################################################
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
@@ -896,8 +903,5 @@ Or you can use one of the following commands by entering one\n \
 into the command input under the chat window.\n \
 {self.cli._help.__doc__}", "cli")
 
-#//////////// MAIN ENTRY POINT
-if __name__ == "__main__":
-    wingtp = WinGTPGUI()
-    wingtp.setOutput(wingtp.cli.greetUser(wingtp.USER, wingtp.API_KEY_PATH), "chat")
-    wingtp.mainloop()
+
+    
