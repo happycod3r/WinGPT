@@ -7,7 +7,7 @@ class Initialize:
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
         self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}\\.gui.flag"
-        self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag" 
+        self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
         if os.path.exists(self.SETUP_DONE_FLAG_FILE):
             self.runWinGTPGUI()
         else:

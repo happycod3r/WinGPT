@@ -14,8 +14,8 @@ from PIL import Image
 import sys
 import os 
 
-ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
-ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("blue")
 
 class WinGTPGUI(ctk.CTk):
     def __init__(self):
@@ -25,8 +25,8 @@ class WinGTPGUI(ctk.CTk):
         self._config.openConfig()
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}/config"
-        self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}/.gui.flag"
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
+        self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}\\.gui.flag"
         self.NEW_USER = self._config.getOption("system", "new_user")
         self.USER = self._config.getOption("user", "username")
         self.API_KEY = self._config.getOption("user", "api_key")
@@ -64,13 +64,6 @@ class WinGTPGUI(ctk.CTk):
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
         
-        #//////////// BACKGROUND IMAGE ////////////
-        self.current_path = os.path.dirname(os.path.realpath(__file__))
-        self.bg_image = ctk.CTkImage(Image.open(
-            self.current_path + "./images/bg_gradient.jpg"), 
-            size=(self.width, self.height)
-        )
-        
         #//////////// SIDEBAR ////////////
         self.sidebar = ctk.CTkFrame(self, width=140, corner_radius=0)                            
         self.sidebar.grid(row=0, column=0, rowspan=4, sticky="nsew")
@@ -82,6 +75,7 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         #//////////// LOGOUT BUTTON ////////////
+        
         self.sidebar_logout_btn = ctk.CTkButton(self.sidebar, state=ctk.DISABLED, command=self.sidebar_logout_btn_event)
         self.sidebar_logout_btn.grid(row=1, column=0, padx=20, pady=10)
         
@@ -178,7 +172,7 @@ class WinGTPGUI(ctk.CTk):
         self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
     
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@    
+    
         self.output_temp_radiobutton_frame = ctk.CTkFrame(self)
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.output_temp_radio_var = tkinter.IntVar(value=0)
@@ -198,6 +192,9 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
         
+        self.temp_high_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
+        self.temp_high_color_box.grid(row=1, column=3, sticky="e")
+        
         self.temp_medium_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             text="medium", 
@@ -207,6 +204,9 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
         
+        self.temp_medium_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
+        self.temp_medium_color_box.grid(row=2, column=3, sticky="e")
+        
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             variable=self.output_temp_radio_var, 
@@ -214,7 +214,9 @@ class WinGTPGUI(ctk.CTk):
             command=self.output_temp_radio_btn_selected
         )
         self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        
+        self.temp_low_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
+        self.temp_low_color_box.grid(row=3, column=3, sticky="e")
         
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -251,7 +253,6 @@ class WinGTPGUI(ctk.CTk):
         self.save_chat_switch.grid(row=3, column=0, padx=10, pady=(0, 20))
 
         #//////////// REQUEST TYPE RADIO GROUP ////////////
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         self.request_type_slider_frame = ctk.CTkScrollableFrame(self)
         self.request_type_slider_frame.grid(row=1, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.request_type_slider_frame.grid_columnconfigure(0, weight=1)
@@ -336,29 +337,18 @@ class WinGTPGUI(ctk.CTk):
             command=self.request_type_radio_btn_selected    
         )
         self.build_request_radio_btn.grid(row=8, column=0, pady=(20, 0), padx=20, sticky="nw")
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_logout_btn.configure(state="normal", text="Logout")
         self.sidebar_exit_btn.configure(state="normal", text="Exit")
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
+
+        self.temp_high_radio_button.configure(text="( 2 ) High")
+        self.temp_medium_radio_button.configure(text="( 1 ) Medium")
+        self.temp_low_radio_button.configure(text="( 0 ) Low")
         
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        # self.chat_radio_btn.configure(state="normal", text="Chat")
-        # self.images_radio_btn.configure(state="normal", text="Images")
-        # self.audio_radio_btn.configure(state="normal", text="Audio")
-        # self.embeddings_radio_btn.configure(state="normal", text="Embeddings")
-        # self.files_radio_btn.configure(state="normal", text="Files")
-        # self.fine_tuning_radio_btn.configure(state="normal", text="Fine Tuning")
-        # self.moderations_radio_btn.configure(state="normal", text="Moderations")
-        # self.build_request_radio_btn.configure(state="normal", text="Build Request")
-        #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        
-        self.temp_high_radio_button.configure(text="High")
-        self.temp_medium_radio_button.configure(text="Medium")
-        self.temp_low_radio_button.configure(text="Low")
-        
+        #////// GUI LOADED //////
         self.loadOptions()
         self._config.saveConfig()
         self.setGUIShownFlag()
@@ -369,7 +359,6 @@ class WinGTPGUI(ctk.CTk):
         self.cli.createFile(self.GUI_SHOWN_FLAG_FILE)
     
     def loadOptions(self):
-        ######################################################################
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
         self.send_btn.configure(border_color=self._OUTPUT_COLOR)
         self.clear_btn.configure(border_color=self._OUTPUT_COLOR)
@@ -403,24 +392,20 @@ class WinGTPGUI(ctk.CTk):
             self.STREAM_CHAT = True
             
         #////// OUTPUT TEMP RADIO GROUP
-        self.output_temp_radio_var = int(self._config.getOption("chat", "chat_temperature"))
-        if self.output_temp_radio_var == 0:
+        output_temp = int(self._config.getOption("chat", "chat_temperature"))
+        if output_temp == 0:
             self.temp_low_radio_button.select()
-        elif self.output_temp_radio_var == 1:
+            self.output_temp_radio_btn_selected()
+        elif output_temp == 1:
             self.temp_medium_radio_button.select()
+            self.output_temp_radio_btn_selected()
         else:
             self.temp_high_radio_button.select()
+            self.output_temp_radio_btn_selected()
             
         self.engine_option_menu.set(self._config.getOption("chat", "chat_engine"))
         self.appearance_mode_option_menu.set(self._config.getOption("ui", "theme"))
         self.scaling_option_menu.set(self._config.getOption("ui", "ui_scaling"))
-        
-            
-        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
-        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        ######################################################################
         
     def clearAll(self):
         self.clearInput()
@@ -607,11 +592,6 @@ class WinGTPGUI(ctk.CTk):
     def open_response_token_limit_input_dialog_event(self) -> bool: 
         dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
         token_limit = str(dialog.get_input())
-        # Not testing for 0 because the user may want 0 as the
-        # limit for whatever reason!
-        # Also testing with 'isdigit()' instead of isinstance() in .case
-        # whatever is entered isn't the right value type. Maybe I'm wrong 
-        # on this, but it works.
         if token_limit.isdigit() and token_limit != "None":
             self.cli.setResponseTokenLimit(token_limit)
             self.RESPONSE_TOKEN_LIMIT = token_limit
@@ -700,23 +680,32 @@ class WinGTPGUI(ctk.CTk):
     
     def output_temp_radio_btn_selected(self) -> bool:
         selected_value = self.output_temp_radio_var.get()
-        if selected_value == self.cli.temps["high"]: #2
+        if selected_value == self.cli.temps["high"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
+            self.temp_high_color_box.configure(fg_color="#ff2044", text_color="#000000")
+            self.temp_medium_color_box.configure(fg_color="#343638")
+            self.temp_low_color_box.configure(fg_color="#343638")
             self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
             self._config.saveConfig()
-        elif selected_value == self.cli.temps["medium"]: # 1
+        elif selected_value == self.cli.temps["medium"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
+            self.temp_high_color_box.configure(fg_color="#343638")
+            self.temp_medium_color_box.configure(fg_color="#ffe033", text_color="#000000")
+            self.temp_low_color_box.configure(fg_color="#343638")
             self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
             self._config.saveConfig()
-        elif selected_value == self.cli.temps["low"]: # 0
+        elif selected_value == self.cli.temps["low"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
+            self.temp_high_color_box.configure(fg_color="#343638")
+            self.temp_medium_color_box.configure(fg_color="#343638")
+            self.temp_low_color_box.configure(fg_color="#10ba5d", text_color="#000000")
             self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
@@ -750,11 +739,7 @@ class WinGTPGUI(ctk.CTk):
         self.change_color_btn_label.configure(text_color=self._OUTPUT_COLOR)
         self.settings_switches_frame.configure(label_text_color=self._OUTPUT_COLOR)
         self.output_request_type_radio_group.configure(text_color=self._OUTPUT_COLOR)
-        #self.input_box.configure(border_color=self._OUTPUT_COLOR)
-        #self.sidebar_logout_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_exit_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        #self.sidebar_set_key_btn.configure(border_width=1, corner_radius=10, border_color=self._OUTPUT_COLOR)
-        
+     
         self._config.openConfig()
         self._config.setOption("ui", "color", f"{self._OUTPUT_COLOR}")
         self._config.saveConfig()

@@ -10,4 +10,4 @@ class CustomTkFrame(ctk.CTkFrame):
             bg_color="transparent",
             border_width=0,
             corner_radius=0
-        )  # Set the inne
+        )

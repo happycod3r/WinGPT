@@ -9,10 +9,10 @@ class WinGTPCLI:
     def __init__(self) -> None:
         self.config = persistence.Persistence()
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}/config"
-        self.LOGS_DIR = f"{self.CURRENT_PATH}/logs"
-        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}/settings.ini"
-        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}/.api_key.ini"
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
+        self.LOGS_DIR = f"{self.CURRENT_PATH}/\\logs"
+        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
+        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
         
         self.setAPIKeyPath(self.KEY_CONFIG_FILE)
                 
