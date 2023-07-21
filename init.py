@@ -2,6 +2,12 @@ import setup
 import gui
 import os
 
+"""
+# TODO FIRST THING!
+- Finish key config parser
+- clean up cli the best I can.  
+"""
+
 class Initialize:
     def __init__(self) -> None:
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
