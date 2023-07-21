@@ -683,7 +683,7 @@ class WinGTPGUI(ctk.CTk):
         if selected_value == self.cli.temps["high"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
-            self.temp_high_color_box.configure(fg_color="#ff2044", text_color="#000000")
+            self.temp_high_color_box.configure(fg_color="#ff595e", text_color="#000000")
             self.temp_medium_color_box.configure(fg_color="#343638")
             self.temp_low_color_box.configure(fg_color="#343638")
             self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
@@ -694,7 +694,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
             self.temp_high_color_box.configure(fg_color="#343638")
-            self.temp_medium_color_box.configure(fg_color="#ffe033", text_color="#000000")
+            self.temp_medium_color_box.configure(fg_color="#ffca3a", text_color="#000000")
             self.temp_low_color_box.configure(fg_color="#343638")
             self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
             self._config.openConfig()
@@ -705,7 +705,7 @@ class WinGTPGUI(ctk.CTk):
             self.CHAT_TEMP = selected_value
             self.temp_high_color_box.configure(fg_color="#343638")
             self.temp_medium_color_box.configure(fg_color="#343638")
-            self.temp_low_color_box.configure(fg_color="#10ba5d", text_color="#000000")
+            self.temp_low_color_box.configure(fg_color="#1982c4", text_color="#000000")
             self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
@@ -758,21 +758,66 @@ class WinGTPGUI(ctk.CTk):
     def sidebar_exit_btn_event(self) -> None:
         sys.exit(0)
  
+    def disableFunctionality(self) -> None:
+        self.command_entry.configure(state="disabled", placeholder_text="Disabled! Enter an api key to re-enable functionality. https://openai.com/")
+        self.input_box.configure(state="disabled")
+        self.chat_echo_switch.configure(state="disabled")
+        self.chat_stream_switch.configure(state="disabled")
+        self.chat_stop_list_switch.configure(state="disabled")
+        self.save_chat_switch.configure(state="disabled")
+        self.chat_radio_btn.configure(state="disabled")
+        self.images_radio_btn.configure(state="disabled")
+        self.audio_radio_btn.configure(state="disabled")
+        self.embeddings_radio_btn.configure(state="disabled")
+        self.files_radio_btn.configure(state="disabled")
+        self.fine_tuning_radio_btn.configure(state="disabled")
+        self.moderations_radio_btn.configure(state="disabled")
+        self.build_request_radio_btn.configure(state="disabled")
+        self.temp_high_radio_button.configure(state="disabled")
+        self.temp_medium_radio_button.configure(state="disabled")
+        self.temp_low_radio_button.configure(state="disabled")
+        
+        
+    def enableFunctionality(self) -> None:
+        self.command_entry.configure(state="normal", placeholder_text="Enter a command. Try 'help' for a list of commands.")
+        self.input_box.configure(state="normal")
+        self.chat_echo_switch.configure(state="normal")
+        self.chat_stream_switch.configure(state="normal")
+        self.chat_stop_list_switch.configure(state="normal")
+        self.save_chat_switch.configure(state="normal")
+        self.chat_radio_btn.configure(state="normal")
+        self.images_radio_btn.configure(state="normal")
+        self.audio_radio_btn.configure(state="normal")
+        self.embeddings_radio_btn.configure(state="normal")
+        self.files_radio_btn.configure(state="normal")
+        self.fine_tuning_radio_btn.configure(state="normal")
+        self.moderations_radio_btn.configure(state="normal")
+        self.build_request_radio_btn.configure(state="normal")
+        self.temp_high_radio_button.configure(state="normal")
+        self.temp_medium_radio_button.configure(state="normal")
+        self.temp_low_radio_button.configure(state="normal")
+        
     def sidebar_set_key_btn_event(self) -> None:
         dialog = ctk.CTkInputDialog(text=f"{self.USER} enter your OpenAI API key: ", title="API Key")
         api_key = str(dialog.get_input())
-        self.cli.setAPIKey(api_key)
         if self.cli.setAPIKey(api_key):
             if self.cli.validateAPIKey(api_key):
                 self.API_KEY = api_key
-                self.setOutput("Api key has been set successfully!", "cli")
-                self._config.openConfig()
-                self._config.setOption("user", "api_key", f"{self.API_KEY}")
-                self._config.saveConfig()
+                if self.cli.writeTofile(self.API_KEY_PATH, self.API_KEY):
+                    self._config.openConfig()
+                    self._config.setOption("user", "api_key", f"{self.API_KEY}")
+                    self._config.saveConfig()
+                    self.setOutput("Api key has been set successfully!", "cli")
+                    self.enableFunctionality()
+                else:
+                    self.disableFunctionality()
+                    self.setOutput("API key is not valid!\nPlease enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli")    
             else:
-                self.setOutput("API key is not valid!", "cli")
+                self.disableFunctionality()
+                self.setOutput("API key is not valid!\nPlease enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli") 
         else:
-            self.setOutput("Api key was not set!", "cli")
+            self.disableFunctionality()
+            self.setOutput("API key was not set correctly!\nPlease re-enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli")
                  
     def clearInput(self) -> None:
         self.input_box.delete("1.0", tk.END)

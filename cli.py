@@ -117,8 +117,6 @@ class WinGTPCLI:
                 return False
                     
     def writeTofile(self, file_path: str, content: str = None) -> bool:
-        print(f"file_path: {file_path}")
-        print(f"content: {content}")
         if os.path.exists(file_path):
             try:
                 with open(f"{file_path}", 'w') as file:
@@ -128,7 +126,6 @@ class WinGTPCLI:
                             file.close()
                         else: 
                             return False
-                print(f"File '{file_path}' created successfully.")
                 return True
             except FileNotFoundError:
                 print(f"File '{file_path}' not found!")
