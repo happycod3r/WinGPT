@@ -170,21 +170,21 @@ class WinGTPGUI(ctk.CTk):
             values=self.cli.getEngines(),
             command=self.on_engine_option_chosen_event
         )
-        self.engine_option_menu.grid(row=0, column=0, columnspan=2, sticky="ew", padx=(20, 20), pady=(10, 10))
+        self.engine_option_menu.grid(row=0, column=0, columnspan=2, sticky="ew", padx=(20, 10), pady=(10, 0))
         
         #//////////// RESPONSE TOKEN LIMIT INPUT ////////////
         self.response_token_limit_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Token Limit", command=self.open_response_token_limit_input_dialog_event)
-        self.response_token_limit_input.grid(row=1, column=0, sticky="ew")
+        self.response_token_limit_input.grid(row=1, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
         self.response_token_limit_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_token_limit')}", fg_color="#2B2B2B", corner_radius=6)
-        self.response_token_limit_output.grid(row=1, column=1, sticky="ew")
+        self.response_token_limit_output.grid(row=1, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
         
         #//////////// RESPONSE COUNT INPUT ////////////
         self.response_count_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Response Count", command=self.open_response_count_input_dialog_event)
-        self.response_count_input.grid(row=3, column=0, sticky="ew")
+        self.response_count_input.grid(row=3, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
         self.response_count_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_count')}", fg_color="#2B2B2B", corner_radius=6)
-        self.response_count_output.grid(row=3, column=1, sticky="ew")
+        self.response_count_output.grid(row=3, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
 
         #//////////// API BASE INPUT ////////////
         self.api_base_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Base", command=self.open_api_base_input_dialog_event)
@@ -231,8 +231,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_high_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
-        self.temp_high_color_box.grid(row=1, column=3, sticky="e")
+        self.temp_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
+        self.temp_high_color_box.grid(row=1, column=3, sticky="e", padx=(0, 10))
         
         self.temp_medium_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -243,8 +243,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_medium_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
-        self.temp_medium_color_box.grid(row=2, column=3, sticky="e")
+        self.temp_medium_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
+        self.temp_medium_color_box.grid(row=2, column=3, sticky="e", padx=(0, 10))
         
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -254,8 +254,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_low_color_box = ctk.CTkEntry(master=self.output_temp_radiobutton_frame, width=40, border_width=0)
-        self.temp_low_color_box.grid(row=3, column=3, sticky="e")
+        self.temp_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
+        self.temp_low_color_box.grid(row=3, column=3, sticky="e", padx=(0, 10))
         
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -394,9 +394,9 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
 
-        self.temp_high_radio_button.configure(text="( 2 ) High")
-        self.temp_medium_radio_button.configure(text="( 1 ) Medium")
-        self.temp_low_radio_button.configure(text="( 0 ) Low")
+        self.temp_high_radio_button.configure(text="High")
+        self.temp_medium_radio_button.configure(text="Medium")
+        self.temp_low_radio_button.configure(text="Low")
         
         #////// GUI LOADED //////
         self.loadOptions()
@@ -646,7 +646,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setResponseTokenLimit(token_limit)
             self.RESPONSE_TOKEN_LIMIT = token_limit
             self.setOutput(f"Response token limit changed to: [{self.cli.getResponseTokenLimit()}]", "cli")
-            self.response_token_limit_input.configure(text=f"Response Token Limit ({self.RESPONSE_TOKEN_LIMIT})")
+            self.response_token_limit_output.configure(text=f"{self.RESPONSE_TOKEN_LIMIT}")
             self._config.openConfig()
             self._config.setOption("chat", "response_token_limit", self.RESPONSE_TOKEN_LIMIT)
             self._config.saveConfig()
@@ -661,7 +661,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setResponseCount(response_count)
             self.RESPONSE_COUNT = response_count
             self.setOutput(f"Response count changed to: [{self.cli.getResponseCount()}]", "cli")
-            self.response_count_input.configure(text=f"Response Count ({self.RESPONSE_COUNT})")
+            self.response_count_output.configure(text=f"{self.RESPONSE_COUNT}")
             self._config.openConfig()
             self._config.setOption("chat", "response_count", self.RESPONSE_COUNT)
             self._config.saveConfig()
@@ -724,9 +724,9 @@ class WinGTPGUI(ctk.CTk):
         if selected_value == self.cli.temps["high"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
-            self.temp_high_color_box.configure(fg_color="#ff595e", text_color="#000000")
-            self.temp_medium_color_box.configure(fg_color="#343638")
-            self.temp_low_color_box.configure(fg_color="#343638")
+            self.temp_high_color_box.configure(fg_color="#ff595e", text_color="#000000", text=f"{selected_value}")
+            self.temp_medium_color_box.configure(fg_color="#343638", text="")
+            self.temp_low_color_box.configure(fg_color="#343638", text="")
             self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
@@ -734,9 +734,9 @@ class WinGTPGUI(ctk.CTk):
         elif selected_value == self.cli.temps["medium"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
-            self.temp_high_color_box.configure(fg_color="#343638")
-            self.temp_medium_color_box.configure(fg_color="#ffca3a", text_color="#000000")
-            self.temp_low_color_box.configure(fg_color="#343638")
+            self.temp_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_medium_color_box.configure(fg_color="#ffca3a", text_color="#000000", text=f"{selected_value}")
+            self.temp_low_color_box.configure(fg_color="#343638", text="")
             self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
@@ -744,9 +744,9 @@ class WinGTPGUI(ctk.CTk):
         elif selected_value == self.cli.temps["low"]:
             self.cli.setTemperature(selected_value)
             self.CHAT_TEMP = selected_value
-            self.temp_high_color_box.configure(fg_color="#343638")
-            self.temp_medium_color_box.configure(fg_color="#343638")
-            self.temp_low_color_box.configure(fg_color="#1982c4", text_color="#000000")
+            self.temp_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_medium_color_box.configure(fg_color="#343638", text="")
+            self.temp_low_color_box.configure(fg_color="#1982c4", text_color="#000000", text=f"{selected_value}")
             self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
             self._config.openConfig()
             self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
