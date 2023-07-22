@@ -2,6 +2,7 @@ import setup
 import gui
 import os
 
+
 """
 # TODO FIRST THING!
 - Finish key config parser

@@ -1,61 +1,28 @@
-from chatmemory import memory
 import persistence
 import openai
-import sys
 import os
 
-class WinGTPCLI:
+class OpenAIInterface:
      
     def __init__(self) -> None:
         self.config = persistence.Persistence()
+        self.config.openConfig()
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
-        self.LOGS_DIR = f"{self.CURRENT_PATH}/\\logs"
-        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
-        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
+        self.CONFIG_DIR = self.config.getOption("system", "config_dir")
+        self.LOGS_DIR = self.config.getOption("system", "logs_dir")
+        self.USER_SETTINGS_FILE = self.config.getOption("system", "config_file")
+        self.KEY_CONFIG_FILE = self.config.getOption("user", "api_key_path")
+        self.USE_STOPLIST = False
         
         self.setAPIKeyPath(self.KEY_CONFIG_FILE)
-                
-        self.cli_options = [
-            'exit', # exit the chat session.
-            '-l',   # Set the response token limit.
-            '-e',   # Set the engine. 
-            '-r',   # Set the number of reponses
-            '-b',   # Set the API base.
-            '-t',   # Set the API type.
-            '-v',   # Set the api version.
-            '-o',   # Set the organization name.
-            '-f',   # Set the user defined file name.
-            '-j',   # Set the JSONL data file path.
-            'help', # Prints this message. 
-            'clear', # Clear the output box.
-            'theme', # Change the theme. Requires theme as 1st argument.
-            'color', # Change the output color
-            'temp',  # Set the output temperature.
-        ]   
-        self.engines = [
-            ['gtp-4', 8192, '9-2021'],
-            ['gtp-4-0613', 8912, '9-2021'],
-            ['gtp-4-32k', 32768, '9-2021'],
-            ['gtp-4-32k-0613', 32768, '9-2021'],
-            ['gpt-3.5-turbo', 4096, '9-2021'],
-            ['gpt-3.5-turbo-16k', 16384, '9-2021'],
-            ['gpt-3.5-turbo-0613', 4096, '9-2021'],
-            ['gpt-3.5-turbo-16k-0613', 16384, '9-2021'],
-            ['text-davinci-003', 4097, '06-2021'],
-            ['text-davinci-002', 4097, '06-2021'],
-            ['code-davinci-002', 8001, '06-2021'],
-            ['text-curie-001', 2049, '10-2019'], 
-            ['text-babbage-001', 2049, '10-2019'], 
-            ['text-ada-001', 2049, '10-2019'],
-            ['davinci', 2049, '10-2019'],
-            ['curie', 2049, '10-2019'],
-            ['babbage', 2049, '10-2019'],
-            ['ada', 2049, '10-2019']
-        ]
-        self.engine = f"{self.engines[8][0]}"
-        self.api_key_path = None
-        self.api_key = None
+        
+        self.api_key_path = self.KEY_CONFIG_FILE
+        openai.api_key_path = self.KEY_CONFIG_FILE
+        openai.api_key = self.config.getOption("user", "api_key")
+        self.api_key = openai.api_key
+        
+        self.engines = self.getEngines()
+        self.engine = self.config.getOption("chat", "chat_engine")
         self.api_base = openai.api_base
         self.api_type = openai.api_type
         self.api_version = openai.api_version
@@ -77,128 +44,15 @@ class WinGTPCLI:
         self.response = None
         self.response_token_limit = 16 #/minute (default)
         self.response_count = 1 #(default)
-        self.organization = openai.organization
+        self.organization = self.config.getOption("user", "organization")
         self.user_defined_filename = None
         self.temps = {"low":0, "medium":1, "high":2}
         self.temperature = self.temps["medium"]
         self.stop_list = None
-        self.USE_STOPLIST = False
-        openai.api_key_path = self.api_key_path
-        openai.api_key = self.api_key
-    
-    def _clear(self) -> None:
-        print('\033c', end='')
-    
-    def createDir(self, path: str) -> bool:
-        if not os.path.exists(path):
-            try:
-                os.mkdir(path)
-                return True
-            except FileExistsError:
-                print(f"Folder '{path}' already exists.")
-                return False
-            except Exception as e:
-                print(repr(e))
-                return False
-        return False        
-    
-    def createFile(self, file_path: str) -> bool:
-        if not os.path.exists(file_path):
-            try:
-                with open(file_path, 'w') as file:
-                    return True
-            except FileNotFoundError:
-                print(f"File '{file_path}' already exists!")
-                return False
-            except IOError:
-                return False
-            except Exception as e:
-                print(repr(e))
-                return False
-                    
-    def writeTofile(self, file_path: str, content: str = None) -> bool:
-        if os.path.exists(file_path):
-            try:
-                with open(f"{file_path}", 'w') as file:
-                    if len(content) != 0:
-                        if file.writable() :
-                            file.write(content)
-                            file.close()
-                        else: 
-                            return False
-                return True
-            except FileNotFoundError:
-                print(f"File '{file_path}' not found!")
-                return False
-            except IOError:
-                print(f"An error occurred while creating the file '{file_path}'.")
-                return False
-            except Exception as e:
-                print(f"An error occurred while creating the file '{file_path}'.")
-                return False
-        return False
-    
-    def readFromFile(self, file_path: str) -> str:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'r') as file:
-                    contents = file.read()
-                    if len(contents) != 0:
-                        return contents
-                    else: 
-                        print(f"File @'{file_path}' is exists but is empty")
-            except FileNotFoundError:
-                print(f"File '{file_path}' not found.")
-            except IOError:
-                print(f"Error reading file '{file_path}'.")
-            except Exception as e:
-                print(f"Error reading file '{file_path}")
-        else: 
-            print(self.readFromFile.__name__, " File doesn't exist to read from!")
-    
-    def getPrompt(self) -> str:
-        return self.prompt
-
-    def setPrompt(self) -> None:
-        if self.api_version != None:
-            self.prompt = f"[{self.engine}] [{self.api_version}] >>> "
-        else:
-            self.prompt = f"WinGTP@0.1.0 > [{self.engine}] >>> "
         
-    def getAPIBase(self) -> str:
-        return openai.api_base
+        self.config.saveConfig()
     
-    def setAPIBase(self, api_base: str) -> None:
-        self.api_base = api_base
-        openai.api_base = self.api_base
-        
-    def getAPIType(self) -> str:
-        return openai.api_type
-    
-    def setAPIType(self, api_type: str) -> None:
-        self.api_type = api_type
-        openai.api_type = self.api_type
-        
-    def getAPIVersion(self) -> str:
-        return openai.api_version
-    
-    def setAPIVersion(self, api_version: str) -> None:
-        self.api_version = api_version
-        openai.api_version = self.api_version
-        
-    def getOrganization(self) -> str:
-        return openai.organization
-    
-    def setOrganization(self, organization: str) -> None:
-        self.organization = organization
-        openai.organization = self.organization
-        
-    def getUserDefinedFileName(self) -> str:
-        return self.user_defined_filename
-    
-    def setUserDefinedFileName(self, file_name: str) -> None:
-        self.user_defined_filename = file_name
-
+    #//////////// API KEY PATH ////////////
     def getAPIKeyPath(self) -> str:
         return openai.api_key_path
 
@@ -209,6 +63,7 @@ class WinGTPCLI:
             return True
         return False
         
+    #//////////// API KEY ////////////
     def getAPIKey(self, api_key_path: str) -> str:
         if os.path.exists(api_key_path):
             try:
@@ -241,20 +96,76 @@ class WinGTPCLI:
             except Exception as e:
                 print("An unexpected error occurred while trying to set the api key configuration file", str(e))
                 return False
-
+    
+    def validateAPIKey(self, api_key: str) -> bool:
+        if not (api_key.startswith('sk-') and len(api_key) == 51):
+            return False
+        else:    
+            return True
+        
+    #//////////// API BASE ////////////
+    def getAPIBase(self) -> str:
+        return openai.api_base
+    
+    def setAPIBase(self, api_base: str) -> None:
+        self.api_base = api_base
+        openai.api_base = self.api_base
+        
+    #//////////// API TYPE ////////////
+    def getAPIType(self) -> str:
+        return openai.api_type
+    
+    def setAPIType(self, api_type: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("chat", "api_type", f"{api_type}")
+        self.api_type = api_type = self.config.getOption("chat", "api_type")
+        openai.api_type = self.api_type
+        
+    #//////////// API VERSION ////////////
+    def getAPIVersion(self) -> str:
+        return openai.api_version
+    
+    def setAPIVersion(self, api_version: str) -> None:
+        self.api_version = api_version
+        openai.api_version = self.api_version
+        
+      #//////////// ENGINE ////////////
+    
+    #//////////// ENGINE ////////////
     def getEngine(self) -> str:
         return self.engine
 
     def getEngines(self) -> list:
         model_lst = openai.Model.list()
-        engines = []
+        _engines = []
         for i in model_lst["data"]:
-            engines.append(i["id"])
-        return engines
+            _engines.append(i["id"])
+        return _engines
     
     def setEngine(self, engine: str) -> None:
-        self.engine = engine
+        self.config.openConfig()
+        self.config.setOption("chat", "chat_engine", f"{engine}")
+        self.engine = self.config.getOption("chat", "chat_engine")
+        self.config.saveConfig()
+         
+    #//////////// ORGANIZATION ////////////
+    def getOrganization(self) -> str:
+        return self.organization
+    
+    def setOrganization(self, organization_id: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("user", "organization", f"{organization_id}")
+        self.organization = self.config.getOption("user", "organization")
+        self.config.saveConfig()
         
+    #//////////// USER DEFINED FILE NAME ////////////
+    def getUserDefinedFileName(self) -> str:
+        return self.user_defined_filename
+    
+    def setUserDefinedFileName(self, file_name: str) -> None:
+        self.user_defined_filename = file_name
+
+    #//////////// JSONL DATA FILE ////////////
     def getJSONLDataFile(self):
         return self.jsonl_data_file 
 
@@ -285,6 +196,7 @@ class WinGTPCLI:
     def readJSONLDataFile(self) -> None:
         pass
 
+    #//////////// REQUEST ////////////
     def getRequest(self) -> str:
         return self.request
 
@@ -317,66 +229,6 @@ class WinGTPCLI:
             # default
             pass
         
-    def getResponseTokenLimit(self) -> int:
-        return self.response_token_limit
-    
-    def setResponseTokenLimit(self, response_token_limit: int) -> None: 
-        self.response_token_limit = response_token_limit
-     
-    def getResponseCount(self) -> int:
-        return self.response_count
-     
-    def setResponseCount(self, response_count: int) -> None: 
-        self.response_count = response_count
-        
-    def setTemperature(self, _temperature: int) -> None:
-        if isinstance(_temperature, (int, float)):
-            self.temperature = _temperature
-        
-    def getTemperature(self) -> int:
-        return self.temperature
-        
-    def setStopList(self, _stoplist: str) -> None:
-        self.stop_list = _stoplist.split()
-    
-    def getStopList(self) -> list:
-        return self.stop_list
-        
-    def setChatEcho(self, echo: bool) -> None:
-        self.echo = echo
-        
-    def getChatEcho(self) -> bool:
-        return self.echo
-        
-    def setChatStream(self, stream: bool) -> None:
-        self.stream = stream
-        
-    def getChatStream(self) -> bool:
-        return self.stream
-        
-    def saveChat(self, file_path: str = None, content: str = None) -> bool:
-        try:
-            if os.path.exists(file_path):
-                with open(f"{file_path}", "a") as file:
-                    file.write(content)
-                    file.close()
-                return True
-            else:
-                with open(f"{file_path}", "x") as file:
-                    file.write(content)
-                    file.close()
-                    return True
-        except IOError:
-            return False
-        except Exception as e:
-            return False
-        
-    def validateAPIKey(self, api_key: str) -> bool:
-        if not (api_key.startswith('sk-') and len(api_key) == 51):
-            return False
-        else:    
-            return True
-        
     def requestData(self) -> None: 
         _respone = None
         try:
@@ -402,10 +254,73 @@ class WinGTPCLI:
         except openai.OpenAIError:
             print("OpenAI Error")
         
+    #//////////// RESPONSE ////////////
     def getResponse(self) -> str:
         response = self.response.choices[0].text.strip() 
         return response
-
+    
+    #//////////// RESPONSE TOKEN LIMIT ////////////
+    def getResponseTokenLimit(self) -> int:
+        return self.response_token_limit
+    
+    def setResponseTokenLimit(self, response_token_limit: int) -> None: 
+        self.response_token_limit = response_token_limit
+     
+    #//////////// RESPONSE COUNT ////////////
+    def getResponseCount(self) -> int:
+        return self.response_count
+     
+    def setResponseCount(self, response_count: int) -> None: 
+        self.response_count = response_count
+        
+    #//////////// CHAT TEMPERATURE ////////////
+    def setTemperature(self, _temperature: int) -> None:
+        if isinstance(_temperature, (int, float)):
+            self.temperature = _temperature
+        
+    def getTemperature(self) -> int:
+        return self.temperature
+        
+    #//////////// STOP LIST ////////////
+    def setStopList(self, _stoplist: str) -> None:
+        self.stop_list = _stoplist.split()
+    
+    def getStopList(self) -> list:
+        return self.stop_list
+    
+    #//////////// CHAT ECHO ////////////    
+    def setChatEcho(self, echo: bool) -> None:
+        self.echo = echo
+        
+    def getChatEcho(self) -> bool:
+        return self.echo
+        
+    #//////////// CHAT STREAM ////////////
+    def setChatStream(self, stream: bool) -> None:
+        self.stream = stream
+        
+    def getChatStream(self) -> bool:
+        return self.stream
+        
+    #//////////// SAVE CHAT TO FILE ////////////
+    def saveChat(self, file_path: str = None, content: str = None) -> bool:
+        try:
+            if os.path.exists(file_path):
+                with open(f"{file_path}", "a") as file:
+                    file.write(content)
+                    file.close()
+                return True
+            else:
+                with open(f"{file_path}", "x") as file:
+                    file.write(content)
+                    file.close()
+                    return True
+        except IOError:
+            return False
+        except Exception as e:
+            return False
+        
+    #//////////// UTILITY METHODS ////////////
     def _help(self) -> None:
         """
             All available WinGTP Interface options:
@@ -426,11 +341,6 @@ class WinGTPCLI:
             temp                      - Set the output temperature.
         """
     
-    def banner(self) -> None:
-        """
-WinGTP v0.1.0 - OpenAI Command-line Interface
-        """
-        
     def greetUser(self, user: str, key_path: str) -> str:
         if os.path.exists(key_path):
             try:
@@ -438,7 +348,7 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 self.setResponseTokenLimit(self.response_token_limit)
                 self.setEngine(self.engine)
                 self.setResponseCount(self.response_count)
-                self.setRequest(f'Hello? I\'m {user}')
+                self.setRequest(f'Hi I\'m {user}.')
                 self.requestData()
                 greeting = self.getResponse()
             except openai.APIError:
@@ -447,69 +357,4 @@ WinGTP v0.1.0 - OpenAI Command-line Interface
                 print("OpenAI Error!")
             return greeting
                 
-    def converse(self) -> None:
-        
-        print(self.banner.__doc__)
-        
-        while True:   
-            user_prompt = input(f"{self.prompt}")
-            if user_prompt == self.cli_options[0]:
-                print(f'\nGoodbye! ...\n')
-                sys.exit()
-            elif user_prompt == self.cli_options[1]:
-                token_limit = input('Set the max amount of reponse tokens: ')
-                self.setResponseTokenLimit(int(token_limit))
-                print(f'Token limit set to {self.getResponseTokenLimit()} tokens per response.')
-                continue
-            elif user_prompt == self.cli_options[2]:
-                engine = input("Set the engine: ")
-                self.setEngine(engine)
-                print(f'Engine set to {self.getEngine()}')
-                continue
-            elif user_prompt == self.cli_options[3]:
-                response_count = input("Set the number of reponses: ")
-                self.setResponseCount(int(response_count))
-                print(f'The number of reponses is set to {self.getResponseCount()}')
-                continue
-            elif user_prompt == self.cli_options[4]:
-                api_base = input("Set the API base: ")
-                self.setAPIBase(str(api_base))
-                print(f'The API base is set to {self.getAPIBase()}')
-                continue
-            elif user_prompt == self.cli_options[5]:
-                api_type = input("Set the API type: ")
-                self.setAPIType(str(api_type))
-                print(f'The API type is set to {self.getAPIType()}')
-                continue
-            elif user_prompt == self.cli_options[6]:
-                api_version = input("Set the API version: ")
-                self.setAPIVersion(str(api_version))
-                print(f'The API version is set to {self.getAPIVersion()}')
-                continue
-            elif user_prompt == self.cli_options[7]:
-                organization = input("Set the organization name: ")
-                self.setOrganization(str(organization))
-                print(f'The API base is set to {self.getOrganization()}')
-                continue
-            elif user_prompt == self.cli_options[8]:
-                user_defined_filename = input("Set a user defined file name: ")
-                self.setUserDefinedFileName(str(user_defined_filename))
-                print(f'The user defined file name is set to {self.getUserDefinedFileName()}')
-                continue
-            elif user_prompt == self.cli_options[9]:
-                jsonl_file_path = input("Set a JSONL file: ")
-                self.setJSONLDataFile(str(jsonl_file_path))
-                print(f'The JSONL file is set to {self.getJSONLDataFile()}')
-                continue
-            elif user_prompt == self.cli_options[10]:
-                print(self._help.__doc__)
-            elif user_prompt == self.cli_options[11]:
-                self._clear()
-            else:
-                self.setResponseTokenLimit(self.response_token_limit)
-                self.setEngine(self.engine)
-                self.setResponseCount(self.response_count)
-                self.setRequest(str(user_prompt))
-                self.requestData()
-                print(self.getResponse())
 

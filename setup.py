@@ -1,5 +1,6 @@
 import customtkinter
 import persistence
+import stdops
 from PIL import Image
 from ctrls import ctkframe
 import os
@@ -14,6 +15,7 @@ class Setup(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
+        self.stdops = stdops.StdOps()
         self.config = persistence.Persistence()
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -58,38 +60,8 @@ class Setup(customtkinter.CTk):
         self.setup_done_button = customtkinter.CTkButton(self.setup_frame, text="Finish Setup", command=self.formDoneEvent, width=200)
         self.setup_done_button.grid(row=3, column=0, padx=30, pady=(15, 15))
 
-    def createDir(self, path: str) -> bool:
-        if not os.path.exists(path):
-            try:
-                os.mkdir(path)
-                return True
-            except FileNotFoundError:
-                print("FileNotFoundError: File not found error")
-                return False
-            except IOError:
-                print("IOError: Could not create directory.")
-            except Exception as e:
-                print(repr(e))
-                return False
-        return True
-
-    def createFile(self, file_path: str) -> bool:
-        if not os.path.exists(file_path):
-            try:
-                with open(file_path, 'w') as file:
-                    return True
-            except FileNotFoundError:
-                print(f"File '{file_path}' already exists!")
-                return False
-            except IOError:
-                return False
-            except Exception as e:
-                print(repr(e))
-                return False
-        return True
-
     def createSetupDoneFlagFile(self) -> bool:
-        if not self.createFile(self.SETUP_DONE_FLAG_FILE):
+        if not self.stdops.createFile(self.SETUP_DONE_FLAG_FILE):
             return False
         else:
             return True
@@ -99,12 +71,14 @@ class Setup(customtkinter.CTk):
         self.config.setDefaultSection("DEFAULTS")
         self.config.addSection("system")
         self.config.addOption("system", "new_user", True)
-        self.config.addOption("system", "config_dir", f"{self.CURRENT_PATH}/config")
-        self.config.addOption("system", "logs_dir", f"{self.CURRENT_PATH}/logs") 
+        self.config.addOption("system", "config_dir", f"{self.CURRENT_PATH}\\config")
+        self.config.addOption("system", "logs_dir", f"{self.CURRENT_PATH}\\logs")
+        self.config.addOption("system", "config_file", f"{self.CURRENT_PATH}\\config\\settings.ini")
         self.config.addSection("user")
         self.config.addOption("user", "username", f"{self.USERNAME}")
         self.config.addOption("user", "api_key", f"{self.API_KEY}")
         self.config.addOption("user", "api_key_path", f"{self.KEY_CONFIG_FILE}")
+        self.config.addOption("user", "organization", "org-8rsyvRZvyUBHhs4fJqATWK23")
         self.config.addSection("ui")
         self.config.addOption("ui", "color", "#DCE4EE")
         self.config.addOption("ui", "ui_scaling", "100%%")
@@ -122,7 +96,6 @@ class Setup(customtkinter.CTk):
         self.config.addOption("chat", "api_base", None)
         self.config.addOption("chat", "api_type", "open_ai")
         self.config.addOption("chat", "api_version", None)
-        self.config.addOption("chat", "organization", None)
         self.config.addOption("chat", "request_type", 0)
         if self.config.saveConfig():
             return True
@@ -130,13 +103,13 @@ class Setup(customtkinter.CTk):
             return False
 
     def createConfigFiles(self) -> bool:
-        if not self.createDir(self.CONFIG_DIR):
+        if not self.stdops.createDir(self.CONFIG_DIR):
             return False
-        elif not self.createDir(self.LOGS_DIR):
+        elif not self.stdops.createDir(self.LOGS_DIR):
             return False
-        elif not self.createFile(self.USER_SETTINGS_FILE):
+        elif not self.stdops.createFile(self.USER_SETTINGS_FILE):
             return False
-        elif not self.createFile(self.KEY_CONFIG_FILE):
+        elif not self.stdops.createFile(self.KEY_CONFIG_FILE):
             return False
         else:
             return True
@@ -250,62 +223,3 @@ class Setup(customtkinter.CTk):
         else:
             self.setupConfig()
             return True
-    
-    # def setup(self) -> bool: 
-    #     if self.createConfigDir(): # 1) Create the root config directory...
-    #         if self.createLogsDir(): # 1) Create the logs directory...
-    #             if self.createKeyConfigFile(): # 2) Create the file that will hold the api key... 
-    #                 dialog = CTkInputDialog(text=f"{self.API_KEY_DIALOG_MESSAGE}", title=f"{self.API_KEY_DIALOG_TITLE}")
-    #                 _API_KEY = str(dialog.get_input()) # 3) Get the api key from the user...
-    #                 if len(_API_KEY) != 0 and _API_KEY != "None": # 4) Validate the api key...
-    #                     try:
-    #                         with open(f"{self.KEY_CONFIG_FILE}", "w") as api_key_file:
-    #                             if api_key_file.writable():
-    #                                 api_key_file.write(_API_KEY) # 5) Hard set the api key...
-    #                                 api_key_file.close()
-    #                                 self.API_KEY = _API_KEY
-    #                                 dialog2 = CTkInputDialog(text=f"{self.USERNAME_DIALOG_MESSAGE}", title=f"{self.USERNAME_DIALOG_TITLE}")
-    #                                 _USERNAME = str(dialog2.get_input()) # 7) Get the username from the user...
-    #                                 if len(_USERNAME) != 0 and _USERNAME != "None": # 8) Validate the username...
-    #                                     self.USERNAME = _USERNAME 
-    #                                     if self.createSettingsConfigFile(): # 10) Create the main settings file.
-    #                                         if self.createSetupFinishedFlag(): # 11) Create a flag to indicate that setup finished successfuly.
-    #                                             if self.setupConfig(): # 12 ) Set default settings in settings.ini
-    #                                                 return True
-    #                                             else:
-    #                                                 self.rollBackSetup() # 1) Roll back steps 12 - 1 if setup failed.
-    #                                                 return False
-    #                                         else:
-    #                                             self.rollBackSetup() # 1) Roll back steps 11 - 1 if setup failed.
-    #                                             return False
-    #                                     else:
-    #                                         self.rollBackSetup() # 1) Roll back steps 10 - 1 if setup failed.
-    #                                         return False
-    #                                 else:
-    #                                     self.rollBackSetup() # 1) Roll back steps 8 - 1 if setup failed.
-    #                                     return False
-    #                             else:
-    #                                 self.rollBackSetup() # 1) Roll back steps 6 - 1 if setup failed.
-    #                                 return False
-    #                     except FileNotFoundError:
-    #                         self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
-    #                         return False
-    #                     except IOError:
-    #                         self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
-    #                         return False
-    #                     except Exception as e:
-    #                         print(repr(e))
-    #                         self.rollBackSetup() # 1) Roll back steps 5 - 1 if setup failed.
-    #                         return False
-    #                 else:
-    #                     self.rollBackSetup() # 1) Roll back steps 4 - 1 if setup failed.
-    #                     return False
-    #             else:
-    #                 self.rollBackSetup() # 1) Roll back steps 2 - 1 if setup failed.
-    #                 return False
-    #         else:
-    #             self.rollBackSetup() # 1) Roll back steps 1 - 1 if setup failed.
-    #             return False
-    #     else:
-    #         self.rollBackSetup() # 1) Roll back steps 1 - 1 if setup failed.
-    #         return False

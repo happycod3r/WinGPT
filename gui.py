@@ -7,8 +7,8 @@ import tkinter.messagebox
 from tkinter import *
 import normaltime
 import persistence
-from chatmemory import memory
-from cli import WinGTPCLI
+import stdops
+from cli import OpenAIInterface
 from ctrls import ctktextbox
 from PIL import Image
 import sys
@@ -21,6 +21,7 @@ class WinGTPGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
         
+        self.stdops = stdops.StdOps()
         self._config = persistence.Persistence()
         self._config.openConfig()
         
@@ -38,21 +39,40 @@ class WinGTPGUI(ctk.CTk):
         self.THEME = self._config.getOption('ui', "theme")
         self.SAVE_CHAT = self._config.getOption("chat", "chat_to_file")
         self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_log_path")
-        self.ECHO_CHAT = self.CHAT_LOG_PATH = self._config.getOption("chat", "echo_chat")
-        self.STREAM_CHAT = self.CHAT_LOG_PATH = self._config.getOption("chat", "stream_chat")
-        self.USE_STOP_LIST = self.CHAT_LOG_PATH = self._config.getOption("chat", "use_stop_list")
-        self.CHAT_TEMP = self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_temperature")
-        self.CHAT_ENGINE = self.CHAT_LOG_PATH = self._config.getOption("chat", "chat_engine")
-        self.RESPONSE_TOKEN_LIMIT = self.CHAT_LOG_PATH = self._config.getOption("chat", "response_token_limit")
-        self.RESPONSE_COUNT = self.CHAT_LOG_PATH = self._config.getOption("chat", "response_count")
-        self.API_BASE = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_base")
-        self.API_VERSION = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_version")
-        self.API_TYPE = self.CHAT_LOG_PATH = self._config.getOption("chat", "api_type")
-        self.ORGANIZATION = self.CHAT_LOG_PATH = self._config.getOption("chat", "organization")
+        self.ECHO_CHAT = self._config.getOption("chat", "echo_chat")
+        self.STREAM_CHAT = self._config.getOption("chat", "stream_chat")
+        self.USE_STOP_LIST = self._config.getOption("chat", "use_stop_list")
+        self.CHAT_TEMP = self._config.getOption("chat", "chat_temperature")
+        self.CHAT_ENGINE = self._config.getOption("chat", "chat_engine")
+        self.RESPONSE_TOKEN_LIMIT = self._config.getOption("chat", "response_token_limit")
+        self.RESPONSE_COUNT = self._config.getOption("chat", "response_count")
+        self.API_BASE = self._config.getOption("chat", "api_base")
+        self.API_VERSION = self._config.getOption("chat", "api_version")
+        self.API_TYPE = self._config.getOption("chat", "api_type")
+        self.ORGANIZATION = self._config.getOption("user", "organization")
         self.REQUEST_TYPE = self._config.getOption("chat", "request_type")
         
-        self.cli = WinGTPCLI()
+        self.cli = OpenAIInterface()
         self.nt = normaltime.NormalTime()
+        
+        self.commands = [
+            'exit', # exit the chat session.
+            '-l',   # Set the response token limit.
+            '-e',   # Set the engine. 
+            '-r',   # Set the number of reponses
+            '-b',   # Set the API base.
+            '-t',   # Set the API type.
+            '-v',   # Set the api version.
+            '-o',   # Set the organization name.
+            '-f',   # Set the user defined file name.
+            '-j',   # Set the JSONL data file path.
+            'help', # Prints this message. 
+            'clear', # Clear the output box.
+            'theme', # Change the theme. Requires theme as 1st argument.
+            'color', # Change the output color
+            'temp',  # Set the output temperature.
+        ]
+        
         self.width = 1300  # 1100
         self.height = 580
                         
@@ -74,18 +94,17 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_logo = ctk.CTkLabel(self.sidebar, text="WinGTP v0.1.0", font=ctk.CTkFont(size=20, weight="bold"))
         self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
         
-        #//////////// LOGOUT BUTTON ////////////
-        
-        self.sidebar_logout_btn = ctk.CTkButton(self.sidebar, state=ctk.DISABLED, command=self.sidebar_logout_btn_event)
-        self.sidebar_logout_btn.grid(row=1, column=0, padx=20, pady=10)
-        
-        #//////////// EXIT BUTTON ////////////
-        self.sidebar_exit_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_exit_btn_event)
-        self.sidebar_exit_btn.grid(row=2, column=0, padx=20, pady=10)
+        #//////////// USERNAME BUTTON ////////////
+        self.sidebar_username_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_username_btn_event)
+        self.sidebar_username_btn.grid(row=1, column=0, padx=20, pady=10)
         
         #//////////// SET API KEY BUTTON ////////////
         self.sidebar_set_key_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_set_key_btn_event)
-        self.sidebar_set_key_btn.grid(row=3, column=0, padx=20, pady=10)
+        self.sidebar_set_key_btn.grid(row=2, column=0, padx=20, pady=10)
+        
+        #//////////// EXIT BUTTON ////////////
+        self.sidebar_exit_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_exit_btn_event)
+        self.sidebar_exit_btn.grid(row=3, column=0, padx=20, pady=10)
         self.sidebar.configure()
         
         #//////////// CHANGE OUTPUT COLOR BUTTON ////////////
@@ -339,7 +358,7 @@ class WinGTPGUI(ctk.CTk):
         self.build_request_radio_btn.grid(row=8, column=0, pady=(20, 0), padx=20, sticky="nw")
 
         #//////////// DEFAULT VALUES ////////////
-        self.sidebar_logout_btn.configure(state="normal", text="Logout")
+        self.sidebar_username_btn.configure(state="normal", text=" Username")
         self.sidebar_exit_btn.configure(state="normal", text="Exit")
         self.sidebar_set_key_btn.configure(state="normal", text="API Key")
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
@@ -356,7 +375,7 @@ class WinGTPGUI(ctk.CTk):
         #//////////// GUI METHODS ////////////
 
     def setGUIShownFlag(self):
-        self.cli.createFile(self.GUI_SHOWN_FLAG_FILE)
+        self.stdops.createFile(self.GUI_SHOWN_FLAG_FILE)
     
     def loadOptions(self):
         self.output_box.configure(text_color=self._OUTPUT_COLOR)
@@ -752,8 +771,8 @@ class WinGTPGUI(ctk.CTk):
         self._config.setOption("ui", "chat_temperature", f"{self.UI_SCALING}%%")
         self._config.saveConfig()
 
-    def sidebar_logout_btn_event(event) -> None:
-        pass
+    def sidebar_username_btn_event(self) -> None:
+        self.setUsername()
     
     def sidebar_exit_btn_event(self) -> None:
         sys.exit(0)
@@ -776,7 +795,6 @@ class WinGTPGUI(ctk.CTk):
         self.temp_high_radio_button.configure(state="disabled")
         self.temp_medium_radio_button.configure(state="disabled")
         self.temp_low_radio_button.configure(state="disabled")
-        
         
     def enableFunctionality(self) -> None:
         self.command_entry.configure(state="normal", placeholder_text="Enter a command. Try 'help' for a list of commands.")
@@ -803,7 +821,7 @@ class WinGTPGUI(ctk.CTk):
         if self.cli.setAPIKey(api_key):
             if self.cli.validateAPIKey(api_key):
                 self.API_KEY = api_key
-                if self.cli.writeTofile(self.API_KEY_PATH, self.API_KEY):
+                if self.stdops.writeTofile(self.API_KEY_PATH, self.API_KEY):
                     self._config.openConfig()
                     self._config.setOption("user", "api_key", f"{self.API_KEY}")
                     self._config.saveConfig()
@@ -849,10 +867,13 @@ class WinGTPGUI(ctk.CTk):
         self._config.saveConfig()
 
     def setUsername(self) -> None:
-        username = simpledialog.askstring('Enter a username that you would like to use: ')
-        self.USER = username
+        dialog = ctk.CTkInputDialog(text="Enter a new username: ", title="Username Input")
+        _username = str(dialog.get_input())
         self._config.openConfig()
-        self._config.setOption("user", "username", username)
+        self._config.setOption("user", "username", f"{_username}")
+        self._config.saveConfig()
+        self.USER = _username
+        self.sidebar_username_btn.configure(text=f"{self.USER}")
 
     def processQueryRequest(self, request: str) -> bool:
         self.cli.setAPIKeyPath(self.API_KEY_PATH)
@@ -874,46 +895,46 @@ class WinGTPGUI(ctk.CTk):
     def processCommandRequest(self, request: str) -> None:
         if self.SAVE_CHAT:
             self.cli.saveChat(self.CHAT_LOG_PATH, f"{request}")
-        if request == self.cli.cli_options[0]:
+        if request == self.commands[0]:
             self.setOutput("Goodbye! ...", "cli")
             sys.exit()
-        elif request == self.cli.cli_options[1]:
+        elif request == self.commands[1]:
             self.open_response_token_limit_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[2]:
+        elif request == self.commands[2]:
             engine = simpledialog.askstring("Input", "Set the engine: ")
             self.cli.setEngine(engine)
             self.clearInput()
             self.setOutput(f"Engine set to {self.cli.getEngine()}", "cli")
-        elif request == self.cli.cli_options[3]:
+        elif request == self.commands[3]:
             self.open_response_count_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[4]:
+        elif request == self.commands[4]:
             self.open_api_base_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[5]:
+        elif request == self.commands[5]:
             self.open_api_type_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[6]:
+        elif request == self.commands[6]:
             self.open_api_version_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[7]:
+        elif request == self.commands[7]:
             self.open_organization_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[8]:
+        elif request == self.commands[8]:
             self.open_user_defined_datafile_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[9]:
+        elif request == self.commands[9]:
             self.open_jsonl_datafile_input_dialog_event()
             self.clearInput()
-        elif request == self.cli.cli_options[10]:
+        elif request == self.commands[10]:
             self.clearInput()
             self.setOutput(self.cli._help.__doc__, "cli")
-        elif request == self.cli.cli_options[11]:
+        elif request == self.commands[11]:
             self.clearOutput()
-        elif request.split(' ')[0] == self.cli.cli_options[12]:
+        elif request.split(' ')[0] == self.commands[12]:
             self.change_appearance_mode_event(request.split(' ')[1])
-        elif request == self.cli.cli_options[13]:
+        elif request == self.commands[13]:
             self.change_output_color_event()
         else:
             self.setOutput(self.cli._help.__doc__, "cli")
