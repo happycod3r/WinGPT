@@ -57,4 +57,3 @@ def wingtp_gui_init() -> None:
     init = Initialize()     
 
 wingtp_gui_init()
-

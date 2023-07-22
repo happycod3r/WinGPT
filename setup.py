@@ -90,6 +90,10 @@ class Setup(customtkinter.CTk):
         self.config.addOption("chat", "stream_chat", False)
         self.config.addOption("chat", "use_stop_list", False)
         self.config.addOption("chat", "chat_temperature", 1)
+        self.config.addOption("chat", "presence_penalty", 0)
+        self.config.addOption("chat", "frequency_penalty", 0)
+        self.config.addOption("chat", "best_of", 1)
+        self.config.addOption("chat", "timeout", 0)
         self.config.addOption("chat", "chat_engine", "text-davinci-003")
         self.config.addOption("chat", "response_token_limit", 16)
         self.config.addOption("chat", "response_count", 1)
@@ -121,18 +125,9 @@ class Setup(customtkinter.CTk):
             return True
 
     def writeAPIKey(self, api_key: str) -> bool:
-        try:
-            with open(self.KEY_CONFIG_FILE, "w") as keyfile:
-                keyfile.write(api_key)
-                keyfile.close()
-                return True
-        except FileNotFoundError:
-            return False
-        except IOError:
-            return False
-        except Exception as e:
-            print(repr(e))
-            return False
+        if self.stdops.writeTofile(self.KEY_CONFIG_FILE, api_key):
+            return True
+        return False
         
     def rollBackSetup(self) -> None:
         print("Setup failed. Rolling back changes")

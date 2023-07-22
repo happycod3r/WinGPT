@@ -55,7 +55,7 @@ class StdOps:
                 return False
         return False
     
-    def readFromFile(self, file_path: str) -> str:
+    def readFromFile(self, file_path: str) -> (str | bool):
         if os.path.exists(file_path):
             try:
                 with open(file_path, 'r') as file:
@@ -69,7 +69,7 @@ class StdOps:
             except IOError:
                 print(f"Error reading file '{file_path}'.")
             except Exception as e:
-                print(f"Error reading file '{file_path}")
+                print(repr(e))
         else: 
-            print(repr(e))
+            return False
         

@@ -52,8 +52,9 @@ class WinGTPGUI(ctk.CTk):
         self.ORGANIZATION = self._config.getOption("user", "organization")
         self.REQUEST_TYPE = self._config.getOption("chat", "request_type")
         
-        self.cli = OpenAIInterface()
         self.nt = normaltime.NormalTime()
+        self.cli = OpenAIInterface()
+        self.cli.setAPIKeyPath(self.API_KEY_PATH)
         
         self.commands = [
             'exit', # exit the chat session.
@@ -140,6 +141,7 @@ class WinGTPGUI(ctk.CTk):
         self.output_box.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
         #//////////// GTP OPTIONS TAB VIEW ////////////
+        ###############################################################################
         self.gtp_options_tabview = ctk.CTkTabview(self, width=250)
         self.gtp_options_tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.gtp_options_tabview.add("Response")
@@ -149,47 +151,65 @@ class WinGTPGUI(ctk.CTk):
         self.gtp_options_tabview.tab("API").grid_columnconfigure(0, weight=1)
         self.gtp_options_tabview.tab("Data").grid_columnconfigure(0, weight=1)
         
-        self.cli.setAPIKeyPath(self.API_KEY_PATH)
+        self.response_tab_slider_frame = ctk.CTkScrollableFrame(self.gtp_options_tabview.tab("Response"))
+        self.response_tab_slider_frame.grid(row=0, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
+        self.response_tab_slider_frame.grid_columnconfigure(0, weight=1)
+        
+        self.api_tab_slider_frame = ctk.CTkScrollableFrame(self.gtp_options_tabview.tab("API"))
+        self.api_tab_slider_frame.grid(row=0, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
+        self.api_tab_slider_frame.grid_columnconfigure(0, weight=1)
+        
+        self.data_tab_slider_frame = ctk.CTkScrollableFrame(self.gtp_options_tabview.tab("Data"))
+        self.data_tab_slider_frame.grid(row=0, column=0, padx=(0, 0), pady=(0, 0), sticky="nsew")
+        self.data_tab_slider_frame.grid_columnconfigure(0, weight=1)
+        
+        #//////////// ENGINE OPTIONS ///////////
         self.engine_option_menu = ctk.CTkOptionMenu(
-            self.gtp_options_tabview.tab("Response"), 
+            self.response_tab_slider_frame, 
             dynamic_resizing=False, 
-            values=self.cli.getEngines(), #["Value 1", "Value 2", "Value 3"]
+            values=self.cli.getEngines(),
             command=self.on_engine_option_chosen_event
         )
-        self.engine_option_menu.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.engine_option_menu.grid(row=0, column=0, columnspan=2, sticky="ew", padx=(20, 20), pady=(10, 10))
         
         #//////////// RESPONSE TOKEN LIMIT INPUT ////////////
-        self.response_token_limit_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text=f"Response Token Limit ({self.RESPONSE_TOKEN_LIMIT})", command=self.open_response_token_limit_input_dialog_event)
-        self.response_token_limit_input.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.response_token_limit_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Token Limit", command=self.open_response_token_limit_input_dialog_event)
+        self.response_token_limit_input.grid(row=1, column=0, sticky="ew")
+        
+        self.response_token_limit_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_token_limit')}", fg_color="#2B2B2B", corner_radius=6)
+        self.response_token_limit_output.grid(row=1, column=1, sticky="ew")
         
         #//////////// RESPONSE COUNT INPUT ////////////
-        self.response_count_input = ctk.CTkButton(self.gtp_options_tabview.tab("Response"), text=f"Response Count ({self.RESPONSE_COUNT})", command=self.open_response_count_input_dialog_event)
-        self.response_count_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        self.response_count_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Response Count", command=self.open_response_count_input_dialog_event)
+        self.response_count_input.grid(row=3, column=0, sticky="ew")
+        
+        self.response_count_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_count')}", fg_color="#2B2B2B", corner_radius=6)
+        self.response_count_output.grid(row=3, column=1, sticky="ew")
 
         #//////////// API BASE INPUT ////////////
-        self.api_base_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Base", command=self.open_api_base_input_dialog_event)
+        self.api_base_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Base", command=self.open_api_base_input_dialog_event)
         self.api_base_input.grid(row=0, column=0, padx=20, pady=(10, 10))
         
         #//////////// API TYPE INPUT ////////////
-        self.api_type_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Type", command=self.open_api_type_input_dialog_event)
+        self.api_type_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Type", command=self.open_api_type_input_dialog_event)
         self.api_type_input.grid(row=1, column=0, padx=20, pady=(10, 10))
         
         #//////////// API VERSION INPUT ////////////
-        self.api_version_input = ctk.CTkButton(self.gtp_options_tabview.tab("API"), text="API Version", command=self.open_api_version_input_dialog_event)
+        self.api_version_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Version", command=self.open_api_version_input_dialog_event)
         self.api_version_input.grid(row=2, column=0, padx=20, pady=(10, 10))
         
         #//////////// ORGANIZATION INPUT ////////////
-        self.organization_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="Organization", command=self.open_organization_input_dialog_event)
+        self.organization_input = ctk.CTkButton(self.data_tab_slider_frame, text="Organization", command=self.open_organization_input_dialog_event)
         self.organization_input.grid(row=0, column=0, padx=20, pady=(10, 10))
         
         #//////////// USER DEFINED DATA FILE INPUT ////////////
-        self.user_defined_datafile_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="User Defined Data-File", command=self.open_user_defined_datafile_input_dialog_event)
+        self.user_defined_datafile_input = ctk.CTkButton(self.data_tab_slider_frame, text="User Defined Data-File", command=self.open_user_defined_datafile_input_dialog_event)
         self.user_defined_datafile_input.grid(row=1, column=0, padx=20, pady=(10, 10))
         
         #//////////// JSONL DATA FILE INPUT ////////////
-        self.jsonl_data_file_input = ctk.CTkButton(self.gtp_options_tabview.tab("Data"), text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
+        self.jsonl_data_file_input = ctk.CTkButton(self.data_tab_slider_frame, text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
         self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
-    
+        ###############################################################################
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
     
         self.output_temp_radiobutton_frame = ctk.CTkFrame(self)
@@ -282,7 +302,7 @@ class WinGTPGUI(ctk.CTk):
             text="Request Types"
         )
         self.output_request_type_radio_group.grid(row=0, column=0, columnspan=1, sticky="nsew")
-        
+
         self.chat_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
             text="Chat",
@@ -312,6 +332,17 @@ class WinGTPGUI(ctk.CTk):
         )
         self.audio_radio_btn.grid(row=3, column=0, pady=(20, 0), padx=20, sticky="nw")
         
+        self.translation_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Translations",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["translation"],
+            command=self.request_type_radio_btn_selected
+            
+        )
+        self.translation_radio_btn.grid(row=4, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        
         self.embeddings_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
             text="Embeddings",
@@ -319,7 +350,7 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.request_types["embeddings"],
             command=self.request_type_radio_btn_selected
         )
-        self.embeddings_radio_btn.grid(row=4, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.embeddings_radio_btn.grid(row=5, column=0, pady=(20, 0), padx=20, sticky="nw")
         
         self.files_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
@@ -328,7 +359,7 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.request_types["files"],
             command=self.request_type_radio_btn_selected
         )
-        self.files_radio_btn.grid(row=5, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.files_radio_btn.grid(row=6, column=0, pady=(20, 0), padx=20, sticky="nw")
         
         self.fine_tuning_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
@@ -337,7 +368,7 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.request_types["fine_tuning"], 
             command=self.request_type_radio_btn_selected
         )
-        self.fine_tuning_radio_btn.grid(row=6, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.fine_tuning_radio_btn.grid(row=7, column=0, pady=(20, 0), padx=20, sticky="nw")
         
         self.moderations_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
@@ -346,7 +377,7 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.request_types["moderations"],
             command=self.request_type_radio_btn_selected
         )
-        self.moderations_radio_btn.grid(row=7, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.moderations_radio_btn.grid(row=8, column=0, pady=(20, 0), padx=20, sticky="nw")
         
         self.build_request_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
@@ -355,7 +386,7 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.request_types["build_requests"],
             command=self.request_type_radio_btn_selected    
         )
-        self.build_request_radio_btn.grid(row=8, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.build_request_radio_btn.grid(row=9, column=0, pady=(20, 0), padx=20, sticky="nw")
 
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_username_btn.configure(state="normal", text=" Username")
@@ -681,6 +712,11 @@ class WinGTPGUI(ctk.CTk):
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Build Requests", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+        elif selected_value == self.cli.request_types["translation"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
+            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
         self._config.saveConfig()
     
     def output_temp_radio_btn_selected(self) -> bool:
@@ -804,25 +840,18 @@ class WinGTPGUI(ctk.CTk):
     def sidebar_set_key_btn_event(self) -> None:
         dialog = ctk.CTkInputDialog(text=f"{self.USER} enter your OpenAI API key: ", title="API Key")
         api_key = str(dialog.get_input())
-        if self.cli.setAPIKey(api_key):
-            if self.cli.validateAPIKey(api_key):
+        if self.cli.validateAPIKey(api_key):
+            if self.cli.setAPIKey(api_key):
                 self.API_KEY = api_key
-                if self.stdops.writeTofile(self.API_KEY_PATH, self.API_KEY):
-                    self._config.openConfig()
-                    self._config.setOption("user", "api_key", f"{self.API_KEY}")
-                    self._config.saveConfig()
-                    self.setOutput("Api key has been set successfully!", "cli")
-                    self.enableFunctionality()
-                else:
-                    self.disableFunctionality()
-                    self.setOutput("API key is not valid!\nPlease enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli")    
+                self.setOutput("Api key has been set successfully!", "cli")
+                self.enableFunctionality()
             else:
                 self.disableFunctionality()
                 self.setOutput("API key is not valid!\nPlease enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli") 
         else:
             self.disableFunctionality()
-            self.setOutput("API key was not set correctly!\nPlease re-enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli")
-                 
+            self.setOutput("API key is not valid!\nPlease enter a valid api key otherwise you will lose all\nfunctionality and probably experience errors!", "cli") 
+        
     def clearInput(self) -> None:
         self.input_box.delete("1.0", tk.END)
     
