@@ -21,11 +21,12 @@ class OpenAIInterface:
         openai.api_key = self.config.getOption("user", "api_key")
         self.api_key = openai.api_key
         
-        self.engines = self.getEngines()
-        self.engine = self.config.getOption("chat", "chat_engine")
         self.api_base = openai.api_base
         self.api_type = openai.api_type
         self.api_version = openai.api_version
+        
+        self.engines = self.getEngines()
+        self.engine = self.config.getOption("chat", "chat_engine")
         self.jsonl_data_file = None
         self.echo = False
         self.stream = False

@@ -93,7 +93,7 @@ class Setup(customtkinter.CTk):
         self.config.addOption("chat", "chat_engine", "text-davinci-003")
         self.config.addOption("chat", "response_token_limit", 16)
         self.config.addOption("chat", "response_count", 1)
-        self.config.addOption("chat", "api_base", None)
+        self.config.addOption("chat", "api_base", "https://api.openai.com/v1")
         self.config.addOption("chat", "api_type", "open_ai")
         self.config.addOption("chat", "api_version", None)
         self.config.addOption("chat", "request_type", 0)
