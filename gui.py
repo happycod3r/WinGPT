@@ -640,62 +640,48 @@ class WinGTPGUI(ctk.CTk):
     
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
+        self._config.openConfig()
         if selected_value == self.cli.request_types["chat"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Chat", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["images"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Images", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["audio"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Audio", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["embeddings"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Embeddings", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["files"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Files", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["fine_tuning"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Fine-Tuning", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["moderations"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Moderations", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
         elif selected_value == self.cli.request_types["build_requests"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value})", "cli")
-            self._config.openConfig()
+            self.setOutput(f"Request type changed to: ({selected_value}) Build Requests", "cli")
             self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-            self._config.saveConfig()
+        self._config.saveConfig()
     
     def output_temp_radio_btn_selected(self) -> bool:
         selected_value = self.output_temp_radio_var.get()
