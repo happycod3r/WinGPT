@@ -118,7 +118,6 @@ class OpenAIInterface:
             return key
         return False
         
-        
     def getAPIKeyfromConfig(self) -> str:
         self.config.openConfig()
         _api_key = self.config.getOption("user", "api_key")

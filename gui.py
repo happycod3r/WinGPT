@@ -51,6 +51,10 @@ class WinGTPGUI(ctk.CTk):
         self.API_TYPE = self._config.getOption("chat", "api_type")
         self.ORGANIZATION = self._config.getOption("user", "organization")
         self.REQUEST_TYPE = self._config.getOption("chat", "request_type")
+        self.BEST_OF = self._config.getOption("chat", "best_of")
+        self.FREQUENCY_PENALTY = self._config.getOption("chat", "frequency_penalty")
+        self.PRESENCE_PENALTY = self._config.getOption("chat", "presence_penalty")
+        self.TIMEOUT = self._config.getOption("chat", "timeout")
         
         self.nt = normaltime.NormalTime()
         self.cli = OpenAIInterface()
@@ -181,34 +185,59 @@ class WinGTPGUI(ctk.CTk):
         
         #//////////// RESPONSE COUNT INPUT ////////////
         self.response_count_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Response Count", command=self.open_response_count_input_dialog_event)
-        self.response_count_input.grid(row=3, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
+        self.response_count_input.grid(row=2, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
         self.response_count_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_count')}", fg_color="#2B2B2B", corner_radius=6)
-        self.response_count_output.grid(row=3, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
+        self.response_count_output.grid(row=2, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
+        
+        #//////////// BEST OF ////////////
+        self.best_of_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Best of", command=self.open_best_of_input_dialog_event)
+        self.best_of_input.grid(row=3, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
+        
+        self.best_of_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'best_of')}", fg_color="#2B2B2B", corner_radius=6)
+        self.best_of_output.grid(row=3, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
 
         #//////////// API BASE INPUT ////////////
         self.api_base_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Base", command=self.open_api_base_input_dialog_event)
-        self.api_base_input.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.api_base_input.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="ew")
+        
+        self.api_base_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_base')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_base_output.grid(row=1, column=0, sticky="ew", padx=(20, 20), pady=(0, 10))
         
         #//////////// API TYPE INPUT ////////////
         self.api_type_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Type", command=self.open_api_type_input_dialog_event)
-        self.api_type_input.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.api_type_input.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="ew")
+        
+        self.api_type_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_type')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_type_output.grid(row=3, column=0, sticky="ew", padx=(20, 20), pady=(0, 10))
         
         #//////////// API VERSION INPUT ////////////
         self.api_version_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Version", command=self.open_api_version_input_dialog_event)
-        self.api_version_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        self.api_version_input.grid(row=4, column=0, padx=20, pady=(10, 10), sticky="ew")
+        
+        self.api_version_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_version')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_version_output.grid(row=5, column=0, sticky="ew", padx=(20, 20), pady=(0, 20))
         
         #//////////// ORGANIZATION INPUT ////////////
         self.organization_input = ctk.CTkButton(self.data_tab_slider_frame, text="Organization", command=self.open_organization_input_dialog_event)
         self.organization_input.grid(row=0, column=0, padx=20, pady=(10, 10))
         
+        self.organization_output = ctk.CTkLabel(self.data_tab_slider_frame, text=f"{self._config.getOption('user', 'organization')}", fg_color="#2B2B2B", corner_radius=6)
+        self.organization_output.grid(row=1, column=0, sticky="ew", padx=(0, 0), pady=(0, 10))
+        
         #//////////// USER DEFINED DATA FILE INPUT ////////////
         self.user_defined_datafile_input = ctk.CTkButton(self.data_tab_slider_frame, text="User Defined Data-File", command=self.open_user_defined_datafile_input_dialog_event)
-        self.user_defined_datafile_input.grid(row=1, column=0, padx=20, pady=(10, 10))
+        self.user_defined_datafile_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        
+        self.user_defined_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, text=f"C:\\Users\\some\file.txt", fg_color="#2B2B2B", corner_radius=6)
+        self.user_defined_datafile_output.grid(row=3, column=0, sticky="ew", padx=(0, 0), pady=(0, 10))
         
         #//////////// JSONL DATA FILE INPUT ////////////
         self.jsonl_data_file_input = ctk.CTkButton(self.data_tab_slider_frame, text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
-        self.jsonl_data_file_input.grid(row=2, column=0, padx=20, pady=(10, 10))
+        self.jsonl_data_file_input.grid(row=4, column=0, padx=20, pady=(10, 10))
+    
+        self.jsonl_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, text="C:\\Users\\some\\file.jsonl", fg_color="#2B2B2B", corner_radius=6)
+        self.jsonl_datafile_output.grid(row=5, column=0, sticky="ew", padx=(0, 0), pady=(0, 20))
         ###############################################################################
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
     
@@ -549,9 +578,6 @@ class WinGTPGUI(ctk.CTk):
         self.cli.setEngine(f"{engine}")
         self.CHAT_ENGINE = engine
         self.setOutput(f"Engine changed to: {engine}", "cli")
-        self._config.openConfig()
-        self._config.setOption("chat", "chat_engine", f"{self.CHAT_ENGINE}")
-        self._config.saveConfig()
             
     def open_jsonl_datafile_input_dialog_event(self) -> bool:
         dialog = ctk.CTkInputDialog(text="Enter a .jsonl file path: ", title="JSONL Data File Input")
@@ -562,6 +588,7 @@ class WinGTPGUI(ctk.CTk):
             if os.path.exists(path):
                 self.cli.setJSONLDataFile(path)
                 self.setOutput(f"File set: [{self.cli.getJSONLDataFile()}]", "cli")
+                self.jsonl_datafile_output.configure(text=f"{path}")
                 return True
             else:
                 self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
@@ -577,6 +604,7 @@ class WinGTPGUI(ctk.CTk):
             if os.path.exists(path):
                 self.cli.setUserDefinedFileName(path)
                 self.setOutput(f"File set: [{self.cli.getUserDefinedFileName()}]", "cli")
+                self.user_defined_datafile_output.configure(text=f"{path}")
                 return True
             else:
                 self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
@@ -590,9 +618,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setOrganization(organization)
             self.ORGANIZATION = organization
             self.setOutput(f"Organization changed to: [{self.cli.getOrganization()}]", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "organization", self.ORGANIZATION)
-            self._config.saveConfig()
+            self.organization_output.configure(text=f"{organization}")
             return True
         else:
             return False
@@ -604,9 +630,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setAPIVersion(api_version)
             self.API_VERSION = api_version
             self.setOutput(f"API version changed to: [{self.cli.getAPIVersion()}]", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "api_version", self.API_VERSION)
-            self._config.saveConfig()
+            self.api_version_output.configure(text=f"{api_version}")
             return True
         else:
             return False
@@ -618,9 +642,7 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setAPIType(api_type)
             self.API_TYPE = api_type
             self.setOutput(f"API type changed to: [{self.cli.getAPIType()}]", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "api_type", self.API_TYPE)
-            self._config.saveConfig()
+            self.api_type_output.configure(text=f"{api_type}")
             return True
         else:
             return False
@@ -632,92 +654,91 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setAPIBase(api_base)
             self.API_BASE = api_base
             self.setOutput(f"API base changed to: [{self.cli.getAPIBase()}]", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "api_base", self.API_BASE)
-            self._config.saveConfig()
+            self.api_base_output.configure(text=f"{api_base}")
             return True
         else:
             return False
 
     def open_response_token_limit_input_dialog_event(self) -> bool: 
         dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
-        token_limit = str(dialog.get_input())
-        if token_limit.isdigit() and token_limit != "None":
-            self.cli.setResponseTokenLimit(token_limit)
-            self.RESPONSE_TOKEN_LIMIT = token_limit
+        _token_limit = str(dialog.get_input())
+        if _token_limit.isdigit() and _token_limit != "None":
+            self.cli.setResponseTokenLimit(_token_limit)
+            self.RESPONSE_TOKEN_LIMIT = _token_limit
             self.setOutput(f"Response token limit changed to: [{self.cli.getResponseTokenLimit()}]", "cli")
             self.response_token_limit_output.configure(text=f"{self.RESPONSE_TOKEN_LIMIT}")
-            self._config.openConfig()
-            self._config.setOption("chat", "response_token_limit", self.RESPONSE_TOKEN_LIMIT)
-            self._config.saveConfig()
             return True
         else:
             return False
         
     def open_response_count_input_dialog_event(self) -> bool:
         dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count Input")
-        response_count = str(dialog.get_input())
-        if response_count.isdigit() and response_count != "None":
-            self.cli.setResponseCount(response_count)
-            self.RESPONSE_COUNT = response_count
+        _response_count = str(dialog.get_input())
+        if _response_count.isdigit() and _response_count != "None":
+            self.cli.setResponseCount(_response_count)
+            self.RESPONSE_COUNT = _response_count
             self.setOutput(f"Response count changed to: [{self.cli.getResponseCount()}]", "cli")
             self.response_count_output.configure(text=f"{self.RESPONSE_COUNT}")
-            self._config.openConfig()
-            self._config.setOption("chat", "response_count", self.RESPONSE_COUNT)
-            self._config.saveConfig()
+            return True
+        else:
+            return False
+    
+    def open_best_of_input_dialog_event(self) -> bool:
+        dialog = ctk.CTkInputDialog(text="Generates best_of completions: ", title="Best of Input")
+        _best_of = str(dialog.get_input())
+        if _best_of.isdigit() and _best_of != "None":
+            self.cli.setBestOf(_best_of)
+            self.BEST_OF = _best_of
+            self.setOutput(f"Best of changed 2 best of: [{self.cli.getBestOf()}]", "cli")
+            self.best_of_output.configure(text=f"{self.BEST_OF}")
             return True
         else:
             return False
     
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
-        self._config.openConfig()
         if selected_value == self.cli.request_types["chat"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Chat", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["images"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Images", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["audio"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Audio", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["embeddings"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Embeddings", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["files"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Files", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["fine_tuning"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Fine-Tuning", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
+            
         elif selected_value == self.cli.request_types["moderations"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Moderations", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
         elif selected_value == self.cli.request_types["build_requests"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Build Requests", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
         elif selected_value == self.cli.request_types["translation"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
-            self._config.setOption("chat", "request_type", self.REQUEST_TYPE)
-        self._config.saveConfig()
     
     def output_temp_radio_btn_selected(self) -> bool:
         selected_value = self.output_temp_radio_var.get()
