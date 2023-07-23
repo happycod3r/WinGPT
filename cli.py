@@ -45,7 +45,7 @@ class OpenAIInterface:
         else: self.save_chat = True
         
         self.temps = {"low":0, "med_low":1, "medium":2, "med_high":3, "high":4}
-        self.temperature = int(self.config.getOption("chat", "chat_temperature"))
+        self.temperature = self.config.getOption("chat", "chat_temperature")
         self.frequency_penalty = int(self.config.getOption("chat", "frequency_penalty"))
         self.presence_penalty = int(self.config.getOption("chat", "presence_penalty"))
         self.response = None
@@ -61,7 +61,8 @@ class OpenAIInterface:
             "fine_tuning": 5, 
             "moderations": 6, 
             "build_requests": 7,
-            "translation": 8
+            "translation": 8,
+            "text_gen": 9
         }
         self.request_type = int(self.config.getOption("chat", "request_type"))
         self.request = "What's todays date?"
@@ -95,9 +96,11 @@ class OpenAIInterface:
         # ] 
     #    dbg.out(_data)
     #//////////// API KEY ////////////
-    def getAPIKeyPath(self) -> str:
-        self.config.openConfig()
-        _path = self.config.getOption("user", "api_key_path")
+    def getAPIKeyPath(self, oai: bool = True) -> str:
+        if oai:
+            return openai.api_key_path
+
+        _path = self.api_key_path
         self.config.saveConfig()
         return _path
 
@@ -106,6 +109,7 @@ class OpenAIInterface:
             openai.api_key_path = _api_key_path
             self.config.openConfig()
             self.config.setOption("user", "api_key_path", f"{_api_key_path}")
+            self.config.saveConfig()
             self.api_key_path = openai.api_key_path
             return True
         return False
@@ -124,9 +128,11 @@ class OpenAIInterface:
         self.config.saveConfig()
         return _api_key
     
-    def getAPIKey(self) -> str: #UNCALLED
-        return openai.api_key
-    
+    def getAPIKey(self, oai: bool = True) -> str: #UNCALLED
+        if oai:
+            return openai.api_key
+        return self.api_key
+        
     def setAPIKey(self, _api_key: str) -> bool:
         if os.path.exists(self.api_key_path):
             if self.stdops.writeTofile(self.api_key_path, _api_key):
@@ -149,7 +155,7 @@ class OpenAIInterface:
     def getAPIBase(self, _oai: bool = True) -> str:
         if _oai:
             return openai.api_base
-        _api_base = self.config.getOption("chat", "api_base")
+        _api_base = self.api_base
         return _api_base
         
     def setAPIBase(self, _api_base: str) -> None:
@@ -163,7 +169,7 @@ class OpenAIInterface:
     def getAPIType(self, _oai: bool = True) -> str:
         if _oai:
             return openai.api_type
-        _api_type = self.config.getOption("chat", "api_type")
+        _api_type = self.api_type
         return _api_type
     
     def setAPIType(self, _api_type: str) -> None:
@@ -177,7 +183,7 @@ class OpenAIInterface:
     def getAPIVersion(self, _oai: bool = True) -> str:
         if _oai:
             return openai.api_version
-        _api_version = self.config.getOption("chat", "api_version")
+        _api_version = self.api_version
         return _api_version
         
     def setAPIVersion(self, _api_version: str) -> None:
@@ -191,7 +197,7 @@ class OpenAIInterface:
     def getOrganization(self, _oai: bool = True) -> str:
         if _oai:
             return openai.organization
-        _organization = self.config.getOption("user", "oragnization")
+        _organization = self.organization
         return _organization
     
     def setOrganization(self, _organization_id: str) -> None:
@@ -203,7 +209,7 @@ class OpenAIInterface:
     
     #//////////// ENGINE ////////////
     def getEngine(self) -> str:
-        _engine = self.config.getOption("chat", "chat_engine")
+        _engine = self.engine
         return _engine
         
     def getEngines(self) -> list:
@@ -223,25 +229,24 @@ class OpenAIInterface:
     def getUserDefinedFileName(self) -> str:
         return self.user_defined_filename
     
-    def setUserDefinedFileName(self, file_name: str) -> None:
-        self.user_defined_filename = file_name
+    def setUserDefinedFileName(self, _file_name: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("chat", "user_defined_file_name", _file_name)
+        self.config.saveConfig()
+        self.user_defined_filename = _file_name
 
     #//////////// JSONL DATA FILE ////////////
     def getJSONLDataFile(self):
         return self.jsonl_data_file 
 
-    def setJSONLDataFile(self, jsonl_file_path: str) -> bool:
-        """ Sets a jsonl data file. Need to look into this more before fully implementing anything.            
-        Args:
-            jsonl_file_path (str): _description_
-
-        Returns:
-            bool: Returns True if operation was successful otherwise False
-        """
-        if os.path.exists(jsonl_file_path):
-            
-            self.jsonl_data_file = file_obj = openai.File.create(
-                file=open(f'{jsonl_file_path}', 'rb'),
+    def setJSONLDataFile(self, _jsonl_file_path: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("chat", "jsonl_data_file", _jsonl_file_path)
+        self.config.saveConfig()
+        self.jsonl_data_file = _jsonl_file_path
+        
+        self.jsonl_data_file = file_obj = openai.File.create(
+                file=open(f'{_jsonl_file_path}', 'rb'),
                 purpose='fine-tune'
                 # model=self.engine,
                 # api_key=self.api_key,
@@ -251,8 +256,6 @@ class OpenAIInterface:
                 # organization=self.organization,
                 # user_provided_filename=self.user_defined_filename,     
             )
-            return True
-        return False
     
     def readJSONLDataFile(self) -> None:
         pass
@@ -276,7 +279,10 @@ class OpenAIInterface:
     def getStopList(self) -> list:
         return self.stop_list
         
-    def setStopList(self, _stoplist: str) -> None:
+    def setStopList(self, _stoplist: str, _list_num: int = 1) -> None:
+        self.config.openConfig()
+        self.config.setOption("stop_lists", f"stop_list{_list_num}", _stoplist)
+        self.config.saveConfig()
         self.stop_list = _stoplist.split()
 
     #//////////// CHAT ECHO ////////////    
@@ -336,7 +342,7 @@ class OpenAIInterface:
         
     #//////////// CHAT TEMPERATURE ////////////
     def getTemperature(self) -> (int | float):
-        _temp = self.config.getOption("chat", "chat_temperature")
+        _temp = self.temperature
         return _temp
     
     def setTemperature(self, _temperature: (int | float)) -> bool:
@@ -350,8 +356,8 @@ class OpenAIInterface:
                         
     #//////////// FREQUENCY PENALTY ////////////
     def getFrequencyPenalty(self) -> (float | int):
-        _freq_pen = self.config.getOption("chat", "frequency_penalty")
-        return int(_freq_pen)
+        _freq_pen = self.frequency_penalty
+        return _freq_pen
     
     def setFrequencyPenalty(self, _freq_penalty: (int | float)) -> bool:
         if isinstance(_freq_penalty, int) or isinstance(_freq_penalty, float):
@@ -364,8 +370,8 @@ class OpenAIInterface:
     
     #//////////// PRESENCE PENALTY ////////////
     def getPresencePenalty(self) -> (float | int):
-        _pres_pen = self.config.getOption("chat", "presence_penalty")
-        return int(_pres_pen)
+        _pres_pen = self.presence_penalty
+        return _pres_pen
     
     def setPresencePenalty(self, _presence_penalty: (int | float)) -> bool:
         if isinstance(_presence_penalty, int) or isinstance(_presence_penalty, float):
@@ -378,8 +384,8 @@ class OpenAIInterface:
     
     #//////////// RESPONSE COUNT ////////////
     def getResponseCount(self) -> int:
-        _r_count = self.config.getOption("chat", "response_count")
-        return int(_r_count)
+        _r_count = self.response_count
+        return _r_count
      
     def setResponseCount(self, _response_count: int) -> bool:
         if isinstance(_response_count, int):
@@ -392,8 +398,8 @@ class OpenAIInterface:
             
     #//////////// RESPONSE TOKEN LIMIT ////////////
     def getResponseTokenLimit(self) -> int:
-        _rt_limit = self.config.getOption("chat", "response_token_limit")
-        return int(_rt_limit)
+        _rt_limit = self.response_token_limit
+        return _rt_limit
     
     def setResponseTokenLimit(self, _response_token_limit: int) -> bool: 
         if isinstance(_response_token_limit, int):
@@ -406,8 +412,8 @@ class OpenAIInterface:
      
     #//////////// BEST OF ////////////
     def getBestOf(self) -> (float | int):
-        _best_of = self.config.getOption("chat", "best_of")
-        return int(_best_of)
+        _best_of = self.best_of
+        return _best_of
     
     def setBestOf(self, _best_of: (int | float)) -> bool:
         if isinstance(_best_of, int) or isinstance(_best_of, float):
@@ -420,22 +426,20 @@ class OpenAIInterface:
 
     #//////////// TIMEOUT ////////////
     def getTimeout(self) -> (float | int):
-        _timeout = self.config.getOption("chat", "timeout")
-        return int(_timeout)
+        _timeout = self.timeout
+        return _timeout
     
-    def setTimeout(self, _timeout: (int | float)) -> bool:
-        if isinstance(_timeout, int) or isinstance(_timeout, float):
+    def setTimeout(self, _timeout: (int | float)) -> None:
+        if isinstance(_timeout, int):
             self.config.openConfig()
             self.config.setOption("chat", "timeout", _timeout)
             self.config.saveConfig()
             self.timeout = _timeout
-            return True
-        return False
      
     #//////////// REQUEST TYPE ////////////
     def getRequestType(self) -> int:
-        _req_type = self.config.getOption("chat", "request_type") 
-        return int(_req_type)
+        _req_type = self.request_type
+        return _req_type
     
     def setRequestType(self, _request_type: int) -> bool:
         if isinstance(_request_type, int):
@@ -450,13 +454,18 @@ class OpenAIInterface:
     def getRequest(self) -> str:
         return self.request
 
-    def setRequest(self, request: str) -> None:
-        self.request = request
+    def setRequest(self, _request: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("requests", "previous_request", self.config.getOption("requests", "current_request"))
+        self.config.setOption("requests", "current_request", _request)
+        self.config.saveConfig()
+        self.request = _request
     
     def requestData(self) -> None: 
         _respone = None
         try:
             if self.request_type == 0:
+                # CHAT (WinGTP default request type)
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=self.request,
@@ -486,9 +495,23 @@ class OpenAIInterface:
             elif self.request_type == 7:
                 pass
             elif self.request_type == 8:
-                pass
+                #////// TRANSLATIONS //////
+                lang1 = "English"
+                lang2 = "Spanish"
+                prompt_string = f"Translate from {lang1} to {lang2}: {self.request}"
+                _response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=prompt_string,
+                    max_tokens=self.response_token_limit
+                )
+    
             elif self.request_type == 9:
-                pass
+                #////// TEXT GENERATION //////
+                _response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=self.request,
+                    max_tokens=self.response_token_limit
+                )
             
             self.response = _response
         except openai.APIError:

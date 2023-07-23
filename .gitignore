@@ -10,11 +10,10 @@ notes
 *.test
 *.tmp
 *.log
-test.*
-!test.jsonl
 *key*
 *.flag
 tempCodeRunnerFile.*
 None
 _pycache_/
 .vscode/
+*.swp

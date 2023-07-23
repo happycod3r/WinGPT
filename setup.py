@@ -103,6 +103,15 @@ class Setup(customtkinter.CTk):
         self.config.addOption("chat", "request_type", 0)
         self.config.addOption("chat", "user_defined_data_file", None)
         self.config.addOption("chat", "jsonl_data_file", None)
+        self.config.addSection("stop_lists")
+        self.config.addOption("stop_lists", "stop_list1", "a custom stop list")
+        self.config.addOption("stop_lists", "stop_list2", "another custom stop list")
+        self.config.addSection("requests")
+        self.config.addOption("requests", "current_request", None)
+        self.config.addOption("requests", "previous_request", None)
+        self.config.addSection("responses")
+        self.config.addOption("responses", "current_response", None)
+        self.config.addOption("responses", "previous_response", None)
         
         if self.config.saveConfig():
             return True

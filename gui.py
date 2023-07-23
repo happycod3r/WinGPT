@@ -282,7 +282,7 @@ class WinGTPGUI(ctk.CTk):
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
         
         self.temp_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_high_color_box.grid(row=1, column=3, sticky="e", padx=(0, 10))
+        self.temp_high_color_box.grid(row=1, column=3, sticky="e", padx=(0, 10), pady=(0, 10))
         
         self.temp_med_high_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -460,6 +460,15 @@ class WinGTPGUI(ctk.CTk):
             command=self.request_type_radio_btn_selected    
         )
         self.build_request_radio_btn.grid(row=9, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.text_gen_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Text Generator",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["text_gen"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.text_gen_radio_btn.grid(row=10, column=0, pady=(20, 0), padx=20, sticky="nw")
 
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_username_btn.configure(state="normal", text=" Username")
@@ -530,17 +539,17 @@ class WinGTPGUI(ctk.CTk):
             self.STREAM_CHAT = True
             
         #////// OUTPUT TEMP RADIO GROUP
-        output_temp = int(self._config.getOption("chat", "chat_temperature"))
+        output_temp = float(self._config.getOption("chat", "chat_temperature"))
         if output_temp == 0:
             self.temp_low_radio_button.select()
             self.output_temp_radio_btn_selected(True)
-        elif output_temp == 1:
+        elif output_temp == 0.5:
             self.temp_med_low_radio_button.select()
             self.output_temp_radio_btn_selected(True)
-        elif output_temp == 2:
+        elif output_temp == 1:
             self.temp_medium_radio_button.select()
             self.output_temp_radio_btn_selected(True)
-        elif output_temp == 3:
+        elif output_temp == 1.5:
             self.temp_med_high_radio_button.select()
             self.output_temp_radio_btn_selected(True)
         else:
@@ -645,36 +654,26 @@ class WinGTPGUI(ctk.CTk):
         self.setOutput(f"Engine changed to: {engine}", "cli")
             
     def open_jsonl_datafile_input_dialog_event(self) -> bool:
-        dialog = ctk.CTkInputDialog(text="Enter a .jsonl file path: ", title="JSONL Data File Input")
-        path = str(dialog.get_input())
-        if path == "None":
+        _path = self.openFileDialog()
+        if _path == "None":
             return False
-        if len(path) != 0:
-            if os.path.exists(path):
-                self.cli.setJSONLDataFile(path)
-                self.setOutput(f"File set: [{self.cli.getJSONLDataFile()}]", "cli")
-                self.jsonl_datafile_output.configure(text=f"{path}")
-                return True
-            else:
-                self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
-                return False
-        return False
+        if _path == False:
+            return False
+        self.cli.setJSONLDataFile(_path)
+        self.setOutput(f"File set: [{self.cli.getJSONLDataFile()}]", "cli")
+        self.jsonl_datafile_output.configure(text=f"{_path}")
+        return True
  
     def open_user_defined_datafile_input_dialog_event(self) -> bool:
-        dialog = ctk.CTkInputDialog(text="Enter a file path: ", title="User Defined Data File Input")
-        path = str(dialog.get_input())
-        if path == "None":
+        _path = self.openFileDialog()
+        if _path == "None":
             return False
-        if len(path) != 0:
-            if os.path.exists(path):
-                self.cli.setUserDefinedFileName(path)
-                self.setOutput(f"File set: [{self.cli.getUserDefinedFileName()}]", "cli")
-                self.user_defined_datafile_output.configure(text=f"{path}")
-                return True
-            else:
-                self.setOutput(f"File doesn\'t exist! [{path}]", "cli")
-                return False
+        if _path == False:
             return False
+        self.cli.setUserDefinedFileName(_path)
+        self.setOutput(f"File set: [{self.cli.getUserDefinedFileName()}]", "cli")
+        self.user_defined_datafile_output.configure(text=f"{_path}")
+        return True
   
     def open_organization_input_dialog_event(self) -> bool:
         dialog = ctk.CTkInputDialog(text="Enter organization: ", title="Organization Input")
@@ -728,8 +727,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the response token limit: ", title="Response Token Limit Input")
         _token_limit = str(dialog.get_input())
         if _token_limit.isdigit() and _token_limit != "None":
-            self.cli.setResponseTokenLimit(_token_limit)
-            self.RESPONSE_TOKEN_LIMIT = _token_limit
+            self.cli.setResponseTokenLimit(int(_token_limit))
+            self.RESPONSE_TOKEN_LIMIT = int(_token_limit)
             self.setOutput(f"Response token limit changed to: [{self.cli.getResponseTokenLimit()}]", "cli")
             self.response_token_limit_output.configure(text=f"{self.RESPONSE_TOKEN_LIMIT}")
             return True
@@ -740,8 +739,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Enter the response count: ", title="Response Count Input")
         _response_count = str(dialog.get_input())
         if _response_count.isdigit() and _response_count != "None":
-            self.cli.setResponseCount(_response_count)
-            self.RESPONSE_COUNT = _response_count
+            self.cli.setResponseCount(int(_response_count))
+            self.RESPONSE_COUNT = int(_response_count)
             self.setOutput(f"Response count changed to: [{self.cli.getResponseCount()}]", "cli")
             self.response_count_output.configure(text=f"{self.RESPONSE_COUNT}")
             return True
@@ -752,8 +751,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Generates best_of completions: ", title="Best of Input")
         _best_of = str(dialog.get_input())
         if _best_of.isdigit() and _best_of != "None":
-            self.cli.setBestOf(_best_of)
-            self.BEST_OF = _best_of
+            self.cli.setBestOf(int(_best_of))
+            self.BEST_OF = int(_best_of)
             self.setOutput(f"Best of changed to best of: [{self.cli.getBestOf()}]", "cli")
             self.best_of_output.configure(text=f"{self.BEST_OF}")
             return True
@@ -764,8 +763,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Change the response token frequency penalty: ", title="Frequency Penalty Input")
         _freq_penalty = str(dialog.get_input())
         if _freq_penalty.isdigit() and _freq_penalty != "None":
-            self.cli.setFrequencyPenalty(_freq_penalty)
-            self.FREQUENCY_PENALTY = _freq_penalty
+            self.cli.setFrequencyPenalty(int(_freq_penalty))
+            self.FREQUENCY_PENALTY = int(_freq_penalty)
             self.setOutput(f"Frequency penalty changed to: [{self.cli.getFrequencyPenalty()}]", "cli")
             self.frequency_penalty_output.configure(text=f"{self.FREQUENCY_PENALTY}")
             return True
@@ -776,8 +775,8 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Change the response token presence penalty: ", title="Presence Penalty Input")
         _presence_penalty = str(dialog.get_input())
         if _presence_penalty.isdigit() and _presence_penalty != "None":
-            self.cli.setPresencePenalty(_presence_penalty)
-            self.PRESENCE_PENALTY = _presence_penalty
+            self.cli.setPresencePenalty(int(_presence_penalty))
+            self.PRESENCE_PENALTY = int(_presence_penalty)
             self.setOutput(f"Presence penalty changed to: [{self.cli.getPresencePenalty()}]", "cli")
             self.presence_penalty_output.configure(text=f"{self.PRESENCE_PENALTY}")
             return True
@@ -788,19 +787,22 @@ class WinGTPGUI(ctk.CTk):
         dialog = ctk.CTkInputDialog(text="Timeout length: ", title="Timeout Length Input")
         _timeout = str(dialog.get_input())
         if _timeout.isdigit() and _timeout != "None":
-            self.cli.setTimeout(_timeout)
-            self.TIMEOUT = _timeout
+            self.cli.setTimeout(int(_timeout))
+            self.TIMEOUT = int(_timeout)
             self.setOutput(f"Time out changed to: [{self.cli.getTimeout()}]", "cli")
             self.timeout_output.configure(text=f"{self.TIMEOUT}")
             return True
         else:
             return False
         
+    def openLanguageTranslationForm(self):
+        
+        
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
         if selected_value == self.cli.request_types["chat"]:
-            self.cli.setRequestType(selected_value)
-            self.REQUEST_TYPE = selected_value
+            self.cli.setRequestType(int(selected_value))
+            self.REQUEST_TYPE = int(selected_value)
             self.setOutput(f"Request type changed to: ({selected_value}) Chat", "cli")
             
         elif selected_value == self.cli.request_types["images"]:
@@ -827,16 +829,24 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Fine-Tuning", "cli")
-            
+        
         elif selected_value == self.cli.request_types["moderations"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Moderations", "cli")
+        
         elif selected_value == self.cli.request_types["build_requests"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Build Requests", "cli")
+        
         elif selected_value == self.cli.request_types["translation"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
+            
+            
+        elif selected_value == self.cli.request_types["text_gen"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
@@ -1033,10 +1043,16 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_username_btn.configure(text=f"{self.USER}")
 
     def processQueryRequest(self, request: str) -> bool:
-        self.cli.setAPIKeyPath(self.API_KEY_PATH)
-        self.cli.setEngine(self.cli.engine)
-        self.cli.setResponseTokenLimit(self.cli.response_token_limit)
-        self.cli.setResponseCount(self.cli.response_count)
+        # Note to self!!! 
+        # Now that config parser is set up the following lines can be commented out.
+        # If anything is feeling wonky just uncomment them. I'm pretty sure they 
+        # would be redundant though since all of these are set on startup now through 
+        # with configparser.
+        #
+        #self.cli.setAPIKeyPath(self.API_KEY_PATH)
+        #self.cli.setEngine(self.cli.engine)
+        #self.cli.setResponseTokenLimit(self.cli.response_token_limit)
+        #self.cli.setResponseCount(self.cli.response_count)
         self.cli.setRequest(request)
         self.cli.requestData()
         response = self.cli.getResponse()
@@ -1104,6 +1120,9 @@ class WinGTPGUI(ctk.CTk):
             self.processQueryRequest(query_request)
         if len(command_request) != 0:
             self.processCommandRequest(command_request)
+        if len(command_request) != 0 and len(query_request) != 0:
+            self.processCommandRequest(command_request)
+            self.processQueryRequest(query_request)
         if len(query_request) == 0 and len(command_request) == 0:
             self.setOutput(f" \
 Try entering text into the chat window to receive a reponse.\n \
