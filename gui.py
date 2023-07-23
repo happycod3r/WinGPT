@@ -180,68 +180,89 @@ class WinGTPGUI(ctk.CTk):
         self.response_token_limit_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Token Limit", command=self.open_response_token_limit_input_dialog_event)
         self.response_token_limit_input.grid(row=1, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
-        self.response_token_limit_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_token_limit')}", fg_color="#2B2B2B", corner_radius=6)
+        self.response_token_limit_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.response_token_limit_output.grid(row=1, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
         
         #//////////// RESPONSE COUNT INPUT ////////////
         self.response_count_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Response Count", command=self.open_response_count_input_dialog_event)
         self.response_count_input.grid(row=2, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
-        self.response_count_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'response_count')}", fg_color="#2B2B2B", corner_radius=6)
+        self.response_count_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.response_count_output.grid(row=2, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
         
         #//////////// BEST OF ////////////
         self.best_of_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Best of", command=self.open_best_of_input_dialog_event)
         self.best_of_input.grid(row=3, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
         
-        self.best_of_output = ctk.CTkLabel(self.response_tab_slider_frame, text=f"{self._config.getOption('chat', 'best_of')}", fg_color="#2B2B2B", corner_radius=6)
+        self.best_of_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.best_of_output.grid(row=3, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
+
+        #//////////// FREQUENCY PENALTY ////////////
+        self.frequency_penalty_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Frequency Penalty", command=self.open_frequency_penalty_input_dialog_event)
+        self.frequency_penalty_input.grid(row=4, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
+        
+        self.frequency_penalty_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
+        self.frequency_penalty_output.grid(row=4, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
+        
+        #//////////// PRESENCE PENALTY ////////////
+        self.presence_penalty_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Presence Penalty", command=self.open_presence_penalty_input_dialog_event)
+        self.presence_penalty_input.grid(row=5, column=0, sticky="ew", padx=(20, 10), pady=(10, 0))
+        
+        self.presence_penalty_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
+        self.presence_penalty_output.grid(row=5, column=1, sticky="ew", padx=(0, 10), pady=(10, 0))
+        
+        #//////////// TIMEOUT ////////////
+        self.timeout_input = ctk.CTkButton(self.response_tab_slider_frame, text=f"Time out", command=self.open_timeout_input_dialog_event)
+        self.timeout_input.grid(row=6, column=0, sticky="ew", padx=(20, 10), pady=(10, 30))
+        
+        self.timeout_output = ctk.CTkLabel(self.response_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
+        self.timeout_output.grid(row=6, column=1, sticky="ew", padx=(0, 10), pady=(10, 30))
 
         #//////////// API BASE INPUT ////////////
         self.api_base_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Base", command=self.open_api_base_input_dialog_event)
         self.api_base_input.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="ew")
         
-        self.api_base_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_base')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_base_output = ctk.CTkLabel(self.api_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.api_base_output.grid(row=1, column=0, sticky="ew", padx=(20, 20), pady=(0, 10))
         
         #//////////// API TYPE INPUT ////////////
         self.api_type_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Type", command=self.open_api_type_input_dialog_event)
         self.api_type_input.grid(row=2, column=0, padx=20, pady=(10, 10), sticky="ew")
         
-        self.api_type_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_type')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_type_output = ctk.CTkLabel(self.api_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.api_type_output.grid(row=3, column=0, sticky="ew", padx=(20, 20), pady=(0, 10))
         
         #//////////// API VERSION INPUT ////////////
         self.api_version_input = ctk.CTkButton(self.api_tab_slider_frame, text="API Version", command=self.open_api_version_input_dialog_event)
         self.api_version_input.grid(row=4, column=0, padx=20, pady=(10, 10), sticky="ew")
         
-        self.api_version_output = ctk.CTkLabel(self.api_tab_slider_frame, text=f"{self._config.getOption('chat', 'api_version')}", fg_color="#2B2B2B", corner_radius=6)
+        self.api_version_output = ctk.CTkLabel(self.api_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.api_version_output.grid(row=5, column=0, sticky="ew", padx=(20, 20), pady=(0, 20))
         
         #//////////// ORGANIZATION INPUT ////////////
         self.organization_input = ctk.CTkButton(self.data_tab_slider_frame, text="Organization", command=self.open_organization_input_dialog_event)
         self.organization_input.grid(row=0, column=0, padx=20, pady=(10, 10))
         
-        self.organization_output = ctk.CTkLabel(self.data_tab_slider_frame, text=f"{self._config.getOption('user', 'organization')}", fg_color="#2B2B2B", corner_radius=6)
+        self.organization_output = ctk.CTkLabel(self.data_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.organization_output.grid(row=1, column=0, sticky="ew", padx=(0, 0), pady=(0, 10))
         
         #//////////// USER DEFINED DATA FILE INPUT ////////////
         self.user_defined_datafile_input = ctk.CTkButton(self.data_tab_slider_frame, text="User Defined Data-File", command=self.open_user_defined_datafile_input_dialog_event)
         self.user_defined_datafile_input.grid(row=2, column=0, padx=20, pady=(10, 10))
         
-        self.user_defined_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, text=f"C:\\Users\\some\file.txt", fg_color="#2B2B2B", corner_radius=6)
+        self.user_defined_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.user_defined_datafile_output.grid(row=3, column=0, sticky="ew", padx=(0, 0), pady=(0, 10))
         
         #//////////// JSONL DATA FILE INPUT ////////////
         self.jsonl_data_file_input = ctk.CTkButton(self.data_tab_slider_frame, text="JSONL Data File", command=self.open_jsonl_datafile_input_dialog_event)
         self.jsonl_data_file_input.grid(row=4, column=0, padx=20, pady=(10, 10))
     
-        self.jsonl_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, text="C:\\Users\\some\\file.jsonl", fg_color="#2B2B2B", corner_radius=6)
+        self.jsonl_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.jsonl_datafile_output.grid(row=5, column=0, sticky="ew", padx=(0, 0), pady=(0, 20))
         ###############################################################################
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
     
-        self.output_temp_radiobutton_frame = ctk.CTkFrame(self)
+        self.output_temp_radiobutton_frame = ctk.CTkScrollableFrame(self)
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.output_temp_radio_var = tkinter.IntVar(value=0)
     
@@ -263,6 +284,18 @@ class WinGTPGUI(ctk.CTk):
         self.temp_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
         self.temp_high_color_box.grid(row=1, column=3, sticky="e", padx=(0, 10))
         
+        self.temp_med_high_radio_button = ctk.CTkRadioButton(
+            master=self.output_temp_radiobutton_frame, 
+            text="mid-high", 
+            variable=self.output_temp_radio_var, 
+            value=self.cli.temps["med_high"], 
+            command=self.output_temp_radio_btn_selected
+        )
+        self.temp_med_high_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
+        
+        self.temp_med_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
+        self.temp_med_high_color_box.grid(row=2, column=3, sticky="e", padx=(0, 10))
+        
         self.temp_medium_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
             text="medium", 
@@ -270,10 +303,22 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.temps["medium"], 
             command=self.output_temp_radio_btn_selected
         )
-        self.temp_medium_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
+        self.temp_medium_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
         
         self.temp_medium_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_medium_color_box.grid(row=2, column=3, sticky="e", padx=(0, 10))
+        self.temp_medium_color_box.grid(row=3, column=3, sticky="e", padx=(0, 10))
+        
+        self.temp_med_low_radio_button = ctk.CTkRadioButton(
+            master=self.output_temp_radiobutton_frame, 
+            text="mid-low", 
+            variable=self.output_temp_radio_var, 
+            value=self.cli.temps["med_low"], 
+            command=self.output_temp_radio_btn_selected
+        )
+        self.temp_med_low_radio_button.grid(row=4, column=2, pady=10, padx=20, sticky="nw")
+        
+        self.temp_med_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
+        self.temp_med_low_color_box.grid(row=4, column=3, sticky="e", padx=(0, 10))
         
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -281,10 +326,10 @@ class WinGTPGUI(ctk.CTk):
             value=self.cli.temps["low"], 
             command=self.output_temp_radio_btn_selected
         )
-        self.temp_low_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
+        self.temp_low_radio_button.grid(row=5, column=2, pady=10, padx=20, sticky="nw")
         
         self.temp_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_low_color_box.grid(row=3, column=3, sticky="e", padx=(0, 10))
+        self.temp_low_color_box.grid(row=5, column=3, sticky="e", padx=(0, 10))
         
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -371,7 +416,6 @@ class WinGTPGUI(ctk.CTk):
         )
         self.translation_radio_btn.grid(row=4, column=0, pady=(20, 0), padx=20, sticky="nw")
         
-        
         self.embeddings_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
             text="Embeddings",
@@ -424,7 +468,9 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_change_color_btn.configure(state="normal", text="Color")
 
         self.temp_high_radio_button.configure(text="High")
+        self.temp_med_high_radio_button.configure(text="Med-High")
         self.temp_medium_radio_button.configure(text="Medium")
+        self.temp_med_low_radio_button.configure(text="Med-Low")
         self.temp_low_radio_button.configure(text="Low")
         
         #////// GUI LOADED //////
@@ -450,6 +496,19 @@ class WinGTPGUI(ctk.CTk):
         self.settings_switches_frame.configure(label_text_color=self._OUTPUT_COLOR)
         self.output_request_type_radio_group.configure(text_color=self._OUTPUT_COLOR)
         
+        self.response_token_limit_output.configure(text=f"{self._config.getOption('chat', 'response_token_limit')}")
+        self.response_count_output.configure(text=f"{self._config.getOption('chat', 'response_count')}")
+        self.best_of_output.configure(text=f"{self._config.getOption('chat', 'best_of')}")
+        self.frequency_penalty_output.configure(text=f"{self._config.getOption('chat', 'frequency_penalty')}")
+        self.presence_penalty_output.configure(text=f"{self._config.getOption('chat', 'presence_penalty')}")
+        self.timeout_output.configure(text=f"{self._config.getOption('chat', 'timeout')}")
+        self.api_base_output.configure(text=f"{self._config.getOption('chat', 'api_base')}")
+        self.api_type_output.configure(text=f"{self._config.getOption('chat', 'api_type')}")
+        self.api_version_output.configure(text=f"{self._config.getOption('chat', 'api_version')}")
+        self.organization_output.configure(text=f"{self._config.getOption('user', 'organization')}")
+        self.user_defined_datafile_output.configure(text=f"{self._config.getOption('chat', 'user_defined_data_file')}")
+        self.jsonl_datafile_output.configure(text=f"{self._config.getOption('chat', 'jsonl_data_file')}")
+        
         if self._config.getOption("chat", "echo_chat") == "True":
             self.chat_echo_switch.select()
             self.ECHO_CHAT = True
@@ -474,13 +533,19 @@ class WinGTPGUI(ctk.CTk):
         output_temp = int(self._config.getOption("chat", "chat_temperature"))
         if output_temp == 0:
             self.temp_low_radio_button.select()
-            self.output_temp_radio_btn_selected()
+            self.output_temp_radio_btn_selected(True)
         elif output_temp == 1:
+            self.temp_med_low_radio_button.select()
+            self.output_temp_radio_btn_selected(True)
+        elif output_temp == 2:
             self.temp_medium_radio_button.select()
-            self.output_temp_radio_btn_selected()
+            self.output_temp_radio_btn_selected(True)
+        elif output_temp == 3:
+            self.temp_med_high_radio_button.select()
+            self.output_temp_radio_btn_selected(True)
         else:
             self.temp_high_radio_button.select()
-            self.output_temp_radio_btn_selected()
+            self.output_temp_radio_btn_selected(True)
             
         self.engine_option_menu.set(self._config.getOption("chat", "chat_engine"))
         self.appearance_mode_option_menu.set(self._config.getOption("ui", "theme"))
@@ -689,12 +754,48 @@ class WinGTPGUI(ctk.CTk):
         if _best_of.isdigit() and _best_of != "None":
             self.cli.setBestOf(_best_of)
             self.BEST_OF = _best_of
-            self.setOutput(f"Best of changed 2 best of: [{self.cli.getBestOf()}]", "cli")
+            self.setOutput(f"Best of changed to best of: [{self.cli.getBestOf()}]", "cli")
             self.best_of_output.configure(text=f"{self.BEST_OF}")
             return True
         else:
             return False
+        
+    def open_frequency_penalty_input_dialog_event(self) -> bool:
+        dialog = ctk.CTkInputDialog(text="Change the response token frequency penalty: ", title="Frequency Penalty Input")
+        _freq_penalty = str(dialog.get_input())
+        if _freq_penalty.isdigit() and _freq_penalty != "None":
+            self.cli.setFrequencyPenalty(_freq_penalty)
+            self.FREQUENCY_PENALTY = _freq_penalty
+            self.setOutput(f"Frequency penalty changed to: [{self.cli.getFrequencyPenalty()}]", "cli")
+            self.frequency_penalty_output.configure(text=f"{self.FREQUENCY_PENALTY}")
+            return True
+        else:
+            return False
+        
+    def open_presence_penalty_input_dialog_event(self) -> bool:
+        dialog = ctk.CTkInputDialog(text="Change the response token presence penalty: ", title="Presence Penalty Input")
+        _presence_penalty = str(dialog.get_input())
+        if _presence_penalty.isdigit() and _presence_penalty != "None":
+            self.cli.setPresencePenalty(_presence_penalty)
+            self.PRESENCE_PENALTY = _presence_penalty
+            self.setOutput(f"Presence penalty changed to: [{self.cli.getPresencePenalty()}]", "cli")
+            self.presence_penalty_output.configure(text=f"{self.PRESENCE_PENALTY}")
+            return True
+        else:
+            return False
     
+    def open_timeout_input_dialog_event(self) -> bool:
+        dialog = ctk.CTkInputDialog(text="Timeout length: ", title="Timeout Length Input")
+        _timeout = str(dialog.get_input())
+        if _timeout.isdigit() and _timeout != "None":
+            self.cli.setTimeout(_timeout)
+            self.TIMEOUT = _timeout
+            self.setOutput(f"Time out changed to: [{self.cli.getTimeout()}]", "cli")
+            self.timeout_output.configure(text=f"{self.TIMEOUT}")
+            return True
+        else:
+            return False
+        
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
         if selected_value == self.cli.request_types["chat"]:
@@ -740,38 +841,58 @@ class WinGTPGUI(ctk.CTk):
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
     
-    def output_temp_radio_btn_selected(self) -> bool:
+    def output_temp_radio_btn_selected(self, _initial: bool = False) -> bool:
         selected_value = self.output_temp_radio_var.get()
         if selected_value == self.cli.temps["high"]:
-            self.cli.setTemperature(selected_value)
+            self.cli.setTemperature(2)
             self.CHAT_TEMP = selected_value
-            self.temp_high_color_box.configure(fg_color="#ff595e", text_color="#000000", text=f"{selected_value}")
+            self.temp_high_color_box.configure(fg_color="#ff595e", text_color="#000000", text="2.0")
+            self.temp_med_high_color_box.configure(fg_color="#343638", text="")
             self.temp_medium_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_low_color_box.configure(fg_color="#343638", text="")
             self.temp_low_color_box.configure(fg_color="#343638", text="")
-            self.setOutput(f"Temperature changed to: High ({selected_value})", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
-            self._config.saveConfig()
+            if not _initial:
+                self.setOutput(f"Temperature changed to: High (2.0)", "cli")
+        if selected_value == self.cli.temps["med_high"]:
+            self.cli.setTemperature(1.5)
+            self.CHAT_TEMP = selected_value
+            self.temp_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_high_color_box.configure(fg_color="#f4a261", text_color="#000000", text="1.5")
+            self.temp_medium_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_low_color_box.configure(fg_color="#343638", text="")
+            self.temp_low_color_box.configure(fg_color="#343638", text="")
+            if not _initial:
+                self.setOutput(f"Temperature changed to: Med-High (1.5)", "cli")
         elif selected_value == self.cli.temps["medium"]:
-            self.cli.setTemperature(selected_value)
+            self.cli.setTemperature(1)
             self.CHAT_TEMP = selected_value
             self.temp_high_color_box.configure(fg_color="#343638", text="")
-            self.temp_medium_color_box.configure(fg_color="#ffca3a", text_color="#000000", text=f"{selected_value}")
+            self.temp_med_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_medium_color_box.configure(fg_color="#ffca3a", text_color="#000000", text="1.0")
+            self.temp_med_low_color_box.configure(fg_color="#343638", text="")
             self.temp_low_color_box.configure(fg_color="#343638", text="")
-            self.setOutput(f"Temperature changed to: Medium ({selected_value})", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
-            self._config.saveConfig()
-        elif selected_value == self.cli.temps["low"]:
-            self.cli.setTemperature(selected_value)
+            if not _initial:
+                self.setOutput(f"Temperature changed to: Medium (1.0)", "cli")
+        if selected_value == self.cli.temps["med_low"]:
+            self.cli.setTemperature(0.5)
             self.CHAT_TEMP = selected_value
             self.temp_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_high_color_box.configure(fg_color="#343638", text="")
             self.temp_medium_color_box.configure(fg_color="#343638", text="")
-            self.temp_low_color_box.configure(fg_color="#1982c4", text_color="#000000", text=f"{selected_value}")
-            self.setOutput(f"Temperature changed to: Low ({selected_value})", "cli")
-            self._config.openConfig()
-            self._config.setOption("chat", "chat_temperature", self.CHAT_TEMP)
-            self._config.saveConfig()   
+            self.temp_med_low_color_box.configure(fg_color="#2a9d8f", text_color="#000000", text="0.5")
+            self.temp_low_color_box.configure(fg_color="#343638", text="")
+            if not _initial:
+                self.setOutput(f"Temperature changed to: Med-Low (0.5)", "cli")
+        elif selected_value == self.cli.temps["low"]:
+            self.cli.setTemperature(0)
+            self.CHAT_TEMP = selected_value
+            self.temp_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_high_color_box.configure(fg_color="#343638", text="")
+            self.temp_medium_color_box.configure(fg_color="#343638", text="")
+            self.temp_med_low_color_box.configure(fg_color="#343638", text="")
+            self.temp_low_color_box.configure(fg_color="#1982c4", text_color="#000000", text="0.0")
+            if not _initial:
+                self.setOutput(f"Temperature changed to: Low (0.0))", "cli")
         
     def change_appearance_mode_event(self, _new_appearance_mode: str) -> bool:
         _theme = _new_appearance_mode

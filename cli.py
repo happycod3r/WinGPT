@@ -44,7 +44,7 @@ class OpenAIInterface:
         if _save == "False": self.save_chat = False
         else: self.save_chat = True
         
-        self.temps = {"low":0, "medium":1, "high":2}
+        self.temps = {"low":0, "med_low":1, "medium":2, "med_high":3, "high":4}
         self.temperature = int(self.config.getOption("chat", "chat_temperature"))
         self.frequency_penalty = int(self.config.getOption("chat", "frequency_penalty"))
         self.presence_penalty = int(self.config.getOption("chat", "presence_penalty"))
@@ -335,11 +335,11 @@ class OpenAIInterface:
         self.stream = _save
         
     #//////////// CHAT TEMPERATURE ////////////
-    def getTemperature(self) -> int:
+    def getTemperature(self) -> (int | float):
         _temp = self.config.getOption("chat", "chat_temperature")
-        return int(_temp)
+        return _temp
     
-    def setTemperature(self, _temperature: int) -> bool:
+    def setTemperature(self, _temperature: (int | float)) -> bool:
         if isinstance(_temperature, (int, float)):
             self.config.openConfig()
             self.config.setOption("chat", "chat_temperature", _temperature)

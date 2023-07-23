@@ -101,6 +101,9 @@ class Setup(customtkinter.CTk):
         self.config.addOption("chat", "api_type", "open_ai")
         self.config.addOption("chat", "api_version", None)
         self.config.addOption("chat", "request_type", 0)
+        self.config.addOption("chat", "user_defined_data_file", None)
+        self.config.addOption("chat", "jsonl_data_file", None)
+        
         if self.config.saveConfig():
             return True
         else: 
