@@ -5,7 +5,7 @@ class Persistence():
     def __init__(self) -> None:
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
+        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\..\\config"
         self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
         self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
         

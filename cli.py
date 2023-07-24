@@ -1,9 +1,9 @@
-import persistence
+import modules.persistence as persistence
 import openai
 import debug as dbg
-import stdops
+import modules.stdops as stdops
 import os
-import logger
+import modules.logger as logger
 
 
 class OpenAIInterface:
@@ -547,19 +547,14 @@ class OpenAIInterface:
         return response  
     
     def createTempURLFile(self, _url) -> bool:
-        if not self.stdops.createFile(f"{self.CURRENT_PATH}\\config\\img_url.tmp"):
+        if not self.stdops.createFile(f"{self.CURRENT_PATH}\\tmp\\img_url.tmp"):
             return False
         else:
-            self.stdops.writeTofile(f"{self.CURRENT_PATH}\\config\\img_url.tmp", _url)
+            self.stdops.writeTofile(f"{self.CURRENT_PATH}\\tmp\\img_url.tmp", _url)
     
     def getImageURLResponse(self) -> str:
         image_url = self.response['data'][0]['url']
-        # Need to write the url to a seperate temp file because configparser
-        # cant store the url successfully. It's either too long or because
-        # of symbols within the url.
-        # self.config.openConfig()
-        # self.config.setOption("image_requests", "returned_url", f"{image_url}")
-        # self.config.saveConfig()
+
         self.createTempURLFile(image_url)
         return image_url
     

@@ -5,9 +5,9 @@ from tkinter import colorchooser
 from tkinter import filedialog
 import tkinter.messagebox
 from tkinter import *
-import normaltime
-import persistence
-import stdops
+import modules.normaltime as normaltime
+import modules.persistence as persistence
+import modules.stdops as stdops
 from cli import OpenAIInterface
 from ctrls import ctktextbox
 from ctrls import translation_form as tf
@@ -16,7 +16,7 @@ from ctrls import image_form as imgf
 from PIL import Image
 import sys
 import os 
-import logger
+import modules.logger as logger
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")

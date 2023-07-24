@@ -1,6 +1,6 @@
 import tkinter as tk
 import customtkinter as ctk
-import persistence
+import modules.persistence as persistence
 
 class QAForm(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):

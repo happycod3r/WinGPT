@@ -1,11 +1,9 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import filedialog
-from PIL import Image, ImageTk
-import requests
-from io import BytesIO
 import os
-import persistence
+import modules.persistence as persistence
+from ctrls import image_view
 
 
 class ImageForm(ctk.CTkFrame):
@@ -19,8 +17,10 @@ class ImageForm(ctk.CTkFrame):
         self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.grid_columnconfigure(0, weight=1)
         
+        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self._config = persistence.Persistence()
         
+        self.img_view = None
         self.title = ctk.CTkLabel(self, text="Images")
         self.title.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=0)
         
@@ -34,8 +34,7 @@ class ImageForm(ctk.CTkFrame):
         
         self.show_img_btn = ctk.CTkButton(
             self, 
-            text="Show", 
-            state="disabled", 
+            text="Show",  
             command=self.showImage, 
             width=60)
         self.show_img_btn.grid(row=1, column=1, sticky="ew", padx=10, pady=10)
@@ -72,35 +71,33 @@ class ImageForm(ctk.CTkFrame):
         return False
     
     def showImage(self):
-        CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        try:
-            with open(f"{CURRENT_PATH}\\config\\img_url.tmp") as file:
-                url = file.read()
-                file.close()   
-        except FileNotFoundError:
-            pass
-        except IOError:
-            pass
-        except Exception as e:
-            print(repr(e))
-
-        response = requests.get(url)
-
-        if response.status_code == 200:
-            print
-            image = Image.open(BytesIO(response.content))
-            image_window = tk.Toplevel()
-            image_window.title("Image from Web")
-
-            photo = ImageTk.PhotoImage(image)
-
-            image_label = tk.Label(image_window, image=photo)
-            image_label.config(row=0, column=0, sticky="nsew")
-            image_label.mainloop()
-
+        if self.img_view is None or not self.img_view.winfo_exists():
+            self.img_view = image_view.ImageView(self, takefocus=True)
+            
         else:
-            print("Failed to fetch the image from the web.")
-            image_label.grid(row=0, column=0, sticky="nsew")
+            self.img_view.focus()
+        # try:
+        #     with open(f"{self.CURRENT_PATH}\\..\\config\\img_url.tmp") as file:
+        #         _url = file.read()
+        #         file.close()
+        #         self.IMG_URL = _url
+        # except FileNotFoundError:
+        #     return False
+        # except IOError:
+        #     return False
+        # except Exception as e:
+        #     print(repr(e))
+        #     return False
+
+        # root = tk.Toplevel()
+        # img_url = f"{self.IMG_URL}"
+        # response = requests.get(img_url)
+        # img_data = response.content
+        # img = ImageTk.PhotoImage(Image.open(BytesIO(img_data)))
+        # panel = tk.Label(root, image=img)
+        # panel.pack(side="bottom", fill="both", expand="yes")
+        # root.mainloop()
+        
     
     def openFileDialog(self) -> (str | bool):
         file_path = filedialog.askopenfilename()

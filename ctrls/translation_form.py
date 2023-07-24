@@ -1,6 +1,6 @@
 import customtkinter as ctk
 import iso639
-import persistence
+import modules.persistence as persistence
 
 class TranslationsForm(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):

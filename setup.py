@@ -1,6 +1,6 @@
 import customtkinter
-import persistence
-import stdops
+import modules.persistence as persistence
+import modules.stdops as stdops
 from PIL import Image
 from ctrls import ctkframe
 import os
@@ -21,6 +21,7 @@ class Setup(customtkinter.CTk):
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
         self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
+        self.TMP_DIR = f"{self.CURRENT_PATH}\\tmp"
         self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
         self.CHAT_LOG_FILE = f"{self.LOGS_DIR}\\chat.log"
         self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
@@ -73,9 +74,10 @@ class Setup(customtkinter.CTk):
         self.config.setDefaultSection("DEFAULTS")
         self.config.addSection("system")
         self.config.addOption("system", "new_user", True)
-        self.config.addOption("system", "config_dir", f"{self.CURRENT_PATH}\\config")
-        self.config.addOption("system", "logs_dir", f"{self.CURRENT_PATH}\\logs")
-        self.config.addOption("system", "config_file", f"{self.CURRENT_PATH}\\config\\settings.ini")
+        self.config.addOption("system", "config_dir", f"{self.CONFIG_DIR}")
+        self.config.addOption("system", "logs_dir", f"{self.LOGS_DIR}")
+        self.config.addOption("system", "tmp_dir", f"{self.TMP_DIR}")
+        self.config.addOption("system", "config_file", f"{self.USER_SETTINGS_FILE}")
         self.config.addOption("system", "sys_log", f"{self.SYSTEM_LOG_FILE}")
         self.config.addSection("user")
         self.config.addOption("user", "username", f"{self.USERNAME}")
@@ -124,7 +126,6 @@ class Setup(customtkinter.CTk):
         self.config.addOption("image_requests", "img_path", None)
         self.config.addOption("image_requests", "mask_path", None)
         self.config.addOption("image_requests", "img_size", None)
-        self.config.addOption("image_requests", "returned_url", None) 
         
         if self.config.saveConfig():
             return True
@@ -159,6 +160,15 @@ class Setup(customtkinter.CTk):
         return False
         
     def rollBackSetup(self) -> None:
+        # self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+        # self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
+        # self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
+        # self.TMP_DIR = f"{self.CURRENT_PATH}\\tmp"
+        # self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
+        # self.CHAT_LOG_FILE = f"{self.LOGS_DIR}\\chat.log"
+        # self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
+        # self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
+        # self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
         print("Setup failed. Rolling back changes")
         try:
             if os.path.exists(self.SETUP_DONE_FLAG_FILE):
@@ -169,12 +179,22 @@ class Setup(customtkinter.CTk):
             
             if os.path.exists(self.KEY_CONFIG_FILE):
                 os.remove(self.KEY_CONFIG_FILE)
+                
+            if os.path.exists(self.CHAT_LOG_FILE):
+                os.remove(self.CHAT_LOG_FILE)
+            
+            if os.path.exists(self.SYSTEM_LOG_FILE):
+                os.remove(self.SYSTEM_LOG_FILE)
             
             if os.path.exists(self.CONFIG_DIR):
                 os.rmdir(self.CONFIG_DIR)
             
             if os.path.exists(self.LOGS_DIR):
-                os.rmdir(self.LOGS_DIR) 
+                os.rmdir(self.LOGS_DIR)
+                
+            if os.path.exists(self.TMP_DIR):
+                os.rmdir(self.TMP_DIR)
+                 
         except IOError as ioe:
             print(repr(ioe))
         except Exception as e:
