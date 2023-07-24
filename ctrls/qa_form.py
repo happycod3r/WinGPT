@@ -27,7 +27,7 @@ class QAForm(ctk.CTkFrame):
         self.context_entry = ctk.CTkEntry(self, placeholder_text="Enter a question context here.")
         self.context_entry.grid(row=4, column=0, sticky="ew", padx=10, pady=0)
         
-        self.enter_context_btn = ctk.CTkButton(self, text="Use", command=self.onEnterContextBtnClicked)
+        self.enter_context_btn = ctk.CTkButton(self, text="Use Context", command=self.onEnterContextBtnClicked)
         self.enter_context_btn.grid(row=5, column=0, columnspan=1, sticky="ew", padx=10, pady=0)
     
     def onEnterContextBtnClicked(self):

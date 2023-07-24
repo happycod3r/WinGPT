@@ -459,7 +459,13 @@ class OpenAIInterface:
                     timeout=self.timeout
                 )
             elif self.request_type == 1:
-                pass
+                print("requestData()")
+                _img_size = self.config.getOption("image_requests", "img_size")
+                _response = openai.Image.create(
+                    prompt=self.request,
+                    n=self.response_count,
+                    size=_img_size,
+                )
             elif self.request_type == 2:
                 pass
             elif self.request_type == 3:
@@ -538,6 +544,10 @@ class OpenAIInterface:
         response = self.response.choices[0].text.strip() 
         return response
     
+    def getImageURLResponse(self) -> str:
+        image_url = self.response['data'][0]['url']
+        return image_url
+    
     #//////////// UTILITY METHODS ////////////
     def _help(self) -> None:
         """
@@ -562,10 +572,6 @@ class OpenAIInterface:
     def greetUser(self, user: str, key_path: str) -> str:
         if os.path.exists(key_path):
             try:
-                self.setAPIKeyPath(key_path)
-                self.setResponseTokenLimit(self.response_token_limit)
-                self.setEngine(self.engine)
-                self.setResponseCount(self.response_count)
                 self.setRequest(f'Hi I\'m {user}.')
                 self.requestData()
                 greeting = self.getResponse()

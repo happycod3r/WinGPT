@@ -12,6 +12,7 @@ from cli import OpenAIInterface
 from ctrls import ctktextbox
 from ctrls import translation_form as tf
 from ctrls import qa_form as qaf
+from ctrls import image_form as imgf
 from PIL import Image
 import sys
 import os 
@@ -267,6 +268,9 @@ class WinGTPGUI(ctk.CTk):
         
         #//////////// Q&A FORM ////////////
         self.qa_form = qaf.QAForm(self)
+        
+        #//////////// IMAGE FORM ////////////
+        self.img_form = imgf.ImageForm(self)
         
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////            
         self.output_temp_radiobutton_frame = ctk.CTkScrollableFrame(self)
@@ -912,17 +916,26 @@ class WinGTPGUI(ctk.CTk):
     def openChatOutputTempForm(self):
         self.translation_form.grid_forget()
         self.qa_form.grid_forget()
+        self.img_form.grid_forget()
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openLanguageTranslationForm(self):
         self.output_temp_radiobutton_frame.grid_forget()
         self.qa_form.grid_forget()
+        self.img_form.grid_forget()
         self.translation_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openQAForm(self):
         self.output_temp_radiobutton_frame.grid_forget()
         self.translation_form.grid_forget()
+        self.img_form.grid_forget()
         self.qa_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        
+    def openImageForm(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.translation_form.grid_forget()
+        self.qa_form.grid_forget()
+        self.img_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
@@ -935,6 +948,7 @@ class WinGTPGUI(ctk.CTk):
         elif selected_value == self.cli.request_types["images"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
+            self.openImageForm()
             self.setOutput(f"Request type set to: ({selected_value}) Images", "cli")
             
         elif selected_value == self.cli.request_types["audio"]:
@@ -1199,7 +1213,11 @@ class WinGTPGUI(ctk.CTk):
         #self.cli.setResponseCount(self.cli.response_count)
         self.cli.setRequest(request)
         self.cli.requestData()
-        response = self.cli.getResponse()
+        response = None
+        if self.REQUEST_TYPE == self.cli.request_types["images"]:
+            response = self.cli.getImageURLResponse()
+        else:
+            response = self.cli.getResponse()
         self.clearInput()
         self.setOutput(request, "user")
         self.setOutput(response, "chat")

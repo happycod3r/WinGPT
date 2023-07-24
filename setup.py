@@ -117,6 +117,11 @@ class Setup(customtkinter.CTk):
         self.config.addOption("translations", "lang2", None)
         self.config.addSection("qa")
         self.config.addOption("qa", "context_1", None )
+        self.config.addSection("image_requests")
+        self.config.addOption("image_requests", "img_path", None)
+        self.config.addOption("image_requests", "mask_path", None)
+        self.config.addOption("image_requests", "img_size", None)
+        self.config.addOption("image_requests", "returned_url", None) 
         
         if self.config.saveConfig():
             return True
