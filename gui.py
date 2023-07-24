@@ -16,6 +16,7 @@ from ctrls import image_form as imgf
 from PIL import Image
 import sys
 import os 
+import logger
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
@@ -25,6 +26,7 @@ class WinGTPGUI(ctk.CTk):
         super().__init__()
         
         self.stdops = stdops.StdOps()
+        self.log = logger.LogManager()
         self._config = persistence.Persistence()
         self._config.openConfig()
         
@@ -81,7 +83,7 @@ class WinGTPGUI(ctk.CTk):
             'temp',  # Set the output temperature.
         ]
         
-        self.width = 1300  # 1100
+        self.width = 1350  # 1100
         self.height = 580
                         
         #//////////// WINDOW ////////////
@@ -292,8 +294,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_high_radio_button.grid(row=1, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_high_color_box.grid(row=1, column=3, sticky="e", padx=(0, 10), pady=(0, 10))
+        self.temp_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=36, corner_radius=6, text="")
+        self.temp_high_color_box.grid(row=1, column=3, sticky="w", padx=(0, 10), pady=(0, 10))
         
         self.temp_med_high_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -304,8 +306,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_med_high_radio_button.grid(row=2, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_med_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_med_high_color_box.grid(row=2, column=3, sticky="e", padx=(0, 10))
+        self.temp_med_high_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=36, corner_radius=6, text="")
+        self.temp_med_high_color_box.grid(row=2, column=3, sticky="w", padx=(0, 10))
         
         self.temp_medium_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -316,8 +318,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_medium_radio_button.grid(row=3, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_medium_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_medium_color_box.grid(row=3, column=3, sticky="e", padx=(0, 10))
+        self.temp_medium_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=36, corner_radius=6, text="")
+        self.temp_medium_color_box.grid(row=3, column=3, sticky="w", padx=(0, 10))
         
         self.temp_med_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -328,8 +330,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_med_low_radio_button.grid(row=4, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_med_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_med_low_color_box.grid(row=4, column=3, sticky="e", padx=(0, 10))
+        self.temp_med_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=36, corner_radius=6, text="")
+        self.temp_med_low_color_box.grid(row=4, column=3, sticky="w", padx=(0, 10))
         
         self.temp_low_radio_button = ctk.CTkRadioButton(
             master=self.output_temp_radiobutton_frame, 
@@ -339,8 +341,8 @@ class WinGTPGUI(ctk.CTk):
         )
         self.temp_low_radio_button.grid(row=5, column=2, pady=10, padx=20, sticky="nw")
         
-        self.temp_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=40, corner_radius=6, text="")
-        self.temp_low_color_box.grid(row=5, column=3, sticky="e", padx=(0, 10))
+        self.temp_low_color_box = ctk.CTkLabel(master=self.output_temp_radiobutton_frame, width=36, corner_radius=6, text="")
+        self.temp_low_color_box.grid(row=5, column=3, sticky="w", padx=(0, 10))
         
         #//////////// INPUT BOX FRAME ////////////
         self.input_box_frame = ctk.CTkFrame(self, fg_color="transparent")

@@ -3,12 +3,14 @@ import openai
 import debug as dbg
 import stdops
 import os
+import logger
 
 
 class OpenAIInterface:
      
     def __init__(self) -> None:
         self.stdops = stdops.StdOps()
+        self.log = logger.LogManager()
         self.config = persistence.Persistence()
         self.config.openConfig()
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -459,13 +461,15 @@ class OpenAIInterface:
                     timeout=self.timeout
                 )
             elif self.request_type == 1:
-                print("requestData()")
                 _img_size = self.config.getOption("image_requests", "img_size")
                 _response = openai.Image.create(
                     prompt=self.request,
                     n=self.response_count,
                     size=_img_size,
                 )
+                self.config.openConfig()
+                self.config.setOption("image_requests", "returned_url", _response)
+                self.config.saveConfig()
             elif self.request_type == 2:
                 pass
             elif self.request_type == 3:

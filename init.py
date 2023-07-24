@@ -1,6 +1,7 @@
 import setup
 import gui
 import os
+import logger
 
 
 """
@@ -15,6 +16,7 @@ class Initialize:
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
         self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}\\.gui.flag"
         self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
+        self.log = logger.LogManager()
         if os.path.exists(self.SETUP_DONE_FLAG_FILE):
             self.runWinGTPGUI()
         else:

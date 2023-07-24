@@ -5,6 +5,7 @@ from PIL import Image
 from ctrls import ctkframe
 import os
 import gui
+import logger
 
 customtkinter.set_appearance_mode("dark")
 
@@ -16,11 +17,13 @@ class Setup(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         
         self.stdops = stdops.StdOps()
+        self.log = logger.LogManager()
         self.config = persistence.Persistence()
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
         self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
+        self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
         self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
         self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
         self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
@@ -74,6 +77,7 @@ class Setup(customtkinter.CTk):
         self.config.addOption("system", "config_dir", f"{self.CURRENT_PATH}\\config")
         self.config.addOption("system", "logs_dir", f"{self.CURRENT_PATH}\\logs")
         self.config.addOption("system", "config_file", f"{self.CURRENT_PATH}\\config\\settings.ini")
+        self.config.addOption("system", "sys_log", f"{self.SYSTEM_LOG_FILE}")
         self.config.addSection("user")
         self.config.addOption("user", "username", f"{self.USERNAME}")
         self.config.addOption("user", "api_key", f"{self.API_KEY}")
@@ -136,6 +140,8 @@ class Setup(customtkinter.CTk):
         elif not self.stdops.createFile(self.USER_SETTINGS_FILE):
             return False
         elif not self.stdops.createFile(self.KEY_CONFIG_FILE):
+            return False
+        elif not self.stdops.createFile(self.SYSTEM_LOG_FILE):
             return False
         else:
             return True
