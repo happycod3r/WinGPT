@@ -5,7 +5,6 @@ from PIL import Image
 from ctrls import ctkframe
 import os
 import gui
-import logger
 
 customtkinter.set_appearance_mode("dark")
 
@@ -17,13 +16,13 @@ class Setup(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         
         self.stdops = stdops.StdOps()
-        self.log = logger.LogManager()
         self.config = persistence.Persistence()
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
         self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
         self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
+        self.CHAT_LOG_FILE = f"{self.LOGS_DIR}\\chat.log"
         self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
         self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
         self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
@@ -89,7 +88,7 @@ class Setup(customtkinter.CTk):
         self.config.addOption("ui", "theme", "System") 
         self.config.addSection("chat")
         self.config.addOption("chat", "chat_to_file", False)
-        self.config.addOption("chat", "chat_log_path", None)
+        self.config.addOption("chat", "chat_log_path", f"{self.CHAT_LOG_FILE}")
         self.config.addOption("chat", "echo_chat", False)
         self.config.addOption("chat", "stream_chat", False)
         self.config.addOption("chat", "use_stop_list", False)
@@ -142,6 +141,8 @@ class Setup(customtkinter.CTk):
         elif not self.stdops.createFile(self.KEY_CONFIG_FILE):
             return False
         elif not self.stdops.createFile(self.SYSTEM_LOG_FILE):
+            return False
+        elif not self.stdops.createFile(self.CHAT_LOG_FILE):
             return False
         else:
             return True

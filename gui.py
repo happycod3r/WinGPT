@@ -1203,16 +1203,6 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar_username_btn.configure(text=f"{self.USER}")
 
     def processQueryRequest(self, request: str) -> bool:
-        # Note to self!!! 
-        # Now that config parser is set up the following lines can be commented out.
-        # If anything is feeling wonky just uncomment them. I'm pretty sure they 
-        # would be redundant though since all of these are set on startup now through 
-        # with configparser.
-        #
-        #self.cli.setAPIKeyPath(self.API_KEY_PATH)
-        #self.cli.setEngine(self.cli.engine)
-        #self.cli.setResponseTokenLimit(self.cli.response_token_limit)
-        #self.cli.setResponseCount(self.cli.response_count)
         self.cli.setRequest(request)
         self.cli.requestData()
         response = None

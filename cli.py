@@ -467,9 +467,6 @@ class OpenAIInterface:
                     n=self.response_count,
                     size=_img_size,
                 )
-                self.config.openConfig()
-                self.config.setOption("image_requests", "returned_url", _response)
-                self.config.saveConfig()
             elif self.request_type == 2:
                 pass
             elif self.request_type == 3:
@@ -534,8 +531,9 @@ class OpenAIInterface:
                     prompt=_prompt_string,
                     max_tokens=self.response_token_limit
                 )
-            
+                
             self.response = _response
+            
         except openai.APIError:
             print("OpenAI API Error")
         except openai.OpenAIError:
@@ -546,10 +544,23 @@ class OpenAIInterface:
     #//////////// RESPONSE ////////////
     def getResponse(self) -> str:
         response = self.response.choices[0].text.strip() 
-        return response
+        return response  
+    
+    def createTempURLFile(self, _url) -> bool:
+        if not self.stdops.createFile(f"{self.CURRENT_PATH}\\config\\img_url.tmp"):
+            return False
+        else:
+            self.stdops.writeTofile(f"{self.CURRENT_PATH}\\config\\img_url.tmp", _url)
     
     def getImageURLResponse(self) -> str:
         image_url = self.response['data'][0]['url']
+        # Need to write the url to a seperate temp file because configparser
+        # cant store the url successfully. It's either too long or because
+        # of symbols within the url.
+        # self.config.openConfig()
+        # self.config.setOption("image_requests", "returned_url", f"{image_url}")
+        # self.config.saveConfig()
+        self.createTempURLFile(image_url)
         return image_url
     
     #//////////// UTILITY METHODS ////////////
