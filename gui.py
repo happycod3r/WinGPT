@@ -10,6 +10,8 @@ import persistence
 import stdops
 from cli import OpenAIInterface
 from ctrls import ctktextbox
+from ctrls import translation_form as tf
+from ctrls import qa_form as qaf
 from PIL import Image
 import sys
 import os 
@@ -147,7 +149,7 @@ class WinGTPGUI(ctk.CTk):
         #//////////// GTP OPTIONS TAB VIEW ////////////
         ###############################################################################
         self.gtp_options_tabview = ctk.CTkTabview(self, width=250)
-        self.gtp_options_tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.gtp_options_tabview.grid(row=0, column=2, padx=(20, 0), pady=(0, 0), sticky="nsew")
         self.gtp_options_tabview.add("Response")
         self.gtp_options_tabview.add("API")
         self.gtp_options_tabview.add("Data")
@@ -259,9 +261,14 @@ class WinGTPGUI(ctk.CTk):
     
         self.jsonl_datafile_output = ctk.CTkLabel(self.data_tab_slider_frame, fg_color="#2B2B2B", corner_radius=6)
         self.jsonl_datafile_output.grid(row=5, column=0, sticky="ew", padx=(0, 0), pady=(0, 20))
-        ###############################################################################
-        #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////
-    
+        
+        #//////////// TRANSLATIONS FORM ////////////
+        self.translation_form = tf.TranslationsForm(self)
+        
+        #//////////// Q&A FORM ////////////
+        self.qa_form = qaf.QAForm(self)
+        
+        #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////            
         self.output_temp_radiobutton_frame = ctk.CTkScrollableFrame(self)
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.output_temp_radio_var = tkinter.IntVar(value=0)
@@ -461,15 +468,43 @@ class WinGTPGUI(ctk.CTk):
         )
         self.build_request_radio_btn.grid(row=9, column=0, pady=(20, 0), padx=20, sticky="nw")
         
-        self.text_gen_radio_btn = ctk.CTkRadioButton(
+        self.sentement_radio_btn = ctk.CTkRadioButton(
             master=self.output_request_type_radio_group,
-            text="Text Generator",
+            text="Sentement Analysis",
             variable=self.request_type_radio_var,
-            value=self.cli.request_types["text_gen"],
+            value=self.cli.request_types["sentement"],
             command=self.request_type_radio_btn_selected    
         )
-        self.text_gen_radio_btn.grid(row=10, column=0, pady=(20, 0), padx=20, sticky="nw")
+        self.sentement_radio_btn.grid(row=10, column=0, pady=(20, 0), padx=20, sticky="nw")
 
+        self.qa_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Q & A",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["qa"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.qa_radio_btn.grid(row=11, column=0, pady=(20, 0), padx=20, sticky="nw")
+
+        self.summarization_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Summarization",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["summarization"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.summarization_radio_btn.grid(row=12, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        self.code_gen_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Code Generation",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["code_gen"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.code_gen_radio_btn.grid(row=13, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
+        
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_username_btn.configure(state="normal", text=" Username")
         self.sidebar_exit_btn.configure(state="normal", text="Exit")
@@ -486,7 +521,33 @@ class WinGTPGUI(ctk.CTk):
         self.loadOptions()
         self._config.saveConfig()
         self.setGUIShownFlag()
-        self.setOutput(self.cli.greetUser(self.USER, self.API_KEY_PATH), "chat")
+        if self.REQUEST_TYPE == 0:
+            self.setOutput(self.cli.greetUser(self.USER, self.API_KEY_PATH), "chat")
+        elif self.REQUEST_TYPE == 1:
+            self.setOutput("Commencing image requests ...")
+        elif self.REQUEST_TYPE == 2:
+            self.setOutput("Commencing audio requests ...")
+        elif self.REQUEST_TYPE == 3:
+            self.setOutput("Commencing embeddings ...")
+        elif self.REQUEST_TYPE == 4:
+            self.setOutput("Commencing file requests ...")
+        elif self.REQUEST_TYPE == 5:
+            self.setOutput("Commencing fine-tuning ...")
+        elif self.REQUEST_TYPE == 6:
+            self.setOutput("Commencing moderations ...")
+        elif self.REQUEST_TYPE == 7:
+            self.setOutput("Commencing build requests ...")
+        elif self.REQUEST_TYPE == 8:
+            self.setOutput("Commencing translations ...")
+        elif self.REQUEST_TYPE == 9:
+            self.setOutput("Commencing sentement analysis ...")
+        elif self.REQUEST_TYPE == 10:
+            self.setOutput("Commencing q & a ...")
+        elif self.REQUEST_TYPE == 11:
+            self.setOutput("Commencing summarization ...")
+        elif self.REQUEST_TYPE == 12:
+            self.setOutput("Commencing code generation ...")
+        
         #//////////// GUI METHODS ////////////
 
     def setGUIShownFlag(self):
@@ -555,6 +616,58 @@ class WinGTPGUI(ctk.CTk):
         else:
             self.temp_high_radio_button.select()
             self.output_temp_radio_btn_selected(True)
+        #     self.request_types = {
+        #     "chat": 0, 
+        #     "images": 1, 
+        #     "audio" : 2, 
+        #     "embeddings": 3, 
+        #     "files": 4, 
+        #     "fine_tuning": 5, 
+        #     "moderations": 6, 
+        #     "build_requests": 7,
+        #     "translation": 8,
+        #     "sentement": 9
+        # }
+        _request_type = int(self._config.getOption("chat", "request_type"))
+        if _request_type == 0:
+            self.chat_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 1:
+            self.images_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 2:
+            self.audio_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 3:
+            self.embeddings_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 4:
+            self.files_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 5:
+            self.fine_tuning_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 6:
+            self.moderations_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 7:
+            self.build_request_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 8:
+            self.translation_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 9:
+            self.sentement_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 10:
+            self.qa_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 11:
+            self.summarization_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 12:
+            self.code_gen_radio_btn.select()
+            self.request_type_radio_btn_selected()
             
         self.engine_option_menu.set(self._config.getOption("chat", "chat_engine"))
         self.appearance_mode_option_menu.set(self._config.getOption("ui", "theme"))
@@ -795,61 +908,92 @@ class WinGTPGUI(ctk.CTk):
         else:
             return False
         
-    def openLanguageTranslationForm(self):
+    ###################################################################
+    def openChatOutputTempForm(self):
+        self.translation_form.grid_forget()
+        self.qa_form.grid_forget()
+        self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
+    def openLanguageTranslationForm(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.qa_form.grid_forget()
+        self.translation_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        
+    def openQAForm(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.translation_form.grid_forget()
+        self.qa_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
         if selected_value == self.cli.request_types["chat"]:
-            self.cli.setRequestType(int(selected_value))
-            self.REQUEST_TYPE = int(selected_value)
-            self.setOutput(f"Request type changed to: ({selected_value}) Chat", "cli")
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.openChatOutputTempForm()
+            self.setOutput(f"Request type set  to: ({selected_value}) Chat", "cli")
             
         elif selected_value == self.cli.request_types["images"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Images", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Images", "cli")
             
         elif selected_value == self.cli.request_types["audio"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Audio", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Audio", "cli")
             
         elif selected_value == self.cli.request_types["embeddings"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Embeddings", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Embeddings", "cli")
             
         elif selected_value == self.cli.request_types["files"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Files", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Files", "cli")
             
         elif selected_value == self.cli.request_types["fine_tuning"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Fine-Tuning", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Fine-Tuning", "cli")
         
         elif selected_value == self.cli.request_types["moderations"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Moderations", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Moderations", "cli")
         
         elif selected_value == self.cli.request_types["build_requests"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Build Requests", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Build Requests", "cli")
         
         elif selected_value == self.cli.request_types["translation"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
+            self.openLanguageTranslationForm()
+            self.setOutput(f"Request type set to: ({selected_value}) Translation", "cli")
             
-            
-        elif selected_value == self.cli.request_types["text_gen"]:
+        elif selected_value == self.cli.request_types["sentement"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
-            self.setOutput(f"Request type changed to: ({selected_value}) Translation", "cli")
+            self.setOutput(f"Request type set to: ({selected_value}) Senetement Analysis", "cli")
+            
+        elif selected_value == self.cli.request_types["qa"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.openQAForm()
+            self.setOutput(f"Request type set to: ({selected_value}) Q & A", "cli")
+            
+        elif selected_value == self.cli.request_types["summarization"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type set to: ({selected_value}) Summarization", "cli")
+            
+        elif selected_value == self.cli.request_types["code_gen"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.setOutput(f"Request type set to: ({selected_value}) Code Generation", "cli")
+    ###################################################################
     
     def output_temp_radio_btn_selected(self, _initial: bool = False) -> bool:
         selected_value = self.output_temp_radio_var.get()

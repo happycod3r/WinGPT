@@ -62,39 +62,17 @@ class OpenAIInterface:
             "moderations": 6, 
             "build_requests": 7,
             "translation": 8,
-            "text_gen": 9
+            "sentement": 9,
+            "qa": 10,
+            "summarization": 11,
+            "code_gen": 12
         }
         self.request_type = int(self.config.getOption("chat", "request_type"))
         self.request = "What's todays date?"
         self.timeout = int(self.config.getOption("chat", "timeout"))
         self.config.saveConfig()
     
-        # _data = [
-        #     self.api_key_path, 
-        #     self.api_key, 
-        #     self.api_base, 
-        #     self.api_type, 
-        #     self.api_version,
-        #     self.organization, 
-        #     self.engine, 
-        #     self.user_defined_filename,
-        #     self.jsonl_data_file,
-        #     self.stop_list,
-        #     self.use_stop_list, 
-        #     self.echo, 
-        #     self.stream, 
-        #     self.save_chat,
-        #     self.temperature, 
-        #     self.frequency_penalty, 
-        #     self.presence_penalty, 
-        #     self.response_count,
-        #     self.response_token_limit, 
-        #     self.best_of, 
-        #     self.request_type,
-        #     self.request,
-        #     self.timeout
-        # ] 
-    #    dbg.out(_data)
+        
     #//////////// API KEY ////////////
     def getAPIKeyPath(self, oai: bool = True) -> str:
         if oai:
@@ -494,22 +472,56 @@ class OpenAIInterface:
                 pass
             elif self.request_type == 7:
                 pass
+            
+            #////// TRANSLATIONS //////
             elif self.request_type == 8:
-                #////// TRANSLATIONS //////
-                lang1 = "English"
-                lang2 = "Spanish"
-                prompt_string = f"Translate from {lang1} to {lang2}: {self.request}"
+                lang1 = self.config.getOption("translations", "lang1")
+                lang2 = self.config.getOption("translations", "lang2")
+                _prompt_string = f"Translate from {lang1} to {lang2}: {self.request}"
                 _response = openai.Completion.create(
+                    # Add more options later.
                     engine=self.engine,
-                    prompt=prompt_string,
+                    prompt=_prompt_string,
                     max_tokens=self.response_token_limit
                 )
     
+            #////// SENTIMENT ANALYSIS //////
             elif self.request_type == 9:
-                #////// TEXT GENERATION //////
+                # Example prompt: "I love the summer!"
+                _prompt_string = f"Sentiment analysis: {self.request}"
                 _response = openai.Completion.create(
                     engine=self.engine,
-                    prompt=self.request,
+                    prompt=_prompt_string,
+                    max_tokens=self.response_token_limit
+                )
+                
+            #////// QUESTION ANSWERING //////
+            elif self.request_type == 10:
+                _context = self.config.getOption("qa", "context_1")
+                _question = self.request
+                _prompt_string = f"Question answering:\nContext: {_context}\nQuestion: {_question}"
+                _response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=_prompt_string,
+                    max_tokens=self.response_token_limit
+                )
+            
+            #////// SUMMARIZATION //////
+            elif self.request_type == 11:
+                _prompt_string = f"Summarize:\n{self.request}"
+                _response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=_prompt_string,
+                    max_tokens=self.response_token_limit
+                )
+                
+            #////// CODE GENERATION //////
+            elif self.request_type == 12:
+                print("Code generation")
+                _prompt_string = f"Code generation:\n{self.request}"
+                _response = openai.Completion.create(
+                    engine=self.engine,
+                    prompt=_prompt_string,
                     max_tokens=self.response_token_limit
                 )
             

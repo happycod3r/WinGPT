@@ -112,6 +112,11 @@ class Setup(customtkinter.CTk):
         self.config.addSection("responses")
         self.config.addOption("responses", "current_response", None)
         self.config.addOption("responses", "previous_response", None)
+        self.config.addSection("translations")
+        self.config.addOption("translations", "lang1", None)
+        self.config.addOption("translations", "lang2", None)
+        self.config.addSection("qa")
+        self.config.addOption("qa", "context_1", None )
         
         if self.config.saveConfig():
             return True
