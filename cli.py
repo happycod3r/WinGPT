@@ -5,7 +5,6 @@ import modules.stdops as stdops
 import os
 import modules.logger as logger
 
-
 class OpenAIInterface:
      
     def __init__(self) -> None:
@@ -16,6 +15,7 @@ class OpenAIInterface:
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = self.config.getOption("system", "config_dir")
         self.LOGS_DIR = self.config.getOption("system", "logs_dir")
+        self.TMP_DIR = self.config.getOption("system", "tmp_dir")
         self.USER_SETTINGS_FILE = self.config.getOption("system", "config_file")
         self.KEY_CONFIG_FILE = self.config.getOption("user", "api_key_path")
         
@@ -296,7 +296,7 @@ class OpenAIInterface:
         self.stream = _stream
                 
     #//////////// SAVE CHAT TO FILE ////////////
-    def saveChat(self, file_path: str = None, content: str = None) -> bool:        
+    def saveChat(self, file_path: str = None, content: str = None) -> bool:
         if os.path.exists(file_path):
             if self.stdops.writeTofile(file_path, content, "a"):
                 return True
@@ -381,7 +381,7 @@ class OpenAIInterface:
         _rt_limit = self.response_token_limit
         return _rt_limit
     
-    def setResponseTokenLimit(self, _response_token_limit: int) -> bool: 
+    def setResponseTokenLimit(self, _response_token_limit: int) -> bool:
         if isinstance(_response_token_limit, int):
             self.config.openConfig()
             self.config.setOption("chat", "response_token_limit", _response_token_limit)
@@ -444,8 +444,8 @@ class OpenAIInterface:
     def requestData(self) -> None: 
         _respone = None
         try:
+            #//////////// CHAT (WinGTP default request type) ////////////
             if self.request_type == 0:
-                # CHAT (WinGTP default request type)
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=self.request,
@@ -460,6 +460,8 @@ class OpenAIInterface:
                     best_of=self.best_of,
                     timeout=self.timeout
                 )
+                
+            #//////////// IMAGES ////////////
             elif self.request_type == 1:
                 _img_size = self.config.getOption("image_requests", "img_size")
                 _response = openai.Image.create(
@@ -543,18 +545,31 @@ class OpenAIInterface:
     
     #//////////// RESPONSE ////////////
     def getResponse(self) -> str:
+        """
+            Gets the stored response from openai and returns the response 
+            message as a string.
+        Returns:
+            str: The response message
+        """
         response = self.response.choices[0].text.strip() 
         return response  
     
     def createTempURLFile(self, _url) -> bool:
-        if not self.stdops.createFile(f"{self.CURRENT_PATH}\\tmp\\img_url.tmp"):
-            return False
-        else:
-            self.stdops.writeTofile(f"{self.CURRENT_PATH}\\tmp\\img_url.tmp", _url)
-    
+        """
+            Creates a temporary file to store the recieved URL so that it can 
+            be retrieved by image_view.py if the user decides they want to 
+            view it within WinGTP.
+            
+            Returns:
+                bool: True or False depending on  if the URL was written successfully.
+        """
+        self.stdops.createFile(f"{self.TMP_DIR}\\img_url.tmp")
+        if self.stdops.writeTofile(f"{self.TMP_DIR}\\img_url.tmp", _url, "w"):
+            return True
+        return False        
+
     def getImageURLResponse(self) -> str:
         image_url = self.response['data'][0]['url']
-
         self.createTempURLFile(image_url)
         return image_url
     

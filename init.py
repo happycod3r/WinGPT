@@ -1,12 +1,18 @@
 import setup
 import gui
 import os
+import sys
 
-"""
-# TODO FIRST THING!
-- Finish key config parser
-- clean up cli the best I can.  
-"""
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev & PyInstaller. """
+    try:
+        # PyInstaller creaes a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+Logo = resource_path("Logo.png")
 
 class Initialize:
     def __init__(self) -> None:

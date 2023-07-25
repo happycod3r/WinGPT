@@ -125,7 +125,7 @@ class Setup(customtkinter.CTk):
         self.config.addSection("image_requests")
         self.config.addOption("image_requests", "img_path", None)
         self.config.addOption("image_requests", "mask_path", None)
-        self.config.addOption("image_requests", "img_size", None)
+        self.config.addOption("image_requests", "img_size", "256x256")
         
         if self.config.saveConfig():
             return True
@@ -136,6 +136,8 @@ class Setup(customtkinter.CTk):
         if not self.stdops.createDir(self.CONFIG_DIR):
             return False
         elif not self.stdops.createDir(self.LOGS_DIR):
+            return False
+        elif not self.stdops.createDir(self.TMP_DIR):
             return False
         elif not self.stdops.createFile(self.USER_SETTINGS_FILE):
             return False

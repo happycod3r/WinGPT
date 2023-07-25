@@ -5,7 +5,6 @@ import os
 import modules.persistence as persistence
 from ctrls import image_view
 
-
 class ImageForm(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,6 +60,7 @@ class ImageForm(ctk.CTkFrame):
         self.choose_mask_btn_indicator.grid(row=6, column=1, sticky="ew", padx=10, pady=10)
         
     def isValidImagePath(self, path):
+        print(self.isValidImagePath.__name__)
         valid_image_formats = [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff"]
         # Convert the path string to lowercase to handle case-insensitivity
         lowercase_path = path.lower()
@@ -72,32 +72,9 @@ class ImageForm(ctk.CTkFrame):
     
     def showImage(self):
         if self.img_view is None or not self.img_view.winfo_exists():
-            self.img_view = image_view.ImageView(self, takefocus=True)
-            
+            self.img_view = image_view.ImageView(self, takefocus="yes")
         else:
             self.img_view.focus()
-        # try:
-        #     with open(f"{self.CURRENT_PATH}\\..\\config\\img_url.tmp") as file:
-        #         _url = file.read()
-        #         file.close()
-        #         self.IMG_URL = _url
-        # except FileNotFoundError:
-        #     return False
-        # except IOError:
-        #     return False
-        # except Exception as e:
-        #     print(repr(e))
-        #     return False
-
-        # root = tk.Toplevel()
-        # img_url = f"{self.IMG_URL}"
-        # response = requests.get(img_url)
-        # img_data = response.content
-        # img = ImageTk.PhotoImage(Image.open(BytesIO(img_data)))
-        # panel = tk.Label(root, image=img)
-        # panel.pack(side="bottom", fill="both", expand="yes")
-        # root.mainloop()
-        
     
     def openFileDialog(self) -> (str | bool):
         file_path = filedialog.askopenfilename()
@@ -142,3 +119,25 @@ class ImageForm(ctk.CTkFrame):
         self._config.openConfig()
         self._config.setOption("image_requests", "img_size", f"{_size}")
         self._config.saveConfig()
+
+# try:
+        #     with open(f"{self.CURRENT_PATH}\\..\\config\\img_url.tmp") as file:
+        #         _url = file.read()
+        #         file.close()
+        #         self.IMG_URL = _url
+        # except FileNotFoundError:
+        #     return False
+        # except IOError:
+        #     return False
+        # except Exception as e:
+        #     print(repr(e))
+        #     return False
+
+        # root = tk.Toplevel()
+        # img_url = f"{self.IMG_URL}"
+        # response = requests.get(img_url)
+        # img_data = response.content
+        # img = ImageTk.PhotoImage(Image.open(BytesIO(img_data)))
+        # panel = tk.Label(root, image=img)
+        # panel.pack(side="bottom", fill="both", expand="yes")
+        # root.mainloop()

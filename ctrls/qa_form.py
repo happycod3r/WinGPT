@@ -1,10 +1,12 @@
 import tkinter as tk
 import customtkinter as ctk
 import modules.persistence as persistence
+import debug as dbg
 
 class QAForm(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
         self.configure(
             bg_color="transparent",
             border_width=0,

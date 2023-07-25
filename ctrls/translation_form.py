@@ -44,6 +44,7 @@ class TranslationsForm(ctk.CTkFrame):
         self.lang2_option_menu.grid(row=2, column=1)
         
     def getLanguages(self) -> list:
+
         lang_names = []
         for i in range(len(self.langs)):
             lang_names.append(self.langs[i]["name"])

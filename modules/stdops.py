@@ -23,6 +23,7 @@ class StdOps:
         if not os.path.exists(file_path):
             try:
                 with open(file_path, 'w') as file:
+                    file.close()
                     return True
             except FileNotFoundError:
                 print(f"File '{file_path}' already exists!")
@@ -38,12 +39,13 @@ class StdOps:
             try:
                 with open(f"{file_path}", f"{_mode}") as file:
                     if len(content) != 0:
-                        if file.writable() :
+                        if file.writable():
                             file.write(content)
                             file.close()
+                            return True
                         else: 
                             return False
-                return True
+                    return False
             except FileNotFoundError:
                 print(f"File '{file_path}' not found!")
                 return False
