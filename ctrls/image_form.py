@@ -81,10 +81,13 @@ class ImageForm(ctk.CTkScrollableFrame):
     def loadOptions(self):
         if self.cli.getUseImageEdit() == 1:
             self.use_edit_switch.select()
+            self.onUseEditSwitchChanged()
         elif self.cli.getUseImageVariation() == 1:
             self.use_variation_switch.select()
+            self.onUseVariationSwitchChanged()
         elif self.cli.getUseImageNew() == 1:
             self.use_new_switch.select()
+            self.onUseNewSwitchChanged()
     
     def onUseEditSwitchChanged(self):
         _use_edit = self.use_edit_switch.get()
@@ -103,21 +106,35 @@ class ImageForm(ctk.CTkScrollableFrame):
             self.cli.setUseImageVariation(1)
             self.use_edit_switch.configure(state="disabled")
             self.use_new_switch.configure(state="disabled")
+            # Disable anything not needed for a variation.
+            self.choose_img_mask_btn.configure(state="disabled")
+            self.chosen_img_mask_path_label.configure(state="disabled")
         else:
             self.cli.setUseImageVariation(0)
             self.use_edit_switch.configure(state="normal")
             self.use_new_switch.configure(state="normal")
-        
+            self.choose_img_mask_btn.configure(state="normal")
+            self.chosen_img_mask_path_label.configure(state="normal")
+            
     def onUseNewSwitchChanged(self): 
         _use_new = self.use_new_switch.get()
         if _use_new == 1: 
             self.cli.setUseImageNew(1)
             self.use_edit_switch.configure(state="disabled")
             self.use_variation_switch.configure(state="disabled")
+            self.choose_img_mask_btn.configure(state="disabled")
+            self.chosen_img_mask_path_label.configure(state="disabled")
+            self.choose_img_btn.configure(state="disabled")
+            self.chosen_img_path_label.configure(state="disabled")
         else:
             self.cli.setUseImageNew(0)
             self.use_edit_switch.configure(state="normal")
             self.use_variation_switch.configure(state="normal")
+            self.choose_img_mask_btn.configure(state="normal")
+            self.chosen_img_mask_path_label.configure(state="normal")
+            self.choose_img_btn.configure(state="normal")
+            self.chosen_img_path_label.configure(state="normal")
+        
             
     def isValidImagePath(self, _path: str) -> bool:
         """

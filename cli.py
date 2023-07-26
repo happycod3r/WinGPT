@@ -508,7 +508,7 @@ class OpenAIInterface:
                         size=_img_size
                     )
                 #//////////// IMAGE VARIATION ////////////
-                if self.use_img_variation == 1:     
+                if self.use_img_var == 1:     
                     _img_path = self.config.getOption("image_requests", "img_path")
                     _response = openai.Image.create_variation(
                         image=open(f"{_img_path}", "rb"),
