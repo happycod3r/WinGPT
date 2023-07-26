@@ -487,7 +487,8 @@ class OpenAIInterface:
                     frequency_penalty=self.frequency_penalty,
                     presence_penalty=self.presence_penalty,
                     best_of=self.best_of,
-                    timeout=self.timeout
+                    timeout=self.timeout,
+                    user=self.username
                 )
                 
             #//////////// IMAGES ////////////
@@ -528,20 +529,31 @@ class OpenAIInterface:
                         user=self.username
                     )
                     
+            #//////////// AUDIO ////////////
             elif self.request_type == 2:
                 pass
+            #//////////// EMBEDDINGS ////////////
             elif self.request_type == 3:
-                pass
+                _response = openai.Embedding.create(
+                    model="text-embedding-ada-002",
+                    input=self.request,
+                    user=self.username
+                )
+                
+            #//////////// FILES ////////////
             elif self.request_type == 4:
                 pass
+            #//////////// FINE-TUNING ////////////
             elif self.request_type == 5:
                 pass
+            #//////////// MODERATIONS ////////////
             elif self.request_type == 6:
                 pass
+            #//////////// BUILD REQUESTS ////////////
             elif self.request_type == 7:
                 pass
             
-            #////// TRANSLATIONS //////
+            #//////////// TRANSLATIONS ////////////
             elif self.request_type == 8:
                 lang1 = self.config.getOption("translations", "lang1")
                 lang2 = self.config.getOption("translations", "lang2")
@@ -550,20 +562,21 @@ class OpenAIInterface:
                     # Add more options later.
                     engine=self.engine,
                     prompt=_prompt_string,
-                    max_tokens=self.response_token_limit
+                    max_tokens=self.response_token_limit,
+                    user=self.username
                 )
     
-            #////// SENTIMENT ANALYSIS //////
+            #//////////// SENTIMENT ANALYSIS ////////////
             elif self.request_type == 9:
-                # Example prompt: "I love the summer!"
                 _prompt_string = f"Sentiment analysis: {self.request}"
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=_prompt_string,
-                    max_tokens=self.response_token_limit
+                    max_tokens=self.response_token_limit,
+                    user=self.username
                 )
                 
-            #////// QUESTION ANSWERING //////
+            #//////////// QUESTION ANSWERING ////////////
             elif self.request_type == 10:
                 _context = self.config.getOption("qa", "context_1")
                 _question = self.request
@@ -571,26 +584,28 @@ class OpenAIInterface:
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=_prompt_string,
-                    max_tokens=self.response_token_limit
+                    max_tokens=self.response_token_limit,
+                    user=self.username
                 )
             
-            #////// SUMMARIZATION //////
+            #//////////// SUMMARIZATION ////////////
             elif self.request_type == 11:
                 _prompt_string = f"Summarize:\n{self.request}"
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=_prompt_string,
-                    max_tokens=self.response_token_limit
+                    max_tokens=self.response_token_limit,
+                    user=self.username
                 )
                 
-            #////// CODE GENERATION //////
+            #//////////// CODE GENERATION ////////////
             elif self.request_type == 12:
-                print("Code generation")
                 _prompt_string = f"Code generation:\n{self.request}"
                 _response = openai.Completion.create(
                     engine=self.engine,
                     prompt=_prompt_string,
-                    max_tokens=self.response_token_limit
+                    max_tokens=self.response_token_limit,
+                    user=self.username
                 )
                 
             self.response = _response
@@ -602,7 +617,7 @@ class OpenAIInterface:
         except Exception as e:
             print(repr(e))
     
-    #//////////// RESPONSE ////////////
+    #//////////// RESPONSES ////////////
     def getResponse(self) -> str:
         """
             Gets the stored response from openai and returns the response 
@@ -610,28 +625,31 @@ class OpenAIInterface:
         Returns:
             str: The response message
         """
-        response = self.response.choices[0].text.strip() 
-        return response  
+        _response = self.response.choices[0].text.strip() 
+        return _response  
     
     def createTempURLFile(self, _url) -> bool:
-        """
-            Creates a temporary file to store the recieved URL so that it can 
-            be retrieved by image_view.py if the user decides they want to 
-            view it within WinGTP.
-            
-            Returns:
-                bool: True or False depending on  if the URL was written successfully.
-        """
         self.stdops.createFile(f"{self.TMP_DIR}\\img_url.tmp")
         if self.stdops.writeTofile(f"{self.TMP_DIR}\\img_url.tmp", _url, "w"):
             return True
         return False        
 
     def getImageURLResponse(self) -> str:
-        image_url = self.response['data'][0]['url']
-        self.createTempURLFile(image_url)
-        return image_url
+        _image_url = self.response['data'][0]['url']
+        self.createTempURLFile(_image_url)
+        return _image_url
     
+    def createTempEmbeddingsFile(self, _embedding: str) -> bool:
+        self.stdops.createFile(f"{self.TMP_DIR}\\embedding.tmp")
+        if self.stdops.writeTofile(f"{self.TMP_DIR}\\embedding.tmp", _embedding, "w"):
+            return True
+        return False
+    
+    def getEmbeddingsResponse(self) -> str:
+        _response = self.response["data"][0]
+        self.createTempEmbeddingsFile(str(_response["embedding"]))
+        return _response["embedding"]
+        
     #//////////// UTILITY METHODS ////////////
     def _help(self) -> None:
         """

@@ -18,8 +18,13 @@ class Initialize:
     def __init__(self) -> None:
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
+        self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
+        self.TMP_DIR = f"{self.CURRENT_PATH}\\tmp"
         self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}\\.gui.flag"
         self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
+        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
+        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
+        
         if os.path.exists(self.SETUP_DONE_FLAG_FILE):
             self.runWinGTPGUI()
         else:

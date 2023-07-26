@@ -13,6 +13,7 @@ from ctrls import ctktextbox
 from ctrls import translation_form as tf
 from ctrls import qa_form as qaf
 from ctrls import image_form as imgf
+from ctrls import embeddings_view as ev
 from PIL import Image
 import sys
 import os 
@@ -273,6 +274,9 @@ class WinGTPGUI(ctk.CTk):
         
         #//////////// IMAGE FORM ////////////
         self.img_form = imgf.ImageForm(self)
+        
+        #//////////// EMBEDDINGS VIEW ////////////
+        self.embeddings_view = ev.EmbeddingsView(self)
         
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////            
         self.output_temp_radiobutton_frame = ctk.CTkScrollableFrame(self)
@@ -914,31 +918,41 @@ class WinGTPGUI(ctk.CTk):
         else:
             return False
         
-    ###################################################################
     def openChatOutputTempForm(self):
         self.translation_form.grid_forget()
         self.qa_form.grid_forget()
         self.img_form.grid_forget()
+        self.embeddings_view.grid_forget()
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openLanguageTranslationForm(self):
         self.output_temp_radiobutton_frame.grid_forget()
         self.qa_form.grid_forget()
         self.img_form.grid_forget()
+        self.embeddings_view.grid_forget()
         self.translation_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openQAForm(self):
         self.output_temp_radiobutton_frame.grid_forget()
         self.translation_form.grid_forget()
         self.img_form.grid_forget()
+        self.embeddings_view.grid_forget()
         self.qa_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openImageForm(self):
         self.output_temp_radiobutton_frame.grid_forget()
         self.translation_form.grid_forget()
         self.qa_form.grid_forget()
+        self.embeddings_view.grid_forget()
         self.img_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        
+       
+    def openEmbeddingsView(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.translation_form.grid_forget()
+        self.qa_form.grid_forget()
+        self.img_form.grid_forget()
+        self.embeddings_view.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+         
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
         if selected_value == self.cli.request_types["chat"]:
@@ -961,6 +975,7 @@ class WinGTPGUI(ctk.CTk):
         elif selected_value == self.cli.request_types["embeddings"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
+            self.openEmbeddingsView()
             self.setOutput(f"Request type set to: ({selected_value}) Embeddings", "cli")
             
         elif selected_value == self.cli.request_types["files"]:
@@ -1009,7 +1024,6 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type set to: ({selected_value}) Code Generation", "cli")
-    ###################################################################
     
     def output_temp_radio_btn_selected(self, _initial: bool = False) -> bool:
         selected_value = self.output_temp_radio_var.get()
@@ -1206,9 +1220,31 @@ class WinGTPGUI(ctk.CTk):
         self.cli.setRequest(request)
         self.cli.requestData()
         response = None
-        if self.REQUEST_TYPE == self.cli.request_types["images"]:
+        if self.REQUEST_TYPE == self.cli.request_types["chat"]:
+            response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["images"]:
             response = self.cli.getImageURLResponse()
-        else:
+        elif self.REQUEST_TYPE == self.cli.request_types["audio"]:
+            print("Response type not implemented in gui.py/processQueryRequest()")
+        elif self.REQUEST_TYPE == self.cli.request_types["embeddings"]:
+            response = self.cli.getEmbeddingsResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["files"]:
+            print("Response type not implemented in gui.py/processQueryRequest()")
+        elif self.REQUEST_TYPE == self.cli.request_types["fine_tuning"]:
+            print("Response type not implemented in gui.py/processQueryRequest()")
+        elif self.REQUEST_TYPE == self.cli.request_types["moderations"]:
+            print("Response type not implemented in gui.py/processQueryRequest()")
+        elif self.REQUEST_TYPE == self.cli.request_types["build_requests"]:
+            print("Response type not implemented in gui.py/processQueryRequest()")
+        elif self.REQUEST_TYPE == self.cli.request_types["translation"]:
+            response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["sentement"]:
+            response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["qa"]:
+            response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["summarization"]:
+            response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["code_gen"]:
             response = self.cli.getResponse()
         self.clearInput()
         self.setOutput(request, "user")
