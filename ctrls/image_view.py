@@ -9,7 +9,6 @@ class ImageView(ctk.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("400x400")
-        self.label = "Image View"
         self.stdops = stdops.StdOps()
         
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +19,6 @@ class ImageView(ctk.CTkToplevel):
         self.label = ctk.CTkLabel(self, text="", image=self.img)
         self.label.grid(row=0, column=0)
         self.label.configure(width=400, height=400)
-        self.focus()
 
     def loadImageFromUrl(self):
         _response = requests.get(self.IMG_URL)

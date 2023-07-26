@@ -1,6 +1,6 @@
 import modules.persistence as persistence
 import openai
-import debug as dbg
+import modules.debug as dbg
 import modules.stdops as stdops
 import os
 import modules.logger as logger
@@ -72,6 +72,13 @@ class OpenAIInterface:
         self.request_type = int(self.config.getOption("chat", "request_type"))
         self.request = "What's todays date?"
         self.timeout = int(self.config.getOption("chat", "timeout"))
+        
+        self.use_img_edit = int(self.config.getOption("image_requests", "use_edit"))
+        
+        self.use_img_var = int(self.config.getOption("image_requests", "use_variation"))
+        
+        self.use_img_new = int(self.config.getOption("image_requests", "use_new"))
+         
         self.config.saveConfig()
     
         
@@ -416,6 +423,31 @@ class OpenAIInterface:
             self.config.saveConfig()
             self.timeout = _timeout
      
+     
+    def getUseImageEdit(self) -> int:
+        return self.use_img_edit
+    
+    def setUseImageEdit(self, _use_edit: int) -> None:
+        self.config.openConfig()
+        self.config.setOption("image_requests", "use_edit", int(_use_edit))
+        self.config.saveConfig()
+        
+    def getUseImageVariation(self) -> int:
+        return self.use_img_var
+    
+    def setUseImageVariation(self, _use_variation: int) -> None:
+        self.config.openConfig()
+        self.config.setOption("image_requests", "use_variation", int(_use_variation))
+        self.config.saveConfig()
+        
+    def getUseImageNew(self) -> int: 
+        return self.use_img_new
+    
+    def setUseImageNew(self, _use_new: int) -> None:
+        self.config.openConfig()
+        self.config.setOption("image_requests", "use_new", int(_use_new))
+        self.config.saveConfig()
+        
     #//////////// REQUEST TYPE ////////////
     def getRequestType(self) -> int:
         _req_type = self.request_type
@@ -464,11 +496,34 @@ class OpenAIInterface:
             #//////////// IMAGES ////////////
             elif self.request_type == 1:
                 _img_size = self.config.getOption("image_requests", "img_size")
-                _response = openai.Image.create(
-                    prompt=self.request,
-                    n=self.response_count,
-                    size=_img_size,
-                )
+                #//////////// IMAGE EDIT ////////////
+                if self.use_img_edit == 1:  
+                    _mask_path = self.config.getOption("image_requests", "mask_path")
+                    _img_path = self.config.getOption("image_requests", "img_path")
+                    _response = openai.Image.create_edit(
+                        image=open(f"{_img_path}", "rb"),
+                        mask=open(f"{_mask_path}", "rb"),
+                        prompt=self.request,
+                        n=self.response_count,
+                        size=_img_size
+                    )
+                #//////////// IMAGE VARIATION ////////////
+                if self.use_img_variation == 1:     
+                    _img_path = self.config.getOption("image_requests", "img_path")
+                    _response = openai.Image.create_variation(
+                        image=open(f"{_img_path}", "rb"),
+                        n=self.response_count,
+                        size=_img_size
+                    )
+                    
+                #//////////// NEW IMAGE ////////////
+                if self.use_img_new == 1:
+                    _response = openai.Image.create(
+                        prompt=self.request,
+                        n=self.response_count,
+                        size=_img_size,
+                    )
+                    
             elif self.request_type == 2:
                 pass
             elif self.request_type == 3:

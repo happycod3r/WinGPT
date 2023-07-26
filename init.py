@@ -28,6 +28,16 @@ class Initialize:
             # if not os.path.exists(self.GUI_SHOWN_FLAG_FILE):
             #     self.cleanUpAfterSelf()
             
+            # TOFIX: I'm getting the following warning when the setup window is closed.
+            # I don't think the setup window is being destroyed proprly. I don't want
+            # it to cause memory leaks or any other unwanted side effects. So far
+            # so good though. Nothing to report.
+            # 
+            # invalid command name "1705901111680update"
+            # while executing "1705901111680update" ("after" script)
+            # invalid command name "1705899062592check_dpi_scaling" 
+            # while executing "1705899062592check_dpi_scaling" ("after" script)
+            
     def cleanUpAfterSelf(self) -> None:
         print("Setup failed. Rolling back changes")
         try:

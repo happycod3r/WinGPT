@@ -1,7 +1,7 @@
 import tkinter as tk
 import customtkinter as ctk
 import modules.persistence as persistence
-import debug as dbg
+import modules.debug as dbg
 
 class QAForm(ctk.CTkFrame):
     def __init__(self, *args, **kwargs):

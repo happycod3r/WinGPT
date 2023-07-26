@@ -1,6 +1,6 @@
 import unittest
 import cli
-import debug as dbg
+import modules.debug as dbg
 
 _cli = cli.OpenAIInterface()
 

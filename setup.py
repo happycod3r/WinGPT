@@ -41,8 +41,6 @@ class Setup(customtkinter.CTk):
         self.title("Wingtp & OpenAI Setup")
         self.geometry(f"{self.width}x{self.height}")
         self.resizable(False, False)
-
-        # load and create background image
     
         self.bg_image = customtkinter.CTkImage(Image.open(self.CURRENT_PATH + "\\images\\openai_dark.png"), size=(self.width, self.height))
         self.bg_image_label = customtkinter.CTkLabel(self, image=self.bg_image)
@@ -123,6 +121,9 @@ class Setup(customtkinter.CTk):
         self.config.addSection("qa")
         self.config.addOption("qa", "context_1", None )
         self.config.addSection("image_requests")
+        self.config.addOption("image_requests", "use_edit", 0)
+        self.config.addOption("image_requests", "use_variation", 0)
+        self.config.addOption("image_requests", "use_new", 1)
         self.config.addOption("image_requests", "img_path", None)
         self.config.addOption("image_requests", "mask_path", None)
         self.config.addOption("image_requests", "img_size", "256x256")
