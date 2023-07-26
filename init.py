@@ -29,7 +29,7 @@ class Initialize:
             #     self.cleanUpAfterSelf()
             
             # TOFIX: I'm getting the following warning when the setup window is closed.
-            # I don't think the setup window is being destroyed proprly. I don't want
+            # I don't think the setup window is being destroyed properly. I don't want
             # it to cause memory leaks or any other unwanted side effects. So far
             # so good though. Nothing to report.
             # 

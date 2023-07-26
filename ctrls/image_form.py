@@ -19,8 +19,7 @@ class ImageForm(ctk.CTkScrollableFrame):
         self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self._config = persistence.Persistence()
         self.cli = cli.OpenAIInterface()
-        
-        self.img_view = None
+    
         self.title = ctk.CTkLabel(self, text="Images")
         self.title.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=0)
         
@@ -134,8 +133,7 @@ class ImageForm(ctk.CTkScrollableFrame):
             self.chosen_img_mask_path_label.configure(state="normal")
             self.choose_img_btn.configure(state="normal")
             self.chosen_img_path_label.configure(state="normal")
-        
-            
+               
     def isValidImagePath(self, _path: str) -> bool:
         """
         Summary:
@@ -159,11 +157,8 @@ class ImageForm(ctk.CTkScrollableFrame):
         return False
     
     def showImage(self):
-        if self.img_view is None or not self.img_view.winfo_exists():
-            self.img_view = image_view.ImageView(self)
-            #self.img_view.mainloop() not sure if this is needed.
-        else:
-            self.img_view.focus()
+        img_view = image_view.ImageView()
+        
     
     def openFileDialog(self) -> (str | bool):
         file_path = filedialog.askopenfilename()

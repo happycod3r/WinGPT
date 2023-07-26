@@ -21,6 +21,7 @@ class OpenAIInterface:
         
         self.setAPIKeyPath(self.KEY_CONFIG_FILE)
         
+        self.username = self.config.getOption("user", "username")
         self.api_key_path = openai.api_key_path # Set during setup.
         self.api_key = self.config.getOption("user", "api_key")
         self.api_base = self.config.getOption("chat", "api_base")
@@ -72,13 +73,10 @@ class OpenAIInterface:
         self.request_type = int(self.config.getOption("chat", "request_type"))
         self.request = "What's todays date?"
         self.timeout = int(self.config.getOption("chat", "timeout"))
-        
         self.use_img_edit = int(self.config.getOption("image_requests", "use_edit"))
-        
         self.use_img_var = int(self.config.getOption("image_requests", "use_variation"))
-        
         self.use_img_new = int(self.config.getOption("image_requests", "use_new"))
-         
+        self.image_response_format = self.config.getOption("image_requests", "response_format")
         self.config.saveConfig()
     
         
@@ -423,7 +421,6 @@ class OpenAIInterface:
             self.config.saveConfig()
             self.timeout = _timeout
      
-     
     def getUseImageEdit(self) -> int:
         return self.use_img_edit
     
@@ -498,6 +495,7 @@ class OpenAIInterface:
                 _img_size = self.config.getOption("image_requests", "img_size")
                 #//////////// IMAGE EDIT ////////////
                 if self.use_img_edit == 1:  
+                    print("cli use edit")
                     _mask_path = self.config.getOption("image_requests", "mask_path")
                     _img_path = self.config.getOption("image_requests", "img_path")
                     _response = openai.Image.create_edit(
@@ -505,23 +503,29 @@ class OpenAIInterface:
                         mask=open(f"{_mask_path}", "rb"),
                         prompt=self.request,
                         n=self.response_count,
-                        size=_img_size
+                        size=_img_size,
+                        response_format=self.image_response_format,
+                        user=self.username
                     )
                 #//////////// IMAGE VARIATION ////////////
-                if self.use_img_var == 1:     
+                elif self.use_img_var == 1:  
                     _img_path = self.config.getOption("image_requests", "img_path")
                     _response = openai.Image.create_variation(
                         image=open(f"{_img_path}", "rb"),
                         n=self.response_count,
-                        size=_img_size
+                        size=_img_size,
+                        response_format=self.image_response_format,
+                        user=self.username
                     )
                     
                 #//////////// NEW IMAGE ////////////
-                if self.use_img_new == 1:
+                elif self.use_img_new == 1:
                     _response = openai.Image.create(
                         prompt=self.request,
                         n=self.response_count,
                         size=_img_size,
+                        response_format=self.image_response_format,
+                        user=self.username
                     )
                     
             elif self.request_type == 2:
