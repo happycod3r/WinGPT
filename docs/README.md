@@ -21,7 +21,7 @@
 
 ---
 
-![](../res/wingtp.gif)
+![](/docs/res/wingtp.gif)
 
 ## [About](#about)
 
