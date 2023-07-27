@@ -1,11 +1,14 @@
 # WinGPT v1.0.0
 
+![](/docs/res/wingtp1.png)
+
 > WinGTP is a cross-platform, fully functional, full-featured GUI implementation of the OpenAI API.
 > You need a free OpenAI API key to use WinGTP. If you don't already have 
 > one you can find one at [https://openai.com/](https://openai.com/) 
 
 - [WinGPT v1.0.0](#wingpt-v100)
   - [About](#about)
+  - [Notes](#notes)
   - [Install](#install)
     - [Manual Install](#manual-install)
     - [Command Line Install](#command-line-install)
@@ -13,15 +16,13 @@
       - [Using Curl:](#using-curl)
   - [Usage](#usage)
     - [python](#python)
-  - [Notes](#notes)
+  - [Notes](#notes-1)
   - [Contributing](#contributing)
   - [Security](#security)
     - [Reporting a vulnerability or bug?](#reporting-a-vulnerability-or-bug)
   - [Contacts](#contacts)
 
 ---
-
-![](/docs/res/wingtp1.png)
 
 ## [About](#about)
 
@@ -44,6 +45,10 @@
 * This is just version 1 of many updates to come still so the gui will improve vastly in the very near future. I'm a one man show and really wanted to focus on functionality and wrapping 
 the gui around the openai. I wanted to create a 1|1 wrapper around the api and I think WinGTP accomplishes that.
 
+## [Notes](#notes)
+
+> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not yet encountered any bugs that I have not fixed already yet so ... fingers crossed!
+> WinGT
 ---
 
 ## [Install](#install)

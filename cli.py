@@ -1,3 +1,4 @@
+import paths
 import modules.persistence as persistence
 import openai
 import modules.debug as dbg
@@ -12,12 +13,13 @@ class OpenAIInterface:
         self.log = logger.LogManager()
         self.config = persistence.Persistence()
         self.config.openConfig()
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = self.config.getOption("system", "config_dir")
-        self.LOGS_DIR = self.config.getOption("system", "logs_dir")
-        self.TMP_DIR = self.config.getOption("system", "tmp_dir")
-        self.USER_SETTINGS_FILE = self.config.getOption("system", "config_file")
-        self.KEY_CONFIG_FILE = self.config.getOption("user", "api_key_path")
+        
+        self.CURRENT_PATH = paths.CURRENT_PATH
+        self.CONFIG_DIR = paths.CONFIG_DIR
+        self.LOGS_DIR = paths.LOGS_DIR
+        self.TMP_DIR = paths.TMP_DIR
+        self.USER_SETTINGS_FILE = paths.USER_SETTINGS_FILE
+        self.KEY_CONFIG_FILE = paths.KEY_CONFIG_FILE
         
         self.setAPIKeyPath(self.KEY_CONFIG_FILE)
         
@@ -665,13 +667,20 @@ class OpenAIInterface:
         _response = self.response.choices[0].text.strip() 
         return _response  
     
+    def createTempTranscriptFile(self, _transcript) -> bool:
+        self.stdops.createFile(f"{paths.TMP_TRANSCRIPT_FILE}")
+        if self.stdops.writeTofile(f"{paths.TMP_TRANSCRIPT_FILE}", _transcript, "w"):
+            return True
+        return False     
+    
     def getTranscriptResponse(self) -> str:
         _response = self.response
+        self.createTempTranscriptFile(str(_response))
         return _response
     
     def createTempURLFile(self, _url) -> bool:
-        self.stdops.createFile(f"{self.TMP_DIR}\\img_url.tmp")
-        if self.stdops.writeTofile(f"{self.TMP_DIR}\\img_url.tmp", _url, "w"):
+        self.stdops.createFile(f"{paths.TMP_IMAGE_URL_FILE}")
+        if self.stdops.writeTofile(f"{paths.TMP_IMAGE_URL_FILE}", _url, "w"):
             return True
         return False        
 
@@ -685,8 +694,8 @@ class OpenAIInterface:
         return _image_url
     
     def createTempEmbeddingsFile(self, _embedding: str) -> bool:
-        self.stdops.createFile(f"{self.TMP_DIR}\\embedding.tmp")
-        if self.stdops.writeTofile(f"{self.TMP_DIR}\\embedding.tmp", _embedding, "w"):
+        self.stdops.createFile(f"{paths.TMP_EMBEDDINGS_FILE}")
+        if self.stdops.writeTofile(f"{paths.TMP_EMBEDDINGS_FILE}", _embedding, "w"):
             return True
         return False
     

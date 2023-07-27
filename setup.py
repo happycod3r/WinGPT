@@ -1,3 +1,4 @@
+import paths
 import customtkinter
 import modules.persistence as persistence
 import modules.stdops as stdops
@@ -18,15 +19,15 @@ class Setup(customtkinter.CTk):
         self.stdops = stdops.StdOps()
         self.config = persistence.Persistence()
         
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
-        self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
-        self.TMP_DIR = f"{self.CURRENT_PATH}\\tmp"
-        self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
-        self.CHAT_LOG_FILE = f"{self.LOGS_DIR}\\chat.log"
-        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
-        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
-        self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
+        self.CURRENT_PATH = paths.CURRENT_PATH
+        self.CONFIG_DIR = paths.CONFIG_DIR
+        self.LOGS_DIR = paths.LOGS_DIR
+        self.TMP_DIR = paths.TMP_DIR
+        self.SYSTEM_LOG_FILE = paths.SYSTEM_LOG_FILE
+        self.CHAT_LOG_FILE = paths.CHAT_LOG_FILE
+        self.USER_SETTINGS_FILE = paths.USER_SETTINGS_FILE
+        self.KEY_CONFIG_FILE = paths.KEY_CONFIG_FILE
+        self.SETUP_DONE_FLAG_FILE = paths.SETUP_DONE_FLAG_FILE
         
         self.USERNAME = None
         self.API_KEY = None
@@ -42,7 +43,7 @@ class Setup(customtkinter.CTk):
         self.geometry(f"{self.width}x{self.height}")
         self.resizable(False, False)
     
-        self.bg_image = customtkinter.CTkImage(Image.open(self.CURRENT_PATH + "\\images\\openai_dark.png"), size=(self.width, self.height))
+        self.bg_image = customtkinter.CTkImage(Image.open(f"{paths.SETUP_BG_IMAGE}"), size=(self.width, self.height))
         self.bg_image_label = customtkinter.CTkLabel(self, image=self.bg_image)
         self.bg_image_label.grid(row=0, column=0)
 
@@ -168,15 +169,6 @@ class Setup(customtkinter.CTk):
         return False
         
     def rollBackSetup(self) -> None:
-        # self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        # self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
-        # self.LOGS_DIR = f"{self.CURRENT_PATH}\\logs"
-        # self.TMP_DIR = f"{self.CURRENT_PATH}\\tmp"
-        # self.SYSTEM_LOG_FILE = f"{self.LOGS_DIR}\\system.log"
-        # self.CHAT_LOG_FILE = f"{self.LOGS_DIR}\\chat.log"
-        # self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
-        # self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
-        # self.SETUP_DONE_FLAG_FILE = f"{self.CONFIG_DIR}\\.setup.flag"
         print("Setup failed. Rolling back changes")
         try:
             if os.path.exists(self.SETUP_DONE_FLAG_FILE):

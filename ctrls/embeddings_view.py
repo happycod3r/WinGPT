@@ -1,3 +1,4 @@
+import paths
 import tkinter as tk
 import customtkinter as ctk
 import os
@@ -10,8 +11,7 @@ class EmbeddingsView(ctk.CTkScrollableFrame):
         super().__init__(*args, **kwargs)
         self.cli = cli.OpenAIInterface()
         self.stdops = stdops.StdOps()
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.TMP_EMBEDDINGS_FILE = f"{self.CURRENT_PATH}\\..\\tmp\\embedding.tmp" 
+        self.TMP_EMBEDDINGS_FILE = paths.TMP_EMBEDDINGS_FILE 
         
         self.configure(
             bg_color="transparent",

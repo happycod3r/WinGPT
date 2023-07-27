@@ -16,7 +16,6 @@ class ImageForm(ctk.CTkScrollableFrame):
         self.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
         self.grid_columnconfigure(0, weight=1)
         
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
         self._config = persistence.Persistence()
         self.cli = cli.OpenAIInterface()
     

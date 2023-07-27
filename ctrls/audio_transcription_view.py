@@ -5,14 +5,14 @@ import os
 import modules.persistence as persistence
 import cli
 import modules.stdops as stdops
+import paths
 
 class AudioTranscriptionView(ctk.CTkScrollableFrame):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cli = cli.OpenAIInterface()
         self.stdops = stdops.StdOps()
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.TMP_EMBEDDINGS_FILE = f"{self.CURRENT_PATH}\\..\\tmp\\embedding.tmp" 
+        self.TMP_TRANSCRIPT_FILE = paths.TMP_TRANSCRIPT_FILE 
         self.audio_file_path = None
         
         self.configure(
@@ -55,7 +55,7 @@ class AudioTranscriptionView(ctk.CTkScrollableFrame):
 
     def copyTranscript(self):
         try:
-            selected_text = self.object_output.get("1.0", tk.END)
+            selected_text = self.transcript_output.get("1.0", tk.END)
             self.clipboard_clear()
             self.clipboard_append(selected_text)
         except Exception as e:
@@ -68,7 +68,7 @@ class AudioTranscriptionView(ctk.CTkScrollableFrame):
         # because ultimately this is a bad approach as the user may not want to
         # lose that data even if they did copy it. For now though this works.
         # Lag is just that bad.
-        self.stdops.writeTofile(self.TMP_EMBEDDINGS_FILE, " ")
+        self.stdops.writeTofile(self.TMP_TRANSCRIPT_FILE, " ")
      
     def openFileDialog(self) -> (str | bool):
         file_path = filedialog.askopenfilename()

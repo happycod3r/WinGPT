@@ -1,3 +1,4 @@
+import paths
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import simpledialog
@@ -33,13 +34,15 @@ class WinGTPGUI(ctk.CTk):
         self._config = persistence.Persistence()
         self._config.openConfig()
         
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\config"
-        self.GUI_SHOWN_FLAG_FILE = f"{self.CONFIG_DIR}\\.gui.flag"
+        self.CURRENT_PATH = paths.CURRENT_PATH
+        self.CONFIG_DIR = paths.CONFIG_DIR
+        self.GUI_SHOWN_FLAG_FILE = paths.GUI_SHOWN_FLAG_FILE
+        
         self.NEW_USER = self._config.getOption("system", "new_user")
         self.USER = self._config.getOption("user", "username")
         self.API_KEY = self._config.getOption("user", "api_key")
-        self.API_KEY_PATH = self._config.getOption("user", "api_key_path")
+        
+        self.KEY_CONFIG_FILE = paths.KEY_CONFIG_FILE
 
         #//////////// SETTINGS ////////////
         self._OUTPUT_COLOR = f"{self._config.getOption('ui', 'color')}"
@@ -66,7 +69,7 @@ class WinGTPGUI(ctk.CTk):
         
         self.nt = normaltime.NormalTime()
         self.cli = OpenAIInterface()
-        self.cli.setAPIKeyPath(self.API_KEY_PATH)
+        self.cli.setAPIKeyPath(self.KEY_CONFIG_FILE)
         
         self.commands = [
             'exit', # exit the chat session.
@@ -549,7 +552,7 @@ class WinGTPGUI(ctk.CTk):
         self._config.saveConfig()
         self.setGUIShownFlag()
         if self.REQUEST_TYPE == 0:
-            self.setOutput(self.cli.greetUser(self.USER, self.API_KEY_PATH), "chat")
+            self.setOutput(self.cli.greetUser(self.USER, self.KEY_CONFIG_FILE), "chat")
         elif self.REQUEST_TYPE == 1:
             self.setOutput("Commencing image requests ...")
         elif self.REQUEST_TYPE == 2:

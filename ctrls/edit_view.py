@@ -11,7 +11,7 @@ class EditView(ctk.CTkScrollableFrame):
         super().__init__(*args, **kwargs)
         self.cli = cli.OpenAIInterface()
         self.stdops = stdops.StdOps()
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+    
         self.file_path = None
         
         self.configure(

@@ -1,13 +1,13 @@
 import configparser
+import paths
 import os
 
 
 class Persistence():
     def __init__(self) -> None:
-        self.CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-        self.CONFIG_DIR = f"{self.CURRENT_PATH}\\..\\config"
-        self.KEY_CONFIG_FILE = f"{self.CONFIG_DIR}\\.api_key.ini"
-        self.USER_SETTINGS_FILE = f"{self.CONFIG_DIR}\\settings.ini"
+        self.CONFIG_DIR = f"{paths.CONFIG_DIR}"
+        self.KEY_CONFIG_FILE = f"{paths.KEY_CONFIG_FILE}"
+        self.USER_SETTINGS_FILE = f"{paths.USER_SETTINGS_FILE}"
         
         self.config = configparser.ConfigParser()
         
