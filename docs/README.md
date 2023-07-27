@@ -8,6 +8,11 @@
 
 - [WinGPT v1.0.0](#wingpt-v100)
   - [About](#about)
+    - [Cross-platform:](#cross-platform)
+    - [Full-featured:](#full-featured)
+    - [Control all api settings](#control-all-api-settings)
+    - [Persistent Settings](#persistent-settings)
+    - [Personalizaion Settings](#personalizaion-settings)
   - [Notes](#notes)
   - [Install](#install)
     - [Manual Install](#manual-install)
@@ -26,23 +31,31 @@
 
 ## [About](#about)
 
-* WinGTP is a free, cross-platform, full-featured and fully functional GUI implementation of the OpenAI API built purely with Python. 
+### Cross-platform: 
+Because WinGTP is built purely in Python, it will work on Windows, Mac and Linux.
+
+### Full-featured:
 
 * Chat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, q&a, summarization and code generation are all available and easy to use. 
 
-* You can switch between all available engines using a simple drop down menu and you can also easily control all available parameters such as: temperature, max tokens, response count, best of, frequency & presence penalty, timeout etc. from a modern gui to easily adjust responses.
-
+### Control all api settings
+* Switch between all available engines using a simple drop down menu.
+* Easily control all available parameters such as: temperature, max tokens, response count, best of, frequency & presence penalty, timeout, user etc. from a modern gui to easily adjust responses.
 * Use user defined data files, and jsonl data files. 
-
 * View and change other settings like api_type, api_base and api_version.  
+* Stream, echo, or save chat at any time.
+* Create chat stop lists. 
 
-* Stream, echo, save and use chat stop lists. 
-
-* Your api key is stored so you only need to enter it once during setup and it will persist and be automatically loaded on next startup. If you generate a new key you can easily switch and store the new one. 
+### Persistent Settings
+* Your api key is stored so you only need to enter it once during setup and it will be automatically loaded on next startup. 
+* If you have multiple api keys, you can easily switch between them. 
 
 * Organization settings are also available to control which organization is used by default when making requests with your API keys       
 
-* Light, Dark & System themes available as well as color settings and ui scaling.
+### Personalizaion Settings
+* Light, Dark & System themes are currently available. 
+* Easily change the color of the output and accent of the gui controls.
+* UI scaling options are also available 
 
 * This is just version 1 of many updates to come still so the gui will improve vastly in the very near future. I'm a one man show and really wanted to focus on functionality and wrapping 
 the gui around the openai. I wanted to create a 1|1 wrapper around the api and I think WinGTP accomplishes that.
@@ -51,7 +64,8 @@ the gui around the openai. I wanted to create a 1|1 wrapper around the api and I
 
 ## [Notes](#notes)
 
-> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not encountered any bugs that I have not fixed already yet so ... fingers crossed it stays that way!
+> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not encountered any bugs that I have not fixed already yet so ... fingers crossed it stays that way! 
+> Any feedback is always appreciated. I started this from scratch over the past two weeks so there is still a ton to do.
 
 ---
 
