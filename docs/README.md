@@ -36,6 +36,8 @@
 
 * View and change other settings like api_type, api_base and api_version.  
 
+* Stream, echo, save and use chat stop lists. 
+
 * Your api key is stored so you only need to enter it once during setup and it will persist and be automatically loaded on next startup. If you generate a new key you can easily switch and store the new one. 
 
 * Organization settings are also available to control which organization is used by default when making requests with your API keys       
@@ -45,10 +47,12 @@
 * This is just version 1 of many updates to come still so the gui will improve vastly in the very near future. I'm a one man show and really wanted to focus on functionality and wrapping 
 the gui around the openai. I wanted to create a 1|1 wrapper around the api and I think WinGTP accomplishes that.
 
+![](./res/wingtp-hello-example.gif)
+
 ## [Notes](#notes)
 
-> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not yet encountered any bugs that I have not fixed already yet so ... fingers crossed!
-> WinGT
+> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not encountered any bugs that I have not fixed already yet so ... fingers crossed it stays that way!
+
 ---
 
 ## [Install](#install)
