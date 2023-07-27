@@ -1,11 +1,10 @@
 # WinGPT v1.0.0
 
-# Term-Lock v1.0.0
-
-> WinGTP is a fully functional, full-featured GUI implementation of the OpenAI API
+> WinGTP is a cross-platform, fully functional, full-featured GUI implementation of the OpenAI API.
+> You need a free OpenAI API key to use WinGTP. If you don't already have 
+> one you can find one at [https://openai.com/](https://openai.com/) 
 
 - [WinGPT v1.0.0](#wingpt-v100)
-- [Term-Lock v1.0.0](#term-lock-v100)
   - [About](#about)
   - [Install](#install)
     - [Manual Install](#manual-install)
@@ -24,7 +23,24 @@
 
 ## [About](#about)
 
+* WinGTP is a free, cross-platform, full-featured and fully functional GUI implementation of the OpenAI API built purely with Python. 
 
+* Chat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, q&a, summarization and code generation are all available and easy to use. 
+
+* You can switch between all available engines using a simple drop down menu and you can also easily control all available parameters such as: temperature, max tokens, response count, best of, frequency & presence penalty, timeout etc. from a modern gui to easily adjust responses.
+
+* Use user defined data files, and jsonl data files. 
+
+* View and change other settings like api_type, api_base and api_version.  
+
+* Your api key is stored so you only need to enter it once during setup and it will persist and be automatically loaded on next startup. If you generate a new key you can easily switch and store the new one. 
+
+* Organization settings are also available to control which organization is used by default when making requests with your API keys       
+
+* Light, Dark & System themes available as well as color settings and ui scaling.
+
+* This is just version 1 of many updates to come still so the gui will improve vastly in the very near future. I'm a one man show and really wanted to focus on functionality and wrapping 
+the gui around the openai. I wanted to create a 1|1 wrapper around the api and I think WinGTP accomplishes that.
 
 ---
 
@@ -32,11 +48,12 @@
 
 To download and use WinGTP follow choose an install method and follow the corresponding steps. Once fininshed jump to the [Usage](#usage) section.
 
+> You need a free OpenAI API key to finish the setup. If you don't already have 
+> one you can find one at [https://openai.com/](https://openai.com/) 
+
 ### [Manual Install](#manual_install) 
 
-1. Download and place the ***WinGTP*** folder in a location of your choosing.
-2. You need a free OpenAI API key to finish the setup. If you don't already have 
-one you can find one at [https://openai.com/](https://openai.com/) 
+1. Simply download and place the ***WinGTP*** folder in a location of your choosing.
 
 ### [Command Line Install](#command_line_install)
 
@@ -60,17 +77,35 @@ git clone https://github.com/happycod3r/WinGTP.git
 cd where/I/want/to/install
 ```
 
-2) Paste the following line into your terminal and press the `Enter (^M)` key:
+2) Paste the following line into your terminal and press the `Enter` key:
 ```bash
 curl https://github.com/happycod3r/WinGTP.git
 ```
 
 ## [Usage](#usage)
 
+1) All you need to do is run `wingtp-0.1.0.bat` by double-clicking the file.
+> Notice! When running the `wingtp-0.1.0.bat` file, Windows security might alert you
+> about the file being unsafe. This can be ignored as it is completely safe. This file
+> simply runs the `init.py` file using the `python` command which starts WinGTP.
+
+```bash
+# wingtp-0.1.0.bat
+python "./init.py"
+``` 
+
 ### [python](#python)
 
 1) WinGTP was built using Python 3.11 so make sure you are using the same or newer.
-2) All you need to do is run the 
+2) In your terminal navigate to the WinGTP root directory.
+```bash
+cd WinGTP
+```
+3) Finally, run the following command to start WinGTP:
+
+```bash
+python init.py
+```
 
 ## [Notes](#notes) 
 
