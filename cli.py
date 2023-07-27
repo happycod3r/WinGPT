@@ -68,7 +68,8 @@ class OpenAIInterface:
             "sentement": 9,
             "qa": 10,
             "summarization": 11,
-            "code_gen": 12
+            "code_gen": 12,
+            "edits": 13
         }
         self.request_type = int(self.config.getOption("chat", "request_type"))
         self.request = "What's todays date?"
@@ -77,9 +78,17 @@ class OpenAIInterface:
         self.use_img_var = int(self.config.getOption("image_requests", "use_variation"))
         self.use_img_new = int(self.config.getOption("image_requests", "use_new"))
         self.image_response_format = self.config.getOption("image_requests", "response_format")
+        self.audio_file = self.config.getOption("audio_transcription", "audio_file")
+        self.instruction = self.config.getOption("edits", "instruction")
         self.config.saveConfig()
     
-        
+    #//////////// USERNAME ////////////
+    def getUserName(self):
+        pass
+    
+    def setUsername(self, _user):
+        pass
+    
     #//////////// API KEY ////////////
     def getAPIKeyPath(self, oai: bool = True) -> str:
         if oai:
@@ -444,6 +453,24 @@ class OpenAIInterface:
         self.config.openConfig()
         self.config.setOption("image_requests", "use_new", int(_use_new))
         self.config.saveConfig()
+    
+    #//////////// AUDIO ////////////
+    def getAudioFiles(self) -> str:
+        return self.audio_file
+    
+    def setAudioFile(self, _audio_file: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("audio_transcription", "audio_file", _audio_file)
+        self.config.saveConfig()
+        
+    #//////////// EDIT ////////////
+    def getInstruction(self) -> str:
+        return self.audio_file
+    
+    def setInstruction(self, _audio_file: str) -> None:
+        self.config.openConfig()
+        self.config.setOption("edits", "instruction", _audio_file)
+        self.config.saveConfig()
         
     #//////////// REQUEST TYPE ////////////
     def getRequestType(self) -> int:
@@ -531,29 +558,35 @@ class OpenAIInterface:
                     
             #//////////// AUDIO ////////////
             elif self.request_type == 2:
-                pass
+                _audio_file = open(self.audio_file, "rb")
+                _response = openai.Audio.transcribe(
+                    self.engine,        # "whisper-1", 
+                    _audio_file
+                )
             #//////////// EMBEDDINGS ////////////
             elif self.request_type == 3:
                 _response = openai.Embedding.create(
-                    model="text-embedding-ada-002",
+                    model=self.engine,              # "text-embedding-ada-002",
                     input=self.request,
                     user=self.username
                 )
                 
             #//////////// FILES ////////////
             elif self.request_type == 4:
-                pass
+                _response = openai.File.list()
             #//////////// FINE-TUNING ////////////
             elif self.request_type == 5:
                 pass
             #//////////// MODERATIONS ////////////
             elif self.request_type == 6:
-                pass
+                _response = openai.Moderation.create(
+                    input=self.request,
+                )
             #//////////// BUILD REQUESTS ////////////
             elif self.request_type == 7:
                 pass
             
-            #//////////// TRANSLATIONS ////////////
+            #//////////// TRANSLATIONS //   //////////
             elif self.request_type == 8:
                 lang1 = self.config.getOption("translations", "lang1")
                 lang2 = self.config.getOption("translations", "lang2")
@@ -608,6 +641,16 @@ class OpenAIInterface:
                     user=self.username
                 )
                 
+            #//////////// EDITS ////////////
+            elif self.request_type == 13:
+                _response = openai.Edit.create(
+                    model=self.engine,
+                    input=self.request,
+                    instruction=f"{self.instruction} and don't change the original text.",
+                    n=self.response_count,
+                    temperature=1
+                )
+                
             self.response = _response
             
         except openai.APIError:
@@ -619,20 +662,22 @@ class OpenAIInterface:
     
     #//////////// RESPONSES ////////////
     def getResponse(self) -> str:
-        """
-            Gets the stored response from openai and returns the response 
-            message as a string.
-        Returns:
-            str: The response message
-        """
         _response = self.response.choices[0].text.strip() 
         return _response  
+    
+    def getTranscriptResponse(self) -> str:
+        _response = self.response
+        return _response
     
     def createTempURLFile(self, _url) -> bool:
         self.stdops.createFile(f"{self.TMP_DIR}\\img_url.tmp")
         if self.stdops.writeTofile(f"{self.TMP_DIR}\\img_url.tmp", _url, "w"):
             return True
         return False        
+
+    def getFilesResponse(self) -> str:
+        _response = self.response
+        return _response
 
     def getImageURLResponse(self) -> str:
         _image_url = self.response['data'][0]['url']
@@ -650,6 +695,14 @@ class OpenAIInterface:
         self.createTempEmbeddingsFile(str(_response["embedding"]))
         return _response["embedding"]
         
+    def getModerationResponse(self) -> str:
+        _response = self.response["results"]
+        return _response
+    
+    def getEditResponse(self) -> str:
+        _response = self.response["choices"][0]["text"]
+        return _response
+    
     #//////////// UTILITY METHODS ////////////
     def _help(self) -> None:
         """

@@ -57,10 +57,6 @@ class EmbeddingsView(ctk.CTkScrollableFrame):
         # lose that data even if they did copy it. For now though this works.
         # Lag is just that bad.
         self.stdops.writeTofile(self.TMP_EMBEDDINGS_FILE, " ")
-                
-            
-            
-
     
     def loadEmbedding(self):
         _embed = self.stdops.readFromFile(self.TMP_EMBEDDINGS_FILE)

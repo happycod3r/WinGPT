@@ -128,6 +128,10 @@ class Setup(customtkinter.CTk):
         self.config.addOption("image_requests", "mask_path", None)
         self.config.addOption("image_requests", "img_size", "256x256")
         self.config.addOption("image_requests", "response_format", "url")
+        self.config.addSection("audio_transcription")
+        self.config.addOption("audio_transcription", "audio_file", None)
+        self.config.addSection("edits")
+        self.config.addOption("edits", "instruction", None)
         
         if self.config.saveConfig():
             return True

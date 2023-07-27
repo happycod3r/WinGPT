@@ -14,6 +14,8 @@ from ctrls import translation_form as tf
 from ctrls import qa_form as qaf
 from ctrls import image_form as imgf
 from ctrls import embeddings_view as ev
+from ctrls import edit_view as edv
+from ctrls import audio_transcription_view as atv
 from PIL import Image
 import sys
 import os 
@@ -278,6 +280,12 @@ class WinGTPGUI(ctk.CTk):
         #//////////// EMBEDDINGS VIEW ////////////
         self.embeddings_view = ev.EmbeddingsView(self)
         
+        #//////////// AUDIO TRANSCRIPTION VIEW ////////////
+        self.transcriptions_view = atv.AudioTranscriptionView(self)
+        
+        #//////////// EDIT VIEW ////////////
+        self.edit_view = edv.EditView(self)
+        
         #//////////// OUTPUT TEMPERATURE RADIO GROUP ////////////            
         self.output_temp_radiobutton_frame = ctk.CTkScrollableFrame(self)
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
@@ -514,6 +522,15 @@ class WinGTPGUI(ctk.CTk):
         )
         self.code_gen_radio_btn.grid(row=13, column=0, pady=(20, 0), padx=20, sticky="nw")
         
+        self.edit_radio_btn = ctk.CTkRadioButton(
+            master=self.output_request_type_radio_group,
+            text="Edits",
+            variable=self.request_type_radio_var,
+            value=self.cli.request_types["edits"],
+            command=self.request_type_radio_btn_selected    
+        )
+        self.edit_radio_btn.grid(row=14, column=0, pady=(20, 0), padx=20, sticky="nw")
+        
         
         #//////////// DEFAULT VALUES ////////////
         self.sidebar_username_btn.configure(state="normal", text=" Username")
@@ -557,6 +574,8 @@ class WinGTPGUI(ctk.CTk):
             self.setOutput("Commencing summarization ...")
         elif self.REQUEST_TYPE == 12:
             self.setOutput("Commencing code generation ...")
+        elif self.REQUEST_TYPE == 13:
+            self.setOutput("Commencing edits ...")
         
         #//////////// GUI METHODS ////////////
 
@@ -677,6 +696,9 @@ class WinGTPGUI(ctk.CTk):
             self.request_type_radio_btn_selected()
         elif _request_type == 12:
             self.code_gen_radio_btn.select()
+            self.request_type_radio_btn_selected()
+        elif _request_type == 13:
+            self.edit_radio_btn.select()
             self.request_type_radio_btn_selected()
             
         self.engine_option_menu.set(self._config.getOption("chat", "chat_engine"))
@@ -923,6 +945,8 @@ class WinGTPGUI(ctk.CTk):
         self.qa_form.grid_forget()
         self.img_form.grid_forget()
         self.embeddings_view.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid_forget()
         self.output_temp_radiobutton_frame.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openLanguageTranslationForm(self):
@@ -930,6 +954,8 @@ class WinGTPGUI(ctk.CTk):
         self.qa_form.grid_forget()
         self.img_form.grid_forget()
         self.embeddings_view.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid_forget()
         self.translation_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openQAForm(self):
@@ -937,6 +963,8 @@ class WinGTPGUI(ctk.CTk):
         self.translation_form.grid_forget()
         self.img_form.grid_forget()
         self.embeddings_view.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid_forget()
         self.qa_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         
     def openImageForm(self):
@@ -944,6 +972,8 @@ class WinGTPGUI(ctk.CTk):
         self.translation_form.grid_forget()
         self.qa_form.grid_forget()
         self.embeddings_view.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid_forget()
         self.img_form.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
        
     def openEmbeddingsView(self):
@@ -951,8 +981,28 @@ class WinGTPGUI(ctk.CTk):
         self.translation_form.grid_forget()
         self.qa_form.grid_forget()
         self.img_form.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid_forget()
         self.embeddings_view.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
          
+    def openTranscriptionsView(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.translation_form.grid_forget()
+        self.qa_form.grid_forget()
+        self.img_form.grid_forget()
+        self.embeddings_view.grid_forget()
+        self.edit_view.grid_forget()
+        self.transcriptions_view.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+     
+    def openEditView(self):
+        self.output_temp_radiobutton_frame.grid_forget()
+        self.translation_form.grid_forget()
+        self.qa_form.grid_forget()
+        self.img_form.grid_forget()
+        self.embeddings_view.grid_forget()
+        self.transcriptions_view.grid_forget()
+        self.edit_view.grid(row=0, column=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
+     
     def request_type_radio_btn_selected(self):
         selected_value = self.request_type_radio_var.get()
         if selected_value == self.cli.request_types["chat"]:
@@ -970,6 +1020,7 @@ class WinGTPGUI(ctk.CTk):
         elif selected_value == self.cli.request_types["audio"]:
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
+            self.openTranscriptionsView()
             self.setOutput(f"Request type set to: ({selected_value}) Audio", "cli")
             
         elif selected_value == self.cli.request_types["embeddings"]:
@@ -1024,6 +1075,12 @@ class WinGTPGUI(ctk.CTk):
             self.cli.setRequestType(selected_value)
             self.REQUEST_TYPE = selected_value
             self.setOutput(f"Request type set to: ({selected_value}) Code Generation", "cli")
+        
+        elif selected_value == self.cli.request_types["edits"]:
+            self.cli.setRequestType(selected_value)
+            self.REQUEST_TYPE = selected_value
+            self.openEditView()
+            self.setOutput(f"Request type set to: ({selected_value}) Edits", "cli")
     
     def output_temp_radio_btn_selected(self, _initial: bool = False) -> bool:
         selected_value = self.output_temp_radio_var.get()
@@ -1225,15 +1282,15 @@ class WinGTPGUI(ctk.CTk):
         elif self.REQUEST_TYPE == self.cli.request_types["images"]:
             response = self.cli.getImageURLResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["audio"]:
-            print("Response type not implemented in gui.py/processQueryRequest()")
+            response = self.cli.getTranscriptResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["embeddings"]:
             response = self.cli.getEmbeddingsResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["files"]:
-            print("Response type not implemented in gui.py/processQueryRequest()")
+            response = self.cli.getFilesResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["fine_tuning"]:
             print("Response type not implemented in gui.py/processQueryRequest()")
         elif self.REQUEST_TYPE == self.cli.request_types["moderations"]:
-            print("Response type not implemented in gui.py/processQueryRequest()")
+            response = self.cli.getModerationResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["build_requests"]:
             print("Response type not implemented in gui.py/processQueryRequest()")
         elif self.REQUEST_TYPE == self.cli.request_types["translation"]:
@@ -1246,6 +1303,9 @@ class WinGTPGUI(ctk.CTk):
             response = self.cli.getResponse()
         elif self.REQUEST_TYPE == self.cli.request_types["code_gen"]:
             response = self.cli.getResponse()
+        elif self.REQUEST_TYPE == self.cli.request_types["edits"]:
+            response = self.cli.getEditResponse()
+            
         self.clearInput()
         self.setOutput(request, "user")
         self.setOutput(response, "chat")
@@ -1303,22 +1363,30 @@ class WinGTPGUI(ctk.CTk):
             self.setOutput(self.cli._help.__doc__, "cli")
     
     def process_input(self) -> None:
+        request_type = self.cli.request_type
         request = self.getUserInput()
         query_request = request["query"]
         command_request = request["command"]
+        if len(query_request) == 0 and request_type == 2:
+            self.processQueryRequest(" ")
+            return True
+        if request_type == 4:
+            self.processQueryRequest(" ")
+            return True
         if len(query_request) != 0:
             self.processQueryRequest(query_request)
+            return True
         if len(command_request) != 0:
             self.processCommandRequest(command_request)
+            return True
         if len(command_request) != 0 and len(query_request) != 0:
             self.processCommandRequest(command_request)
             self.processQueryRequest(query_request)
+            return True
         if len(query_request) == 0 and len(command_request) == 0:
             self.setOutput(f" \
 Try entering text into the chat window to receive a reponse.\n \
 Or you can use one of the following commands by entering one\n \
 into the command input under the chat window.\n \
 {self.cli._help.__doc__}", "cli")
-
-
-    
+            return False    
