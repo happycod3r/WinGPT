@@ -4,7 +4,10 @@ config/.api_key.ini
 _dev/
 _tmp/
 config/
-notes
+_pycache_/
+.vscode/
+notes/
+res/
 *.back
 *.backup
 *.test
@@ -14,6 +17,4 @@ notes
 *.flag
 tempCodeRunnerFile.*
 None
-_pycache_/
-.vscode/
 *.swp

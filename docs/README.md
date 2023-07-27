@@ -21,6 +21,8 @@
 
 ---
 
+![wingtp](../res/wingtp.gif)
+
 ## [About](#about)
 
 * WinGTP is a free, cross-platform, full-featured and fully functional GUI implementation of the OpenAI API built purely with Python. 
@@ -53,7 +55,7 @@ To download and use WinGTP follow choose an install method and follow the corres
 
 ### [Manual Install](#manual_install) 
 
-1. Simply download and place the ***WinGTP*** folder in a location of your choosing.
+1. Simply download and place the ***WinGTP*** folder in a location of your choosing then follow one of the methods in the [Usage](#usage) section to get started.
 
 ### [Command Line Install](#command_line_install)
 
