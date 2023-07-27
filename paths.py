@@ -21,3 +21,4 @@ TMP_TRANSCRIPT_FILE = os.path.join(TMP_DIR, "transcript.tmp")
 TMP_IMAGE_URL_FILE = os.path.join(TMP_DIR, "img_url.tmp")
 
 SETUP_BG_IMAGE = os.path.join(IMAGES_DIR, "openai_dark.png")
+GUI_SIDEBAR_LOGO = os.path.join(IMAGES_DIR, "wingtp-alpha-trimmed.png")

@@ -107,8 +107,11 @@ class WinGTPGUI(ctk.CTk):
         self.sidebar.configure(corner_radius=4)
         
         #//////////// SIDEBAR LOGO ////////////
-        self.sidebar_logo = ctk.CTkLabel(self.sidebar, text="WinGTP v0.1.0", font=ctk.CTkFont(size=20, weight="bold"))
-        self.sidebar_logo.grid(row=0, column=0, padx=20, pady=(20, 10))
+        
+        self.logo = ctk.CTkImage(Image.open(f"{paths.GUI_SIDEBAR_LOGO}"), size=(140, 70))
+        
+        self.sidebar_logo = ctk.CTkLabel(self.sidebar, image=self.logo, text=None)
+        self.sidebar_logo.grid(row=0, column=0, padx=0, pady=(20, 10))
         
         #//////////// USERNAME BUTTON ////////////
         self.sidebar_username_btn = ctk.CTkButton(self.sidebar, command=self.sidebar_username_btn_event)
