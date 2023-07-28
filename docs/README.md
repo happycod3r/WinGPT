@@ -118,7 +118,9 @@ now is Python and an api key from
 ## [Usage](#usage)
 
 ### [OpenAI API Key](#openai-api-key)
-**Any API keys used in these examples will be deleted immediately after!!!**
+
+**!!!Any API keys used in these examples were deleted immediately after!!!**
+
 This step is really important to setup in order to use WinGTP. Since the application 
 is wrapped around the Python `openai` module heavily you need an OpenAI api key to use it. 
 You can easily obtain a free api key by following the next few steps.
@@ -127,6 +129,7 @@ You can easily obtain a free api key by following the next few steps.
 manually or continue using **Google** or any other option for the quickest setup.
 
 ![setup1](./res/setup1.gif)
+---
 
 2) Once you have an account created click on your profile picture and then **"View API Keys"**.
 
