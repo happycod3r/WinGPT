@@ -8,6 +8,7 @@ class CustomTkFrame(ctk.CTkFrame):
         super().__init__(*args, **kwds)
         self.configure(
             bg_color="transparent",
+            fg_color="transparent",
             border_width=0,
-            corner_radius=0
+            corner_radius=0,
         )

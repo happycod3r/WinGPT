@@ -1,8 +1,6 @@
-import sys
 import os
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-PARENT_DIR = os.path.join(CURRENT_PATH, os.pardir)
 CONFIG_DIR = os.path.join(CURRENT_PATH, "config")
 LOGS_DIR = os.path.join(CURRENT_PATH, "logs")
 IMAGES_DIR = os.path.join(CURRENT_PATH, "images")

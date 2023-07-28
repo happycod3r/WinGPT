@@ -42,15 +42,15 @@ class Setup(customtkinter.CTk):
         self.title("Wingtp & OpenAI Setup")
         self.geometry(f"{self.width}x{self.height}")
         self.resizable(False, False)
-    
+        
         self.bg_image = customtkinter.CTkImage(Image.open(f"{paths.SETUP_BG_IMAGE}"), size=(self.width, self.height))
         self.bg_image_label = customtkinter.CTkLabel(self, image=self.bg_image)
         self.bg_image_label.grid(row=0, column=0)
 
-        self.setup_frame = ctkframe.CustomTkFrame(self)
+        self.setup_frame = ctkframe.CustomTkFrame(self, bg_color="transparent", fg_color="transparent")
         self.setup_frame.grid(row=0, column=0, sticky="ns")
         
-        self.setup_label = customtkinter.CTkLabel(self.setup_frame, text="WinGTP Setup", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.setup_label = customtkinter.CTkLabel(self.setup_frame, text="WinGTP 0.1.0", font=customtkinter.CTkFont(size=28, weight="bold"))
         self.setup_label.grid(row=0, column=0, padx=30, pady=(150, 15))
         
         self.username_entry = customtkinter.CTkEntry(self.setup_frame, width=200, placeholder_text="username")

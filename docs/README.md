@@ -12,7 +12,7 @@
     - [Full-featured:](#full-featured)
     - [Control all api settings](#control-all-api-settings)
     - [Persistent Settings](#persistent-settings)
-    - [Personalizaion Settings](#personalizaion-settings)
+    - [Personalization Settings](#personalization-settings)
   - [Notes](#notes)
   - [Install](#install)
     - [Manual Install](#manual-install)
@@ -20,7 +20,9 @@
       - [Using Git Clone:](#using-git-clone)
       - [Using Curl:](#using-curl)
   - [Usage](#usage)
-    - [python](#python)
+    - [OpenAI API Key](#openai-api-key)
+    - [Running WinGTP](#running-wingtp)
+      - [python](#python)
   - [Notes](#notes-1)
   - [Contributing](#contributing)
   - [Security](#security)
@@ -31,28 +33,28 @@
 
 ## [About](#about)
 
-### Cross-platform: 
-Because WinGTP is built purely in Python, it will work on Windows, Mac and Linux.
+### [Cross-platform](#cross-platform): 
+Because WinGTP is built purely in Python, it will work on Windows, Mac and Linux operating systems.
 
-### Full-featured:
+### [Full-featured](#full-featured):
 
 * Chat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, q&a, summarization and code generation are all available and easy to use. 
 
-### Control all api settings
-* Switch between all available engines using a simple drop down menu.
+### [Control all api settings](#control-all-api-settings)
+* Switch between all available models using a simple drop down menu.
 * Easily control all available parameters such as: temperature, max tokens, response count, best of, frequency & presence penalty, timeout, user etc. from a modern gui to easily adjust responses.
 * Use user defined data files, and jsonl data files. 
 * View and change other settings like api_type, api_base and api_version.  
 * Stream, echo, or save chat at any time.
 * Create chat stop lists. 
 
-### Persistent Settings
+### [Persistent Settings](#persistent-settings)
 * Your api key is stored so you only need to enter it once during setup and it will be automatically loaded on next startup. 
 * If you have multiple api keys, you can easily switch between them. 
 
 * Organization settings are also available to control which organization is used by default when making requests with your API keys       
 
-### Personalizaion Settings
+### [Personalization Settings](#personalization-settings)
 * Light, Dark & System themes are currently available. 
 * Easily change the color of the output and accent of the gui controls.
 * UI scaling options are also available 
@@ -64,14 +66,17 @@ the gui around the openai. I wanted to create a 1|1 wrapper around the api and I
 
 ## [Notes](#notes)
 
-> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished. I have not encountered any bugs that I have not fixed already yet so ... fingers crossed it stays that way! 
+> This an early ***Beta*** release of WinGTP. It's at a point where everything is completely functional yet vastly unpolished.
 > Any feedback is always appreciated. I started this from scratch over the past two weeks so there is still a ton to do.
 
 ---
 
 ## [Install](#install)
+Currently there is no installer yet as WinGTP is still being actively developed. You can use it simply by running the `init.py` file with **Python 3.11** or higher or by using the included `wingtp-v0.1.0.bat` file which will run it for you.
 
-To download and use WinGTP follow choose an install method and follow the corresponding steps. Once fininshed jump to the [Usage](#usage) section.
+Soon an executable will be available! once I feel version 1 is polished enough I'll bundle everything and release an executable for you to use, as running things from the command line isn't ideal for everyone.
+
+To download and use WinGTP choose an install method and follow the corresponding steps. Once fininshed jump to the [Usage](#usage) section.
 
 > You need a free OpenAI API key to finish the setup. If you don't already have 
 > one you can find one at [https://openai.com/](https://openai.com/) 
@@ -107,19 +112,52 @@ cd where/I/want/to/install
 curl https://github.com/happycod3r/WinGTP.git
 ```
 
+Once you have the repository cloned or downloaded your good to go. All you need 
+now is Python and an api key from 
+
 ## [Usage](#usage)
 
-1) All you need to do is run `wingtp-0.1.0.bat` by double-clicking the file.
-> Notice! When running the `wingtp-0.1.0.bat` file, Windows security might alert you
-> about the file being unsafe. This can be ignored as it is completely safe. This file
-> simply runs the `init.py` file using the `python` command which starts WinGTP.
+### [OpenAI API Key](#openai-api-key)
+**Any API keys used in these examples will be deleted immediately after!!!**
+This step is really important to setup in order to use WinGTP. Since the application 
+is wrapped around the Python `openai` module heavily you need an OpenAI api key to use it. 
+You can easily obtain a free api key by following the next few steps.
+
+1) Go to [https://openai.com/](https://openai.com/) and either create a free account 
+manually or continue using **Google** or any other option for the quickest setup.
+![](./res/oai-api-key-setup1.gif)
+
+2) Once you have an account created click on your profile picture and then **"View API Keys"**.
+![](./res/oai-api-key-setup2.gif)
+
+3) Next you will be met with a page like this where you can access or create new api keys.
+Create a new key to use if you don't already have one.
+![](./res/oai-api-key-setup3.gif)
+
+4) Once you have an api key you can use it to setup WinGTP. Enter your username and
+then the api key below it. 
+![](./res/oai-api-key-setup4.gif)
+
+### [Running WinGTP](#running)
+
+1) To start WinGTP double-click the `wingtp-0.1.0.bat` file.
+
+Notice! When running the `wingtp-0.1.0.bat` file, Windows security might alert you
+about the file being unsafe. This can be ignored as it is completely safe. This file
+simply runs the `init.py` file using the `python` command which starts WinGTP.
 
 ```bash
 # wingtp-0.1.0.bat
 python "./init.py"
 ``` 
 
-### [python](#python)
+2) Next you will see a setup screen where you should enter a username that you would 
+like to use within the WinGTP application and your OpenAI api key. 
+> Without an api key you will not be able to access WinGTP as none of it's features 
+> will work without it. If you need further instructions on how to obtain one check 
+> out the [OpenAI API Key](#openai-api-key) section.
+
+#### [python](#python)
 
 1) WinGTP was built using Python 3.11 so make sure you are using the same or newer.
 2) In your terminal navigate to the WinGTP root directory.
