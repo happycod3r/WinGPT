@@ -125,17 +125,21 @@ You can easily obtain a free api key by following the next few steps.
 
 1) Go to [https://openai.com/](https://openai.com/) and either create a free account 
 manually or continue using **Google** or any other option for the quickest setup.
+
 ![](./res/oai-api-key-setup1.gif)
 
 2) Once you have an account created click on your profile picture and then **"View API Keys"**.
+
 ![](./res/oai-api-key-setup2.gif)
 
 3) Next you will be met with a page like this where you can access or create new api keys.
 Create a new key to use if you don't already have one.
+
 ![](./res/oai-api-key-setup3.gif)
 
 4) Once you have an api key you can use it to setup WinGTP. Enter your username and
 then the api key below it. 
+
 ![](./res/oai-api-key-setup4.gif)
 
 ### [Running WinGTP](#running)
