@@ -263,8 +263,9 @@ When you are done creating the image you can either copy the url or view the ima
 #### [Transcriptions](#transcriptions)
 
 You can also create audio transcriptions in the same manner as images. Remember to pick the
-correct model for each reuest type otherwise you won't get a response. For audio transcriptions
-you can use `whisper-1`.
+correct model for each reuest type otherwise you won't get a response. 
+
+For audio transcriptions you can use `whisper-1`.
 
 - First select `Audio` from the list in the `Request Types` section.
 - Next press the `Choose Audio File` button to open the audio file you want to
@@ -275,21 +276,89 @@ transcribe.
 
 #### [Translations](#translations)
 
+You can also easily make translations. Don't forget to choose the correct model type from the drop down
+otherwise it may not work.
+
+- First you need to choose the `Translations` option in the `Request Types` section.
+- You will see langauge options open in the top right section.
+- Choose a language to translate from and a language to translate to.
+- Once you have selected your languages, type or paste anything into the input box and press
+the `Send` button to get the translation.
+
+![Translations](./res/translation-example1.gif )
+
 #### [Embeddings](#embeddings)
+
+Embeddings can be created from within WinGTP as well. Since embeddings tend to be really long
+it may take a second to recieve the response. I will be working on execution speed
+and other issues in the near future. As with images and transcriptions, remember to choose
+the correct model for the job.
+
+For embeddings you can use `text-embedding-ada-002`
+
+- First you need to choose the `Embeddings` option in the `Request Types` section.
 
 #### [Fine Tuning](#fine-tuning)
 
+> Section coming soon!
+
 #### [Moderations](#moderations)
+
+Use the moderations section to gague any text that you may want to analyze.
+This can be helpful to use if you have messages or comments that you may want to filter
+for any reason. Since the response from openai is a dictionary you can even
+write a program around moderations soley since you can get the values of each section easily.
+
+For moderations the model type doesn't matter.
+
+![Moderation Example](./res/moderation-example1.gif)
+
+Heres an example of a message that should be flagged.
+
+![Moderation Example2](./res/moderation-example2.gif)
 
 #### [Sentement Analysis](#sentement-analysis)
 
+You can also perform sentement analysis by typing anything into the input box
+and pressing the `Send` button. You can also change the `response token limit` to get
+shorter or longer answers.
+
+![Sentement-Analysis](./res/sentement-example1.gif)
+
 #### [Q&A](#qa)
+
+The `Q&A` request type allows you to enter a context and base questions and answers off of it.
+This is helpful if you want to steer the responses in a specific direction.
+
+![QA-Example](./res/qa-example1.gif)
 
 #### [Code Generation](#code-generation)
 
+Code generation can be helpful if your someone who is just learning how to code or even if
+your experienced. Why get stuck on a problem for hours trying to go through different forums like
+Stack Overflow - Not that they wren't super helpful back in the day! - when you can just ask
+and get a straight answer
+
+![Code Gen](./res/code-gen-example.gif)
+
 #### [Edits](#edits)
 
+The `Edits` request type allows you to do things such as convert all text to lowercase/uppercase,
+fix spelling errors, check punctuation and more. Just choose the type of edit you would
+like to perform from the drop down in the `Edit View`. Next paste in or type anything into the 
+input box and press the `Send` button.
+
+![Edit Example](./res/edits-example1.gif)
+
 #### [Summarization](#summarization)
+
+When `Summarization` is chosen, anything that you enter into the text box will be summarized.
+You should play wth the settings such as `Response Token Limit` and `Chat Output Temperature` to
+get different results.
+
+![Summarization Example](./res/summarization-example1.gif)
+
+---
 
 ## [Contributing](#contributing)
 

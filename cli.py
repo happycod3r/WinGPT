@@ -649,7 +649,7 @@ class OpenAIInterface:
                 _response = openai.Edit.create(
                     model=self.engine,
                     input=self.request,
-                    instruction=f"{self.instruction} and don't change the original text.",
+                    instruction=f"{self.instruction}",
                     n=self.response_count,
                     temperature=1
                 )
