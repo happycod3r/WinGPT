@@ -14,6 +14,7 @@
     - [Persistent Settings](#persistent-settings)
     - [Personalization Settings](#personalization-settings)
   - [Notes](#notes)
+  - [Requirements](#requirements)
   - [Install](#install)
     - [Manual Install](#manual-install)
     - [Command Line Install](#command-line-install)
@@ -21,6 +22,7 @@
       - [Using Curl:](#using-curl)
   - [Usage](#usage)
     - [OpenAI API Key](#openai-api-key)
+  - [](#)
     - [Running WinGTP](#running-wingtp)
       - [python](#python)
   - [Notes](#notes-1)
@@ -71,6 +73,15 @@ the gui around the openai. I wanted to create a 1|1 wrapper around the api and I
 
 ---
 
+## [Requirements](#requirements)
+
+A few basic things are required to successfully setup and use WinGTP.
+
+1) Firstly you need an active internet connection to run WinGTP. Because WinGTP makes calls
+to the OpenAI api a connection is required.
+2) Python 3.11 or higher: If python isn't already installed you can find it on the official website here [https://www.python.org/](https://www.python.org/).
+3) Lastly you need an api key to finish the WinGTP setup. Check out the [API Key](#openai-api-key) section.
+
 ## [Install](#install)
 Currently there is no installer yet as WinGTP is still being actively developed. You can use it simply by running the `init.py` file with **Python 3.11** or higher or by using the included `wingtp-v0.1.0.bat` file which will run it for you.
 
@@ -118,6 +129,12 @@ now is Python and an api key from
 ## [Usage](#usage)
 
 ### [OpenAI API Key](#openai-api-key)
+
+> None of your personal information is required to use WinGTP except your [API key]() 
+> which is stored locally on your machine. Your api key is never shared or entered into 
+> any kind of database. Everything is local. OpenAI may collect data but you'll have to 
+> check out the OpenAI website as I am not affiliated, sponsered, or contracted with 
+> OpenAI in any way, shape or form.
 
 **!!!Any API keys used in these examples were deleted immediately after!!!**
 
