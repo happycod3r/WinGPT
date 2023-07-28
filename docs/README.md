@@ -23,9 +23,11 @@
   - [Usage](#usage)
     - [OpenAI API Key](#openai-api-key)
   - [](#)
+  - [](#-1)
+  - [](#-2)
+  - [](#-3)
     - [Running WinGTP](#running-wingtp)
       - [python](#python)
-  - [Notes](#notes-1)
   - [Contributing](#contributing)
   - [Security](#security)
     - [Reporting a vulnerability or bug?](#reporting-a-vulnerability-or-bug)
@@ -151,22 +153,25 @@ manually or continue using **Google** or any other option for the quickest setup
 2) Once you have an account created click on your profile picture and then **"View API Keys"**.
 
 ![setup2](./res/setup2.gif)
+---
 
 3) Next you will be met with a page like this where you can access or create new api keys.
 Create a new key to use if you don't already have one.
 
 ![setup3](./res/setup3.gif)
+---
 
 4) Once you have an api key you can use it to setup WinGTP. Enter your username and
 then the api key below it. 
 
 ![setup4](./res/setup4.gif)
+---
 
 ### [Running WinGTP](#running)
 
-1) To start WinGTP double-click the `wingtp-0.1.0.bat` file.
+1) To start WinGTP on Windows you can double-click the `wingtp-0.1.0.bat` file.
 
-Notice! When running the `wingtp-0.1.0.bat` file, Windows security might alert you
+Notice! When running `wingtp-0.1.0.bat`, Windows security might alert you
 about the file being unsafe. This can be ignored as it is completely safe. This file
 simply runs the `init.py` file using the `python` command which starts WinGTP.
 
@@ -176,7 +181,7 @@ python "./init.py"
 ``` 
 
 2) Next you will see a setup screen where you should enter a username that you would 
-like to use within the WinGTP application and your OpenAI api key. 
+like to use within WinGTP and your OpenAI api key. 
 > Without an api key you will not be able to access WinGTP as none of it's features 
 > will work without it. If you need further instructions on how to obtain one check 
 > out the [OpenAI API Key](#openai-api-key) section.
@@ -193,15 +198,18 @@ cd WinGTP
 ```bash
 python init.py
 ```
-
-## [Notes](#notes) 
-
-
 ---
+
+Once the setup winow closes you will then be greeted by GTP with a greeting including your 
+username and your good to go.
+
+The following are examples of some of the main features mentioned in the [About](#about) section.
+ 
 
 ## [Contributing](#contributing)
 
-If you have any feature requests, suggestions or general questions you can reach me via any of the methods listed below in the [Contacts](#contacts) section.
+If you have any feature requests, suggestions or general questions you can reach me via any of the 
+methods listed below in the [Contacts](#contacts) section.
 
 ---
 
