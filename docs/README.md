@@ -201,10 +201,10 @@ python init.py
 ---
 
 Once the setup winow closes you will then be greeted by GTP with a greeting including your 
-username and your good to go.
+username.
 
 The following are examples of some of the main features mentioned in the [About](#about) section.
- 
+
 
 ## [Contributing](#contributing)
 
