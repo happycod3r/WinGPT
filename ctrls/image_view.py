@@ -17,7 +17,7 @@ class ImageView(ctk.CTkToplevel):
         self.IMG_URL = self.getImageURL()
         
         self.img = ctk.CTkImage(light_image=None, dark_image=self.loadImageFromUrl(), size=(400, 400))
-        self._label = ctk.CTkLabel(self, image=self.img, text=" ")
+        self._label = ctk.CTkLabel(self, image=self.img, text=None)
         self._label.grid(row=0, column=0)
         self._label.configure(width=400, height=400)
         

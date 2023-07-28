@@ -560,6 +560,7 @@ class OpenAIInterface:
                     
             #//////////// AUDIO ////////////
             elif self.request_type == 2:
+                print("Here!")
                 _audio_file = open(self.audio_file, "rb")
                 _response = openai.Audio.transcribe(
                     self.engine,        # "whisper-1", 

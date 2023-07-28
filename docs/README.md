@@ -24,6 +24,19 @@
     - [OpenAI API Key](#openai-api-key)
     - [Running WinGTP](#running-wingtp)
       - [python](#python)
+    - [Examples](#examples)
+      - [Chat](#chat)
+      - [Images](#images)
+      - [Transcriptions](#transcriptions)
+      - [Translations](#translations)
+      - [Embeddings](#embeddings)
+      - [Fine Tuning](#fine-tuning)
+      - [Moderations](#moderations)
+      - [Sentement Analysis](#sentement-analysis)
+      - [Q&A](#qa)
+      - [Code Generation](#code-generation)
+      - [Edits](#edits)
+      - [Summarization](#summarization)
   - [Contributing](#contributing)
   - [Security](#security)
     - [Reporting a vulnerability or bug?](#reporting-a-vulnerability-or-bug)
@@ -215,6 +228,68 @@ Once the setup winow closes you will then be greeted by GTP with a greeting incl
 username.
 
 The following are examples of some of the main features mentioned in the [About](#about) section.
+
+### [Usage Examples](#examples)
+
+#### [Chat](#chat)
+
+Type anything into the input box below the output and get an immediate response.
+You can also try changing settings such as the `response token limit` or the `chat output temperature`
+to change the response parameters.
+
+![Chat Example](./res/chat-example1.gif)
+
+#### [Images](#images)
+
+You can either generate new images, edit an existing image or create variations
+of an image.
+
+- First select the `Images` request type from the `Request Types` section
+- Once selected the image settings will open in the top right section in place of the `Chat Output Temperature`
+section. These setings allow you to pick an image size and open existing images and or masks.
+- Lastly press the `Send` button to get the url of the image.
+
+You can type anything you want to create a new image. After pressing the `Send` button
+it may take a second to get the url as you can see in this example. This is due to OpenAI
+and theres not much I can do about it. As for WinGTP hanging when waiting for a
+response, I will be working out a solution to this.
+
+![Image Example](./res/image-new-example.gif)
+
+When you are done creating the image you can either copy the url or view the image from within WinGTP.
+
+![Show Image](./res/show-image-example.gif)
+
+#### [Transcriptions](#transcriptions)
+
+You can also create audio transcriptions in the same manner as images. Remember to pick the
+correct model for each reuest type otherwise you won't get a response. For audio transcriptions
+you can use `whisper-1`.
+
+- First select `Audio` from the list in the `Request Types` section.
+- Next press the `Choose Audio File` button to open the audio file you want to
+transcribe.
+- Once you have chosen a valid audio file press the `Transcribe` button.
+
+![Audio Transcription](./res/audio-transcript-eample1.gif)
+
+#### [Translations](#translations)
+
+#### [Embeddings](#embeddings)
+
+#### [Fine Tuning](#fine-tuning)
+
+#### [Moderations](#moderations)
+
+#### [Sentement Analysis](#sentement-analysis)
+
+#### [Q&A](#qa)
+
+#### [Code Generation](#code-generation)
+
+#### [Edits](#edits)
+
+#### [Summarization](#summarization)
 
 ## [Contributing](#contributing)
 
