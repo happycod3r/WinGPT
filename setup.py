@@ -84,7 +84,7 @@ class Setup(customtkinter.CTk):
         self.config.addOption("user", "api_key_path", f"{self.KEY_CONFIG_FILE}")
         self.config.addOption("user", "organization", "org-8rsyvRZvyUBHhs4fJqATWK23")
         self.config.addSection("ui")
-        self.config.addOption("ui", "color", "#DCE4EE")
+        self.config.addOption("ui", "color", "#5ae7d6")
         self.config.addOption("ui", "ui_scaling", "100%%")
         self.config.addOption("ui", "theme", "System") 
         self.config.addSection("chat")

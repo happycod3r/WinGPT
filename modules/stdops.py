@@ -66,12 +66,15 @@ class StdOps:
                         return contents
                     else: 
                         print(f"File @'{file_path}' is exists but is empty")
+                        return False
             except FileNotFoundError:
                 print(f"File '{file_path}' not found.")
+                return False
             except IOError:
                 print(f"Error reading file '{file_path}'.")
+                return False
             except Exception as e:
                 print(repr(e))
-        else: 
-            return False
+                return False
+        return False
         
