@@ -1,6 +1,6 @@
 # WinGPT v1.0.0
 
-![WinGTP Logo](/docs/res/wingtp1.png)
+![WinGTP Logo](/docs/res/logo.png)
 
 > WinGTP is a cross-platform, fully functional, full-featured GUI implementation of the OpenAI API.
 > You need a free OpenAI API key to use WinGTP. If you don't already have
