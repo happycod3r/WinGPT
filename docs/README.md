@@ -10,7 +10,7 @@
   - [About](#about)
     - [Cross-platform:](#cross-platform)
     - [Full-featured:](#full-featured)
-    - [Control all api settings](#control-all-api-settings)
+    - [Control all API settings](#control-all-api-settings)
     - [Persistent Settings](#persistent-settings)
     - [Personalization Settings](#personalization-settings)
   - [Notes](#notes)
@@ -57,7 +57,7 @@ Because WinGPT is built purely in Python, it will work on Windows, Mac and Linux
 
 - Chat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, Q&A, summarization and code generation are all available and easy to use.
 
-### [Control all api settings](#control-all-api-settings)
+### [Control all API settings](#control-all-api-settings)
 
 - Switch between all available models using a simple drop down menu.
 - Easily control all available parameters such as: temperature, max tokens, response count, best of, frequency & presence penalty, timeout, user etc. from a modern GUI to easily adjust responses.
