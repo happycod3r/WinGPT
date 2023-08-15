@@ -2,8 +2,8 @@
 
 ![WinGTP Logo](/docs/res/logo.png)
 
-> WinGTP is a cross-platform, fully functional, full-featured GUI implementation of the OpenAI API.
-> You need a free OpenAI API key to use WinGTP. If you don't already have
+> WinGPT is a cross-platform, fully functional, full-featured GUI implementation of the OpenAI API.
+> You need a free OpenAI API key to use WinGPT. If you don't already have
 > one you can find one at [https://openai.com/](https://openai.com/)
 
 - [WinGPT v1.0.0](#wingpt-v100)
@@ -22,7 +22,7 @@
       - [Using Curl:](#using-curl)
   - [Usage](#usage)
     - [OpenAI API Key](#openai-api-key)
-    - [Running WinGTP](#running-wingtp)
+    - [Running WinGPT](#running-wingpt)
       - [python](#python)
     - [Examples](#examples)
       - [Chat](#chat)
@@ -46,16 +46,16 @@
 
 ## [About](#about)
 
-This is just version 1 of many updates to come still, so the gui will improve vastly in the very near future. I really wanted to focus on functionality and wrapping
-the gui around the openai api in a way that will give you full control. It should be a 1|1 wrapper around the api and I think WinGTP accomplishes that.
+This is just version 1 of many updates to come still, so the GUI will improve vastly in the very near future. I really wanted to focus on functionality and wrapping
+the GUI around the openai api in a way that will give you full control. It should be a 1|1 wrapper around the api and I think WinGTP accomplishes that.
 
 ### [Cross-platform](#cross-platform)
 
-Because WinGTP is built purely in Python, it will work on Windows, Mac and Linux operating systems.
+Because WinGPT is built purely in Python, it will work on Windows, Mac and Linux operating systems.
 
 ### [Full-featured](#full-featured)
 
-- hat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, q&a, summarization and code generation are all available and easy to use.
+- Chat, files, audio transcription, image edits, image variations, new images, translations, embeddings, fine-tuning, moderations, sentement analysis, q&a, summarization and code generation are all available and easy to use.
 
 ### [Control all api settings](#control-all-api-settings)
 
